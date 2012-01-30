@@ -1,1 +1,9 @@
 target/
+com-cas.aux
+com-cas.bbl
+com-cas.blg
+com-cas.dvi
+com-cas.log
+com-cas.pdf
+llncs.cls
+splncs.bst
