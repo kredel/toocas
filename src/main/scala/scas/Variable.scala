@@ -14,7 +14,7 @@ object Variable extends Ordering[Variable] {
     else if (c > 0) 1
     else Iterable[Int].compare(x.subscript, y.subscript)
   }
+  implicit def string2variable(s: String): Variable = apply(s)
   implicit def symbol2variable(s: Symbol): Variable = apply(s.name)
-  implicit def symbol2variable(a: Array[Symbol]): Array[Variable] = a.map(s => apply(s.name))
   def apply(name: String, subscript: Int*) = new Variable(name, subscript.toArray)
 }

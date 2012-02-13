@@ -1,17 +1,21 @@
 package scas.polynomial
 
-import scas.Variable
 import scas.structure.Monoid
+import scas.Variable
 
-class PowerProduct[@specialized(Int, Long) N: Numeric: Manifest](val variables: Array[Variable]) extends Monoid { outer =>
-  def this(variables: Array[Array[Variable]]) = this(for (aa <- variables ; a <- aa) yield a)
-  val n = implicitly[Numeric[N]]
+trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
+  val variables: Array[Variable]
+  implicit val m: Manifest[N]
+  val n: Numeric[N]
   import n.{fromInt, mkOrderingOps, mkNumericOps, min, max}
   type E = Element
   def one = apply(one0)
   override def pow(x: E, exp: java.math.BigInteger) = {
-    assert (exp.intValue() >= 0)
-    apply(pow(x.value, fromInt(exp.intValue())))
+    assert (exp.signum() >= 0)
+    apply(pow(x.value, fromBigInteger(exp)))
+  }
+  def fromBigInteger(value: java.math.BigInteger) = {
+    (fromInt(0) /: value.toByteArray()) { (s, b) => s * fromInt(0xff) + fromInt(b) }
   }
   def generator(n: Int) = apply(generator0(n))
   def generators = (for (i <- 0 until variables.length) yield generator(i)).toArray
@@ -81,14 +85,7 @@ class PowerProduct[@specialized(Int, Long) N: Numeric: Manifest](val variables: 
     r
   }
 
-  def compare(x: Array[N], y: Array[N]): Int = {
-    val n = x.length - 1
-    for (i <- n - 1 to 0 by -1) {
-      if (x(i) < y(i)) return -1
-      else if (x(i) > y(i)) return 1
-    }
-    0
-  }
+  def compare(x: Array[N], y: Array[N]): Int
 
   def toString(x: Array[N]) = {
     var s = "1"
@@ -108,7 +105,7 @@ class PowerProduct[@specialized(Int, Long) N: Numeric: Manifest](val variables: 
 
   def dependencyOnVariables(x: Array[N]) = (for (i <- 0 until x.length - 1 if (x(i) > fromInt(0))) yield i).toArray
 
-  def projection(x: Array[N], n: Int) = (for (i <- 0 until x.length) yield if (i == n || i == x.length - 1) x(n) else 0).toArray
+  def projection(x: Array[N], n: Int) = (for (i <- 0 until x.length) yield if (i == n || i == x.length - 1) x(n) else fromInt(0)).toArray
 }
 
 object PowerProduct {

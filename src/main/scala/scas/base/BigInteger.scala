@@ -3,7 +3,7 @@ package scas.base
 import scas.structure.Ring
 import scas.int2bigInteger
 
-abstract class BigInteger extends Ring {
+trait BigInteger extends Ring {
   type E = Element
   def zero = 0
   def one = 1
@@ -27,5 +27,18 @@ abstract class BigInteger extends Ring {
     implicit def bigInteger2bigInteger[D <% java.math.BigInteger](value: D): E = apply(value)
   }
   override def toString = "ZZ"
-  def apply(value: java.math.BigInteger): E = new Element(value)
+
+  private val minCached = -1024
+  private val maxCached = 1024
+  private val cache = new Array[E](maxCached - minCached + 1)
+
+  def apply(value: java.math.BigInteger): E = {
+    val i = value.intValue()
+    if (minCached <= i && i <= maxCached) {
+      val offset = i - minCached
+      var n = cache(offset)
+      if (n eq null) { n = new Element(value); cache(offset) = n }
+      n
+    } else new Element(value)
+  }
 }

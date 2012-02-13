@@ -5,13 +5,14 @@ import scas.structure.Ring
 trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
   val ring: C
   val pp: PowerProduct[N]
+  import pp.{one0, generator0, variables}
   type E <: Element
   implicit val cm: ClassManifest[E]
-  def one = apply(pp.one0)
-  def generator(n: Int) = apply(pp.generator0(n))
-  def generators = (for (i <- 0 until pp.variables.length) yield generator(i)).toArray
+  def one = apply(one0)
+  def generator(n: Int) = apply(generator0(n))
+  def generators = (for (i <- 0 until variables.length) yield generator(i)).toArray
   def generatorsBy(n: Int) = {
-     val m = pp.variables.length/n
+    val m = variables.length/n
     (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
   }
   def characteristic = ring.characteristic
@@ -42,14 +43,14 @@ trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
       var s = ring.zero.toString(precedence)
       var n = 0
       for ((a, b) <- iterator(this)) {
-        val c = abs(b)
+        val c = ring.abs(b)
         val t = {
           if (pp.isOne(a)) c.toString(2)
           else if (c isOne) pp.toString(a)
           else c.toString(2) + "*" + pp.toString(a)
         }
-        if (n == 0) s = (if (signum(b) < 0) "-" + t else t)
-        else s = (if (signum(b) < 0) s + "-" + t else s + "+" + t)
+        if (n == 0) s = (if (ring.signum(b) < 0) "-" + t else t)
+        else s = (if (ring.signum(b) < 0) s + "-" + t else s + "+" + t)
         n += 1
       }
       if ((if (n > 1) 1 else 2) < precedence) "(" + s + ")" else s
@@ -70,7 +71,7 @@ trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
 
   def headTerm(x: E) = iterator(x).next
 
-  def degree(x: E): N = pp.degree(if (x isZero) pp.one0 else headPowerProduct(x))
+  def degree(x: E): N = pp.degree(if (x isZero) one0 else headPowerProduct(x))
 
   def multiply(w: E, x: Array[N], y: ring.E): E = map(w, (a, b) => (pp.multiply(a, x), b * y))
 
