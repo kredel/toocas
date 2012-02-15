@@ -5,17 +5,18 @@ import scas.structure.Ring
 trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
   val ring: C
   val pp: PowerProduct[N]
-  import pp.{one0, generator0, variables}
+  import pp.variables
   type E <: Element
   implicit val cm: ClassManifest[E]
-  def one = apply(one0)
-  def generator(n: Int) = apply(generator0(n))
+  def one = apply(pp.one)
+  def generator(n: Int) = apply(pp.generator(n))
   def generators = (for (i <- 0 until variables.length) yield generator(i)).toArray
   def generatorsBy(n: Int) = {
     val m = variables.length/n
     (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
   }
   def characteristic = ring.characteristic
+  def fromInt(i: Int) = ring.fromInt(i)
   def random(numbits: Int)(implicit rnd: scala.util.Random) = zero
   def compare(x: E, y: E): Int = {
     val it = iterator(y)
@@ -37,7 +38,7 @@ trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
     def isUnit = abs(this) isOne
     def *(that: E) = (zero /: iterator(that)) { (l, r) =>
       val (a, b) = r
-      l + multiply(this, a, b)
+      l + multiply(this, pp(a), b)
     }
     def toString(precedence: Int) = {
       var s = ring.zero.toString(precedence)
@@ -45,9 +46,9 @@ trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
       for ((a, b) <- iterator(this)) {
         val c = ring.abs(b)
         val t = {
-          if (pp.isOne(a)) c.toString(2)
-          else if (c isOne) pp.toString(a)
-          else c.toString(2) + "*" + pp.toString(a)
+          if (pp(a) isOne) c.toString(2)
+          else if (c isOne) pp(a).toString()
+          else c.toString(2) + "*" + pp(a).toString()
         }
         if (n == 0) s = (if (ring.signum(b) < 0) "-" + t else t)
         else s = (if (ring.signum(b) < 0) s + "-" + t else s + "+" + t)
@@ -61,19 +62,30 @@ trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
   }
   override def toString = ring.toString + pp.toString
   def apply(value: ring.E): E
-  def apply(value: Array[N]): E
+  def apply(value: pp.E): E
 
   def iterator(x: E): Iterator[Pair[Array[N], ring.E]]
 
-  def headPowerProduct(x: E) = headTerm(x)._1
+  def headPowerProduct(x: E) = {
+    val (a, b) = headTerm(x)
+    a
+  }
 
-  def headCoefficient(x: E) = headTerm(x)._2
+  def headCoefficient(x: E) = {
+    val (a, b) = headTerm(x)
+    b
+  }
 
-  def headTerm(x: E) = iterator(x).next
+  def headTerm(x: E) = {
+    val (a, b) = iterator(x).next
+    (pp(a), b)
+  }
 
-  def degree(x: E): N = pp.degree(if (x isZero) one0 else headPowerProduct(x))
+  def degree(x: E) = pp.degree(if (x isZero) pp.one else headPowerProduct(x))
 
-  def multiply(w: E, x: Array[N], y: ring.E): E = map(w, (a, b) => (pp.multiply(a, x), b * y))
+  def multiply(w: E, x: pp.E, y: ring.E) = map(w, (a, b) => (a * x, b * y))
 
-  def map(w: E, f: (Array[N], ring.E) => (Array[N], ring.E)): E
+  def multiply(w: E, y: ring.E) = map(w, (a, b) => (a, b * y))
+
+  def map(w: E, f: (pp.E, ring.E) => (pp.E, ring.E)): E
 }

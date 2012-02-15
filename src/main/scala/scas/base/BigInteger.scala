@@ -1,26 +1,40 @@
 package scas.base
 
-import scas.structure.Ring
+import scas.structure.EuclidianDomain
 import scas.int2bigInteger
 
-trait BigInteger extends Ring {
+trait BigInteger extends EuclidianDomain {
   type E = Element
   def zero = 0
   def one = 1
   override def pow(x: E, exp: java.math.BigInteger) = apply(x.value.pow(exp.intValue()))
   def signum(x: E) = x.value.signum()
+  def norm(x: E) = (abs(x) << 1) + (if (signum(x) < 0) 1 else 0)
+  def gcd(x: E, y: E) = apply(x.value.gcd(y.value))
   def characteristic = 0
-  def random(numbits: Int)(implicit rnd: scala.util.Random) = zero
+  def fromInt(i: Int) = i
+  def random(numbits: Int)(implicit rnd: scala.util.Random) = {
+    val r = new java.math.BigInteger(numbits, rnd.self)
+    apply(if (rnd.nextBoolean()) r.negate() else r)
+  }
   def compare(x: E, y: E) = x.value.compareTo(y.value)
   class Element(val value: java.math.BigInteger) extends super.Element {
     def isUnit = abs(this) isOne
+    def ! : E = if (this > 1) this * (this - 1 !) else 1
     def +(that: E) = apply(this.value.add(that.value))
     def -(that: E) = apply(this.value.subtract(that.value))
     def *(that: E) = apply(this.value.multiply(that.value))
-    def toString(precedence: Int) = {
-      if (value.bitLength < 32) value.toString
-      else if (value.bitLength < 64) value + "l"
-      else "new BigInteger(\"" + value + "\")"
+    def << (n: Int) = apply(this.value.shiftLeft(n))
+    def /  (that: E) = apply(this.value.divide(that.value))
+    def %  (that: E) = apply(this.value.remainder(that.value))
+    def /% (that: E) = {
+      val Array(d, r) = this.value.divideAndRemainder(that.value)
+      (apply(d), apply(r))
+    }
+    def toString(precedence: Int) = value match {
+      case n => if (n.bitLength < 32) n.toString
+      else if (n.bitLength < 64) n + "l"
+      else "new BigInteger(\"" + n + "\")"
     }
   }
   object Element {

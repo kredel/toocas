@@ -4,13 +4,13 @@ import scala.collection.SortedMap
 import scas.structure.Ring
 
 trait SolvablePolynomial[C <: Ring, @specialized(Int, Long) N] extends Polynomial[C, N] {
-  import pp.{dependencyOnVariables, projection, divide, isOne, one0}
+  import pp.{dependencyOnVariables, projection}
   object table {
     type Key = Pair[Int, Int]
-    type Relation = Triple[Array[N], Array[N], E]
+    type Relation = Triple[pp.E, pp.E, E]
     var content = SortedMap.empty[Key, List[Relation]]
     def update(e: E, f: E, p: E): Unit = update(headPowerProduct(e), headPowerProduct(f), p)
-    def update(e: Array[N], f: Array[N], p: E) = {
+    def update(e: pp.E, f: pp.E, p: E) = {
       val key = makeKey(e, f)
       val list = content.getOrElse(key, Nil)
       content = content.updated(key, insert(list, (e, f, p)))
@@ -19,14 +19,14 @@ trait SolvablePolynomial[C <: Ring, @specialized(Int, Long) N] extends Polynomia
       case head::tail if (factorOf(relation, head)) => head::insert(tail, relation)
       case _ => relation::list
     }
-    def lookup(e: Array[N], f: Array[N]): Relation = {
+    def lookup(e: pp.E, f: pp.E): Relation = {
       val key = makeKey(e, f)
       val list = content.getOrElse(key, Nil)
       list match {
-        case Nil => (one0, one0, apply(pp.multiply(e, f)))
+        case Nil => (pp.one, pp.one, apply(e * f))
         case _ => {
           val (e0, f0, p0) = select(list, (e, f, zero))
-          (divide(e, e0), divide(f, f0), p0)
+          (e / e0, f / f0, p0)
         }
       }
     }
@@ -37,48 +37,46 @@ trait SolvablePolynomial[C <: Ring, @specialized(Int, Long) N] extends Polynomia
     def factorOf(x: Relation, y: Relation) = {
       val (ex, fx, px) = x
       val (ey, fy, py) = y
-      pp.factorOf(ex, ey) && pp.factorOf(fx, fy)
+      (ex | ey) && (fx | fy)
     }
-    def makeKey(e: Array[N], f: Array[N]) = {
+    def makeKey(e: pp.E, f: pp.E) = {
       val de = dependencyOnVariables(e)
       val df = dependencyOnVariables(f)
       (de(0), df(0))
     }
-    override def toString = "[" + (for ((a, b) <- content) yield "[" + (for ((e, f, p) <- b) yield pp.toString(e) + "*" + pp.toString(f) + " = " + p).mkString(", ") + "]").mkString(", ")+ "]"
+    override def toString = "[" + (for ((a, b) <- content) yield "[" + (for ((e, f, p) <- b) yield e.toString() + "*" + f.toString() + " = " + p).mkString(", ") + "]").mkString(", ")+ "]"
   }
   override def toString = super.toString + table.toString
 
-  override def multiply(w: E, x: Array[N], y: ring.E) = (zero /: iterator(w)) { (l, r) =>
+  override def multiply(w: E, x: pp.E, y: ring.E) = (zero /: iterator(w)) { (l, r) =>
     val (a, b) = r
     val c = b * y
-    if (c isZero) l else l + multiply(multiply(a, x), c)
+    if (c isZero) l else l + multiply(multiply(pp(a), x), c)
   }
 
-  def multiply(w: E, y: ring.E): E = map(w, (a, b) => (a, b * y))
-
-  def multiply(e: Array[N], f: Array[N]) = {
+  def multiply(e: pp.E, f: pp.E) = {
     val ep = dependencyOnVariables(e)
     val fp = dependencyOnVariables(f)
-    if (ep.length == 0 || fp.length == 0) apply(pp.multiply(e, f)) else {
+    if (ep.length == 0 || fp.length == 0) apply(e * f) else {
       val el = ep(ep.length-1)
       val fl = fp(0)
-      if (el <= fl) apply(pp.multiply(e, f)) else {
+      if (el <= fl) apply(e * f) else {
         val e2 = projection(e, el)
         val f2 = projection(f, fl)
-        val e1 = divide(e, e2)
-        val f1 = divide(f, f2)
+        val e1 = e / e2
+        val f1 = f / f2
         val (e3, f3, c3) = table.lookup(e2, f2)
         var cs = c3
-        if (!isOne(f3)) {
+        if (!(f3 isOne)) {
           cs = cs * apply(f3)
-          table.update(divide(e2, e3), f2, cs)
+          table.update(e2 / e3, f2, cs)
         }
-        if (!isOne(e3)) {
+        if (!(e3 isOne)) {
           cs = apply(e3) * cs
           table.update(e2, f2, cs)
         }
-        if (!isOne(f1)) cs = cs * apply(f1)
-        if (!isOne(e1)) cs = apply(e1) * cs
+        if (!(f1 isOne)) cs = cs * apply(f1)
+        if (!(e1 isOne)) cs = apply(e1) * cs
         cs
       }
     }
