@@ -5,8 +5,6 @@ import scas.int2bigInteger
 
 object Rational extends Field {
   type E = Element
-  def zero = 0
-  def one = 1
   override def pow(x: E, exp: java.math.BigInteger) = if (exp.signum() < 0) pow(inverse(x), exp.negate()) else apply(x.numerator.pow(exp.intValue()), x.denominator.pow(exp.intValue()))
   override def abs(x: E) = apply(x.numerator.abs(), x.denominator)
   def signum(x: E) = x.numerator.signum()

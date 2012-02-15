@@ -13,6 +13,8 @@ package object scas {
   type SolvablePolynomial[C <: Ring] = scas.polynomial.tree.SolvablePolynomial[C, Int]
   type WeylAlgebra[C <: Ring] = scas.polynomial.tree.WeylAlgebra[C, Int]
   type UnivariatePolynomial[C <: Field] = scas.polynomial.tree.UnivariatePolynomial[C, Int]
+  type ModPolynomial = scas.polynomial.mod.tree.Polynomial[Int]
+  type ModSolvablePolynomial = scas.polynomial.mod.tree.SolvablePolynomial[Int]
   implicit def int2bigInteger(i: Int) = java.math.BigInteger.valueOf(i)
   implicit def long2bigInteger(l: Long) = java.math.BigInteger.valueOf(l)
   type BigInteger = java.math.BigInteger

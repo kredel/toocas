@@ -9,7 +9,7 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
   val n: Numeric[N]
   import n.{fromInt => fromInteger, mkOrderingOps, mkNumericOps, min, max}
   type E = Element
-  def one = apply(one0)
+  override def one = apply(one0)
   override def pow(x: E, exp: java.math.BigInteger) = {
     assert (exp.signum() >= 0)
     apply(pow(x.value, fromBigInteger(exp)))
@@ -23,7 +23,10 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
     val m = variables.length/n
     (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
   }
-  def fromInt(i: Int) = i
+  def fromInt(i: Int) = {
+    assert (i == 1)
+    one
+  }
   def random(numbits: Int)(implicit rnd: scala.util.Random) = one
   def degree(x: E): N = degree(x.value)
   def gcd(x: E, y: E): E = apply(gcd(x.value,y.value))
@@ -38,10 +41,7 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
     def toString(precedence: Int) = outer.toString(value)
   }
   object Element {
-    implicit def int2powerProduct(value: Int): E = {
-      assert (value == 1)
-      one
-    }
+    implicit def int2powerProduct(value: Int): E = fromInt(value)
   }
   def dependencyOnVariables(x: E): Array[Int] = dependencyOnVariables(x.value)
   def projection(x: E, n: Int): E = apply(projection(x.value, n))
@@ -96,7 +96,7 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
     for (i <- 0 until x.length - 1) {
       val n = x(i)
       if (n > fromInteger(0)) {
-        val t = if (n equiv fromInteger(1)) variables(i).toString else variables(i).toString + "↑"+ x(i)
+        val t = if (n equiv fromInteger(1)) variables(i).toString else "pow(" + variables(i) + ", " + x(i) + ")"
         if (first) s = t else s = s + "*" + t
         first = false
       }

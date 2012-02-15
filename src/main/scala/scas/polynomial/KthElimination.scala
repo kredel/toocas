@@ -11,8 +11,7 @@ class KthElimination[@specialized(Int, Long) N: Numeric: Manifest](val k: Int, v
   import n.mkOrderingOps
 
   override def compare(x: Array[N], y: Array[N]): Int = {
-    val n = x.length - 1
-    for (i <- n - 1 to n - k by -1) {
+    for (i <- 0 until k) {
       if (x(i) < y(i)) return -1
       else if (x(i) > y(i)) return 1
     }

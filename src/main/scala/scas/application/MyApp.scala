@@ -9,14 +9,17 @@ object MyApp extends App {
   solvablePolynomial
   univariatePolynomial
   mod
+  modPolynomial
+  modSolvablePolynomial
   rational
   variable
 
   def pp = {
     val m = new Lexicographic('x)
-    val Array(x) = m.generators
-    assert(1|x)
-    assert(x*x >< x↑2)
+    import m.{pow, generators}
+    val Array(x) = generators
+    assert(1 | x)
+    assert(x * x >< pow(x, 2))
 
     val n = new Lexicographic((for (i <- 0 until 4) yield (for (j <- 0 until 2) yield Variable("a", i, j)).toArray).toArray)
     val a = n.generatorsBy(2)
@@ -30,7 +33,6 @@ object MyApp extends App {
     import s.{zero, one, pow}
     assert(zero + a >< one)
     assert(pow(a, 2) >< 1)
-    assert(a↑2 >< 1)
   }
 
   def solvablePolynomial = {
@@ -55,12 +57,25 @@ object MyApp extends App {
     assert(s.characteristic.intValue == 7)
   }
 
+  def modPolynomial = {
+    val s = new ModPolynomial(7, 'x)
+    val a = s.fromInt(4)
+    assert(2 * a >< 1)
+    assert(s.characteristic.intValue == 7)
+  }
+
+  def modSolvablePolynomial = {
+    val r = new ModSolvablePolynomial(2, 'a, 'x, 'b, 'y)
+    val Array(a, x, b, y) = r.generators
+    assert (b*a+y*x >< a*b+x*y)
+    println(r)
+  }
+
   def rational = {
     val a = frac(1, 2)
     assert(a >< frac(2, 4))
-    assert(a↑2 >< frac(1, 4))
+    assert(a * a >< frac(1, 4))
     assert(a * 2 >< 1)
-    println(a)
   }
 
   def variable = {

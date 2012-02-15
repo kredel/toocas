@@ -2,7 +2,7 @@ package scas.structure
 
 trait AbelianGroup extends Structure {
   type E <: Element
-  def zero: E
+  def zero = fromInt(0)
   def abs(x: E) = if (signum(x) < 0) -x else x
   def signum(x: E): Int
   trait Element extends super.Element { this: E =>

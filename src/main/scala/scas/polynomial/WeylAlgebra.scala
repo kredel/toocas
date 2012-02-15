@@ -8,6 +8,6 @@ trait WeylAlgebra[C <: Ring, @specialized(Int, Long) N] extends SolvablePolynomi
   for (i <- 0 until n; j = i + n) {
     val xi = pp.generator(i)
     val xj = pp.generator(j)
-    table.update(xj, xi, apply(xi) * apply(xj) + one)
+    update(xj, xi, apply(xi) * apply(xj) + one)
   }
 }

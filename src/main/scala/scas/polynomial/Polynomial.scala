@@ -8,7 +8,6 @@ trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
   import pp.variables
   type E <: Element
   implicit val cm: ClassManifest[E]
-  def one = apply(pp.one)
   def generator(n: Int) = apply(pp.generator(n))
   def generators = (for (i <- 0 until variables.length) yield generator(i)).toArray
   def generatorsBy(n: Int) = {
@@ -38,7 +37,7 @@ trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
     def isUnit = abs(this) isOne
     def *(that: E) = (zero /: iterator(that)) { (l, r) =>
       val (a, b) = r
-      l + multiply(this, pp(a), b)
+      l + multiply(this, a, b)
     }
     def toString(precedence: Int) = {
       var s = ring.zero.toString(precedence)
@@ -46,12 +45,12 @@ trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
       for ((a, b) <- iterator(this)) {
         val c = ring.abs(b)
         val t = {
-          if (pp(a) isOne) c.toString(2)
-          else if (c isOne) pp(a).toString()
-          else c.toString(2) + "*" + pp(a).toString()
+          if (a isOne) c.toString(2)
+          else if (c isOne) a.toString()
+          else c.toString(2) + "*" + a.toString()
         }
-        if (n == 0) s = (if (ring.signum(b) < 0) "-" + t else t)
-        else s = (if (ring.signum(b) < 0) s + "-" + t else s + "+" + t)
+        if (n == 0) s = (if (ring.signum(b) < 0) "-" else "") + t
+        else s = s + (if (ring.signum(b) < 0) "-" else "+") + t
         n += 1
       }
       if ((if (n > 1) 1 else 2) < precedence) "(" + s + ")" else s
@@ -64,7 +63,7 @@ trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
   def apply(value: ring.E): E
   def apply(value: pp.E): E
 
-  def iterator(x: E): Iterator[Pair[Array[N], ring.E]]
+  def iterator(x: E): Iterator[Pair[pp.E, ring.E]]
 
   def headPowerProduct(x: E) = {
     val (a, b) = headTerm(x)
@@ -76,10 +75,7 @@ trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
     b
   }
 
-  def headTerm(x: E) = {
-    val (a, b) = iterator(x).next
-    (pp(a), b)
-  }
+  def headTerm(x: E) = iterator(x).next
 
   def degree(x: E) = pp.degree(if (x isZero) pp.one else headPowerProduct(x))
 

@@ -12,7 +12,7 @@ class Lexicographic[@specialized(Int, Long) N: Numeric: Manifest](val variables:
 
   def compare(x: Array[N], y: Array[N]): Int = {
     val n = x.length - 1
-    for (i <- n - 1 to 0 by -1) {
+    for (i <- 0 until n) {
       if (x(i) < y(i)) return -1
       else if (x(i) > y(i)) return 1
     }

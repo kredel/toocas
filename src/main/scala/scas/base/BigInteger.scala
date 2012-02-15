@@ -5,8 +5,6 @@ import scas.int2bigInteger
 
 trait BigInteger extends EuclidianDomain {
   type E = Element
-  def zero = 0
-  def one = 1
   override def pow(x: E, exp: java.math.BigInteger) = apply(x.value.pow(exp.intValue()))
   def signum(x: E) = x.value.signum()
   def norm(x: E) = (abs(x) << 1) + (if (signum(x) < 0) 1 else 0)
