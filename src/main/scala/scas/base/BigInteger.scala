@@ -4,6 +4,7 @@ import scas.structure.EuclidianDomain
 import scas.int2bigInteger
 
 trait BigInteger extends EuclidianDomain {
+  type S = BigInteger
   type E = Element
   override def pow(x: E, exp: java.math.BigInteger) = apply(x.value.pow(exp.intValue()))
   def signum(x: E) = x.value.signum()
@@ -11,6 +12,7 @@ trait BigInteger extends EuclidianDomain {
   def gcd(x: E, y: E) = apply(x.value.gcd(y.value))
   def characteristic = 0
   def fromInt(i: Int) = i
+  def fromElement(e: S#E) = apply(e.value)
   def random(numbits: Int)(implicit rnd: scala.util.Random) = {
     val r = new java.math.BigInteger(numbits, rnd.self)
     apply(if (rnd.nextBoolean()) r.negate() else r)

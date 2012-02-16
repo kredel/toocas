@@ -4,6 +4,7 @@ import scas.structure.UniqueFactorizationDomain
 
 trait PolynomialOverUFD[C <: UniqueFactorizationDomain, @specialized(Int, Long) N] extends Polynomial[C, N] with UniqueFactorizationDomain {
   type E <: Element
+  implicit val n: Numeric[N]
   def divideAndRemainder(x: E, y: E): (E, E) = {
     if (y isZero) throw new ArithmeticException("Polynomial divide by zero")
     else if (x isZero) (zero, zero)

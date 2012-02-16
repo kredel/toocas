@@ -8,6 +8,7 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
   implicit val m: Manifest[N]
   val n: Numeric[N]
   import n.{fromInt => fromInteger, mkOrderingOps, mkNumericOps, min, max}
+  type S = PowerProduct[N]
   type E = Element
   override def one = apply(one0)
   override def pow(x: E, exp: java.math.BigInteger) = {
@@ -27,6 +28,7 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
     assert (i == 1)
     one
   }
+  def fromElement(e: S#E) = apply(converter(e.variables)(e.value))
   def random(numbits: Int)(implicit rnd: scala.util.Random) = one
   def degree(x: E): N = degree(x.value)
   def gcd(x: E, y: E): E = apply(gcd(x.value,y.value))
@@ -39,6 +41,7 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
     def /(that: E) = apply(divide(this.value, that.value))
     def |(that: E) = factorOf(this.value, that.value)
     def toString(precedence: Int) = outer.toString(value)
+    def variables = outer.variables
   }
   object Element {
     implicit def int2powerProduct(value: Int): E = fromInt(value)
@@ -56,6 +59,19 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
   def generator0(n: Int) = {
     val l = variables.length + 1
     (for (i <- 0 until l) yield fromInteger(if (i == n || i == l - 1) 1 else 0)).toArray
+  }
+
+  def converter(from: Array[Variable]): Array[N] => Array[N] = { x =>
+    val l = variables.length + 1
+    val index = from map { a => variables.indexWhere(_ equiv a) }
+    val r = new Array[N](l)
+    for (i <- 0 until x.length - 1 if (x(i) > fromInteger(0))) {
+      val c = index(i)
+      assert (c > -1)
+      r(c) = x(i)
+    }
+    r(r.length - 1) = x(x.length - 1)
+    r
   }
 
   def degree(x: Array[N]): N = x(x.length-1)

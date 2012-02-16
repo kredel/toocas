@@ -4,7 +4,6 @@ import scas.structure.{Field, EuclidianDomain}
 
 trait UnivariatePolynomial[C <: Field, @specialized(Int, Long) N] extends PolynomialOverUFD[C, N] with EuclidianDomain {
   import pp.variables
-  implicit val n: Numeric[N]
   assert (variables.length == 1)
   def norm(x: E) = degree(x)
   def derivative(w: E) = map(w, (a, b) => (a / pp.generator(0), b * ring.fromInt(n.toInt(pp.degree(a)))))

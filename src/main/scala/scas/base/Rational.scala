@@ -4,12 +4,14 @@ import scas.structure.Field
 import scas.int2bigInteger
 
 object Rational extends Field {
+  type S = Rational.type
   type E = Element
   override def pow(x: E, exp: java.math.BigInteger) = if (exp.signum() < 0) pow(inverse(x), exp.negate()) else apply(x.numerator.pow(exp.intValue()), x.denominator.pow(exp.intValue()))
   override def abs(x: E) = apply(x.numerator.abs(), x.denominator)
   def signum(x: E) = x.numerator.signum()
   def characteristic = 0
   def fromInt(i: Int) = i
+  def fromElement(e: S#E) = apply(e.numerator, e.denominator)
   def random(numbits: Int)(implicit rnd: scala.util.Random) = {
     val n = new java.math.BigInteger(numbits, rnd.self)
     val d = new java.math.BigInteger(numbits, rnd.self)
