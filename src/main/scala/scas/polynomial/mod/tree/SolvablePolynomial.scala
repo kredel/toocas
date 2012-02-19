@@ -11,4 +11,5 @@ class SolvablePolynomial[@specialized(Int, Long) N: Numeric: Manifest](mod: java
   def this(mod: java.math.BigInteger, s: Variable, ss: Variable*) = this(mod, Array(s) ++ ss)
   def this(mod: java.math.BigInteger, sss: Array[Array[Variable]]) = this(mod, for (ss <- sss ; s <- ss) yield s)
   val ring = new ModInteger(mod)
+  val nm = implicitly[Numeric[N]]
 }

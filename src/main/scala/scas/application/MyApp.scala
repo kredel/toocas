@@ -8,6 +8,10 @@ object MyApp extends App {
   polynomial
   solvablePolynomial
   univariatePolynomial
+  gcdSimple
+  gcdPrimitive
+  gcdSubres
+  gcdMultivariate
   mod
   modPolynomial
   modSolvablePolynomial
@@ -47,6 +51,37 @@ object MyApp extends App {
     import r.{generator, gcd, monic, ring => frac}
     val x = generator(0)
     assert (monic(gcd((1+x)*(1+frac(1, 2)*x), (1+frac(1, 2)*x)*(1-x))) >< 2+x)
+  }
+
+  def gcdSimple = {
+    val r = new PolynomialWithSimpleGCD(ZZ, 'x)
+    import r.{generators, gcd}
+    val Array(x) = generators
+    assert (gcd(0, 0) >< 0)
+    assert (gcd(x, 0) >< x)
+    assert (gcd(1, x) >< 1)
+    assert (gcd((1+x)*(1+x), (1+x)*(1-x)) >< 1+x)
+  }
+
+  def gcdPrimitive = {
+    val r = new PolynomialWithPrimitiveGCD(ZZ, 'x)
+    import r.{generators, gcd}
+    val Array(x) = generators
+    assert (gcd((1+x)*(1+x), (1+x)*(1-x)) >< 1+x)
+  }
+
+  def gcdSubres = {
+    val r = new PolynomialWithSubresGCD(ZZ, 'x)
+    import r.{generators, gcd}
+    val Array(x) = generators
+    assert (gcd((1+x)*(1+x), (1+x)*(1-x)) >< 1+x)
+  }
+
+  def gcdMultivariate = {
+    val r = new PolynomialWithSimpleGCD(ZZ, 'x, 'y, 'z)
+    import r.{generators, gcd}
+    val Array(x, y, z) = generators
+    assert (gcd(x*y, x*z) >< x)
   }
 
   def mod = {

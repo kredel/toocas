@@ -4,8 +4,7 @@ import scas.polynomial.PowerProduct
 import scas.Variable
 
 trait DegreeReverseLexicographic[@specialized(Int, Long) N] extends PowerProduct[N] {
-  import n.mkOrderingOps
-
+  import nm.mkOrderingOps
   def compare(x: Array[N], y: Array[N]): Int = {
     val n = x.length - 1
     if (x(n) < y(n)) return -1

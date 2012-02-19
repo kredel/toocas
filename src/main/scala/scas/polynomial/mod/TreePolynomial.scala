@@ -15,8 +15,8 @@ trait TreePolynomial[S <: TreePolynomial[S, N], @specialized(Int, Long) N] exten
   }
   def apply(e: S#E) = apply((zero.value /: e.iterator) { (l, r) =>
     val (a, b) = r
-    val c = ring(b)
-    if (c isZero) l else l.updated(a, c.value)
+    val (m, c) = (pp.converter(e.variables)(a), ring(b))
+    if (c isZero) l else l.updated(m, c.value)
   })
   class Element(val value: SortedMap[Array[N], java.math.BigInteger]) extends super.Element {
     override def isZero = value isEmpty
@@ -31,8 +31,9 @@ trait TreePolynomial[S <: TreePolynomial[S, N], @specialized(Int, Long) N] exten
       if (c isZero) l - a else l.updated(a, c.value)
     })
     def iterator = value.iterator
+    def variables = pp.variables
   }
-  def apply(value: ring.E) = apply(zero.value + (pp.one.value -> value.value))
+  def apply(value: ring.E) = apply(if(value isZero) zero.value else zero.value + (pp.one.value -> value.value))
   def apply(value: pp.E) = apply(zero.value + (value.value -> ring.one.value))
   def apply(value: SortedMap[Array[N], java.math.BigInteger]): E = new Element(value)
 

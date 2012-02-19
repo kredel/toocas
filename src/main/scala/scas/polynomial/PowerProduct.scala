@@ -6,10 +6,13 @@ import scas.Variable
 trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { outer =>
   val variables: Array[Variable]
   implicit val m: Manifest[N]
-  val n: Numeric[N]
-  import n.{fromInt, mkOrderingOps, mkNumericOps, min, max}
+  val nm: Numeric[N]
+  import nm.{fromInt, mkOrderingOps, mkNumericOps, min, max}
   type S = PowerProduct[N]
   type E = Element
+  def take(n: Int) = instance(variables.take(n))
+  def drop(n: Int) = instance(variables.drop(n))
+  def instance(variables: Array[Variable]): PowerProduct[N]
   override def one = apply(one0)
   override def pow(x: E, exp: java.math.BigInteger) = {
     assert (exp.signum() >= 0)
@@ -19,9 +22,9 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { 
     (fromInt(0) /: value.toByteArray()) { (s, b) => s * fromInt(0xff) + fromInt(b) }
   }
   def generator(n: Int) = apply(generator0(n))
-  def generators = (for (i <- 0 until variables.length) yield generator(i)).toArray
+  def generators = (for (i <- 0 until length) yield generator(i)).toArray
   def generatorsBy(n: Int) = {
-    val m = variables.length/n
+    val m = length/n
     (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
   }
   def apply(i: Int) = {
@@ -52,29 +55,26 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { 
   def apply(value: Array[N]): E = new Element(value)
 
   def one0 = {
-    val l = variables.length + 1
-    new Array[N](l)
+    new Array[N](length + 1)
   }
 
   def generator0(n: Int) = {
-    val l = variables.length + 1
-    (for (i <- 0 until l) yield fromInt(if (i == n || i == l - 1) 1 else 0)).toArray
+    (for (i <- 0 until length + 1) yield fromInt(if (i == n || i == length) 1 else 0)).toArray
   }
 
   def converter(from: Array[Variable]): Array[N] => Array[N] = { x =>
-    val l = variables.length + 1
+    val r = new Array[N](length + 1)
     val index = from map { a => variables.indexWhere(_ equiv a) }
-    val r = new Array[N](l)
-    for (i <- 0 until x.length - 1 if (x(i) > fromInt(0))) {
+    for (i <- 0 until from.length if (x(i) > fromInt(0))) {
       val c = index(i)
       assert (c > -1)
       r(c) = x(i)
     }
-    r(r.length - 1) = x(x.length - 1)
+    r(length) = x(from.length)
     r
   }
 
-  def degree(x: Array[N]): N = x(x.length-1)
+  def degree(x: Array[N]): N = x(length)
 
   def pow(x: Array[N], exp: N) = (for (i <- 0 until x.length) yield x(i) * exp).toArray
 
@@ -86,21 +86,21 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { 
   }).toArray
 
   def factorOf(x: Array[N], y: Array[N]): Boolean = {
-    for (i <- 0 until x.length - 1) if (x(i) > y(i)) return false
+    for (i <- 0 until x.length) if (x(i) > y(i)) return false
     true
   }
 
   def gcd(x: Array[N], y: Array[N]): Array[N] = {
-    val r = new Array[N](x.length)
-    for (i <- 0 until r.length - 1) r(i) = min(x(i), y(i))
-    r(r.length - 1) = (fromInt(0) /: r) { (s, l) => s + l }
+    val r = new Array[N](length + 1)
+    for (i <- 0 until length) r(i) = min(x(i), y(i))
+    r(length) = (fromInt(0) /: r) { (s, l) => s + l }
     r
   }
 
   def scm(x: Array[N], y: Array[N]): Array[N] = {
-    val r = new Array[N](x.length)
-    for (i <- 0 until r.length - 1) r(i) = max(x(i), y(i))
-    r(r.length - 1) = (fromInt(0) /: r) { (s, l) => s + l }
+    val r = new Array[N](length + 1)
+    for (i <- 0 until length) r(i) = max(x(i), y(i))
+    r(length) = (fromInt(0) /: r) { (s, l) => s + l }
     r
   }
 
@@ -109,7 +109,7 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { 
   def toString(x: Array[N]) = {
     var s = "1"
     var first = true
-    for (i <- 0 until x.length - 1) {
+    for (i <- 0 until length) {
       val n = x(i)
       if (n > fromInt(0)) {
         val t = if (n equiv fromInt(1)) variables(i).toString else "pow(" + variables(i) + ", " + x(i) + ")"
@@ -120,11 +120,13 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { 
     s
   }
 
-  def isOne(x: Array[N]) = x(x.length-1) == 0
+  def isOne(x: Array[N]) = x(length) == 0
 
-  def dependencyOnVariables(x: Array[N]) = (for (i <- 0 until x.length - 1 if (x(i) > fromInt(0))) yield i).toArray
+  def dependencyOnVariables(x: Array[N]) = (for (i <- 0 until length if (x(i) > fromInt(0))) yield i).toArray
 
-  def projection(x: Array[N], n: Int) = (for (i <- 0 until x.length) yield if (i == n || i == x.length - 1) x(n) else fromInt(0)).toArray
+  def projection(x: Array[N], n: Int) = (for (i <- 0 until x.length) yield if (i == n || i == length) x(n) else fromInt(0)).toArray
+
+  def length = variables.length
 }
 
 object PowerProduct {

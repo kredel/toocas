@@ -1,12 +1,12 @@
-package scas.polynomial.tree
+package scas.polynomial.ufd.tree
 
 import scala.collection.SortedMap
 import scas.polynomial.ordering.Lexicographic
 import scas.polynomial.{TreePolynomial, PowerProduct}
-import scas.structure.Ring
+import scas.structure.UniqueFactorizationDomain
 import scas.Variable
 
-class Polynomial[C <: Ring[C], @specialized(Int, Long) N: Numeric: Manifest](val ring: C, val pp: PowerProduct[N]) extends TreePolynomial[Polynomial[C, N], C, N] {
+class PolynomialWithSimpleGCD[C <: UniqueFactorizationDomain[C], @specialized(Int, Long) N: Numeric: Manifest](val ring: C, val pp: PowerProduct[N]) extends scas.polynomial.ufd.PolynomialWithSimpleGCD[PolynomialWithSimpleGCD, C, N] with TreePolynomial[PolynomialWithSimpleGCD[C, N], C, N] {
   def this(ring: C, ss: Array[Variable]) = this(ring, new Lexicographic[N](ss))
   def this(ring: C, s: Variable) = this(ring, Array(s))
   def this(ring: C, s: Variable, ss: Variable*) = this(ring, Array(s) ++ ss)
@@ -14,6 +14,7 @@ class Polynomial[C <: Ring[C], @specialized(Int, Long) N: Numeric: Manifest](val
   type E = Element
   val nm = implicitly[Numeric[N]]
   val cm = implicitly[ClassManifest[E]]
-  class Element(val value: SortedMap[Array[N], ring.E]) extends super.Element
+  def split = new PolynomialWithSimpleGCD(new PolynomialWithSimpleGCD(ring, pp.take(location)), pp.drop(location))
+  class Element(val value: SortedMap[Array[N], ring.E]) extends super[PolynomialWithSimpleGCD].Element with super[TreePolynomial].Element
   def apply(value: SortedMap[Array[N], ring.E]): E = new Element(value)
 }

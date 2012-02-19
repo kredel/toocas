@@ -8,9 +8,9 @@ class DegreeLexicographic[@specialized(Int, Long) N: Numeric: Manifest](val vari
   def this(s: Variable, ss: Variable*) = this(Array(s) ++ ss)
   def this(sss: Array[Array[Variable]]) = this(for (ss <- sss ; s <- ss) yield s)
   val m = implicitly[Manifest[N]]
-  val n = implicitly[Numeric[N]]
-  import n.mkOrderingOps
-
+  val nm = implicitly[Numeric[N]]
+  import nm.mkOrderingOps
+  def instance(variables: Array[Variable]) = new DegreeLexicographic[N](variables)
   def compare(x: Array[N], y: Array[N]): Int = {
     val n = x.length - 1
     if (x(n) < y(n)) return -1

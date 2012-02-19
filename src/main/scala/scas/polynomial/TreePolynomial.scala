@@ -13,8 +13,8 @@ trait TreePolynomial[S <: TreePolynomial[S, C, N], C <: Ring[C], @specialized(In
   }
   def apply(e: S#E) = apply((zero.value /: e.iterator) { (l, r) =>
     val (a, b) = r
-    val c = ring(b)
-    if (c isZero) l else l.updated(a, c)
+    val (m, c) = (pp.converter(e.variables)(a), ring(b))
+    if (c isZero) l else l.updated(m, c)
   })
   trait Element extends super.Element { this: E =>
     val value: SortedMap[Array[N], ring.E]
@@ -30,8 +30,9 @@ trait TreePolynomial[S <: TreePolynomial[S, C, N], C <: Ring[C], @specialized(In
       if (c isZero) l - a else l.updated(a, c)
     })
     def iterator = value.iterator
+    def variables = pp.variables
   }
-  def apply(value: ring.E) = apply(zero.value + (pp.one.value -> value))
+  def apply(value: ring.E) = apply(if(value isZero) zero.value else zero.value + (pp.one.value -> value))
   def apply(value: pp.E) = apply(zero.value + (value.value -> ring.one))
   def apply(value: SortedMap[Array[N], ring.E]): E
 

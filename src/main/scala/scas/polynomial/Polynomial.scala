@@ -5,13 +5,15 @@ import scas.structure.Ring
 trait Polynomial[S <: Polynomial[S, C, N], C <: Ring[C], @specialized(Int, Long) N] extends Ring[S] {
   val ring: C
   val pp: PowerProduct[N]
-  import pp.variables
   type E <: Element
+  implicit val nm: Numeric[N]
   implicit val cm: ClassManifest[E]
+  import nm.{max, fromInt}
+  import pp.length
   def generator(n: Int) = apply(pp.generator(n))
-  def generators = (for (i <- 0 until variables.length) yield generator(i)).toArray
+  def generators = (for (i <- 0 until length) yield generator(i)).toArray
   def generatorsBy(n: Int) = {
-    val m = variables.length/n
+    val m = length/n
     (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
   }
   def characteristic = ring.characteristic
@@ -77,7 +79,10 @@ trait Polynomial[S <: Polynomial[S, C, N], C <: Ring[C], @specialized(Int, Long)
 
   def headTerm(x: E) = iterator(x).next
 
-  def degree(x: E) = pp.degree(if (x isZero) pp.one else headPowerProduct(x))
+  def degree(x: E) = (fromInt(0) /: iterator(x)) { (l, r) =>
+      val (a, b) = r
+      max(l, pp.degree(a))
+    }
 
   def multiply(w: E, x: pp.E, y: ring.E) = map(w, (a, b) => (a * x, b * y))
 
