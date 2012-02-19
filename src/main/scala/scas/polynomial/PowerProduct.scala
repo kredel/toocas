@@ -3,7 +3,7 @@ package scas.polynomial
 import scas.structure.Monoid
 import scas.Variable
 
-trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
+trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { outer =>
   val variables: Array[Variable]
   implicit val m: Manifest[N]
   val n: Numeric[N]
@@ -28,7 +28,7 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid { outer =>
     assert (i == 1)
     one
   }
-  def fromElement(e: S#E) = apply(converter(e.variables)(e.value))
+  def fromElement(e: PowerProduct[N]#E) = apply(converter(e.variables)(e.value))
   def random(numbits: Int)(implicit rnd: scala.util.Random) = one
   def degree(x: E): N = degree(x.value)
   def gcd(x: E, y: E): E = apply(gcd(x.value,y.value))

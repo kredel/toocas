@@ -2,7 +2,7 @@ package scas.structure
 
 import scas.{int2bigInteger, ZZ}
 
-trait Field extends EuclidianDomain with NotQuiteGroup {
+trait Field[S <: Field[S]] extends EuclidianDomain[S] with NotQuiteGroup[S] {
   type E <: Element
   override def gcd(x: E, y: E) = if (norm(x) < norm(y)) y else x
   override def lcm(x: E, y: E) = if (norm(x) > norm(y)) y else x

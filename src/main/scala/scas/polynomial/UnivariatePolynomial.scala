@@ -2,7 +2,7 @@ package scas.polynomial
 
 import scas.structure.{Field, EuclidianDomain}
 
-trait UnivariatePolynomial[C <: Field, @specialized(Int, Long) N] extends PolynomialOverUFD[C, N] with EuclidianDomain {
+trait UnivariatePolynomial[S <: UnivariatePolynomial[S, C, N], C <: Field[C], @specialized(Int, Long) N] extends PolynomialOverUFD[S, C, N] with EuclidianDomain[S] {
   import pp.variables
   assert (variables.length == 1)
   def norm(x: E) = degree(x)

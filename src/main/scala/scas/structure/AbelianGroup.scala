@@ -1,6 +1,6 @@
 package scas.structure
 
-trait AbelianGroup extends Structure {
+trait AbelianGroup[S <: AbelianGroup[S]] extends Structure[S] {
   type E <: Element
   def zero = fromInt(0)
   def abs(x: E) = if (signum(x) < 0) -x else x

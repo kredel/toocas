@@ -1,7 +1,6 @@
 package scas.structure
 
-trait Structure { outer =>
-  type S <: Structure
+trait Structure[S <: Structure[S]] { outer =>
   type E <: Element
   def fromInt(i: Int): E
   def fromElement(e: S#E): E
@@ -17,7 +16,7 @@ trait Structure { outer =>
 }
 
 object Structure {
-  implicit def struct2ordering(struct: Structure) = new Ordering[struct.E] {
+  implicit def struct2ordering[S <: Structure[S]](struct: S) = new Ordering[struct.E] {
     def compare(x: struct.E, y: struct.E) = struct.compare(x, y)
   }
 }

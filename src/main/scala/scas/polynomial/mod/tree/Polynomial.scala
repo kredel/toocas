@@ -5,7 +5,7 @@ import scas.polynomial.{PowerProduct, Lexicographic}
 import scas.base.ModInteger
 import scas.Variable
 
-class Polynomial[@specialized(Int, Long) N: Numeric: Manifest](mod: java.math.BigInteger, val pp: PowerProduct[N]) extends TreePolynomial[N] {
+class Polynomial[@specialized(Int, Long) N: Numeric: Manifest](mod: java.math.BigInteger, val pp: PowerProduct[N]) extends TreePolynomial[Polynomial[N], N] {
   def this(mod: java.math.BigInteger, ss: Array[Variable]) = this(mod, new Lexicographic[N](ss))
   def this(mod: java.math.BigInteger, s: Variable) = this(mod, Array(s))
   def this(mod: java.math.BigInteger, s: Variable, ss: Variable*) = this(mod, Array(s) ++ ss)

@@ -3,8 +3,7 @@ package scas.base
 import scas.structure.EuclidianDomain
 import scas.int2bigInteger
 
-trait BigInteger extends EuclidianDomain {
-  type S = BigInteger
+trait BigInteger[S <: BigInteger[S]] extends EuclidianDomain[S] {
   type E = Element
   override def pow(x: E, exp: java.math.BigInteger) = apply(x.value.pow(exp.intValue()))
   def signum(x: E) = x.value.signum()

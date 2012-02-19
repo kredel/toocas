@@ -2,7 +2,7 @@ package scas.polynomial
 
 import scas.structure.Ring
 
-trait Polynomial[C <: Ring, @specialized(Int, Long) N] extends Ring {
+trait Polynomial[S <: Polynomial[S, C, N], C <: Ring[C], @specialized(Int, Long) N] extends Ring[S] {
   val ring: C
   val pp: PowerProduct[N]
   import pp.variables

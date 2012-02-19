@@ -1,6 +1,6 @@
 package scas.structure
 
-trait UniqueFactorizationDomain extends Ring {
+trait UniqueFactorizationDomain[S <: UniqueFactorizationDomain[S]] extends Ring[S] {
   type E <: Element
   def gcd(x: E, y: E): E
   def lcm(x: E, y: E) = (x * y) / gcd(x, y)

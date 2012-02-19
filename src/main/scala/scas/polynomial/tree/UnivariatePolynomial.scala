@@ -5,7 +5,7 @@ import scas.polynomial.{TreePolynomial, PowerProduct, Lexicographic}
 import scas.structure.Field
 import scas.Variable
 
-class UnivariatePolynomial[C <: Field, @specialized(Int, Long) N: Numeric: Manifest](val ring: C, val pp: PowerProduct[N]) extends scas.polynomial.UnivariatePolynomial[C, N] with TreePolynomial[C, N] {
+class UnivariatePolynomial[C <: Field[C], @specialized(Int, Long) N: Numeric: Manifest](val ring: C, val pp: PowerProduct[N]) extends scas.polynomial.UnivariatePolynomial[UnivariatePolynomial[C, N], C, N] with TreePolynomial[UnivariatePolynomial[C, N], C, N] {
   def this(ring: C, s: Variable) = this(ring, new Lexicographic[N](Array(s)))
   type E = Element
   val n = implicitly[Numeric[N]]

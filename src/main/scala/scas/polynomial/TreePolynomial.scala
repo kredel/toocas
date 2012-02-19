@@ -3,8 +3,7 @@ package scas.polynomial
 import scala.collection.SortedMap
 import scas.structure.Ring
 
-trait TreePolynomial[C <: Ring, @specialized(Int, Long) N] extends Polynomial[C, N] { outer =>
-  type S = TreePolynomial[C, N]
+trait TreePolynomial[S <: TreePolynomial[S, C, N], C <: Ring[C], @specialized(Int, Long) N] extends Polynomial[S, C, N] {
   type E <: Element
   override def zero = apply(SortedMap.empty[Array[N], ring.E](pp.reverse))
   def signum(x: E): Int = {
@@ -14,30 +13,30 @@ trait TreePolynomial[C <: Ring, @specialized(Int, Long) N] extends Polynomial[C,
   }
   def fromElement(e: S#E) = apply((zero.value /: e.iterator) { (l, r) =>
     val (a, b) = r
-    val (m, c) = (pp.fromElement(a), /*ring.fromElement(b)*/ ring.zero)
-    if (c isZero) l else l.updated(m.value, c)
+    val c = ring.fromElement(b)
+    if (c isZero) l else l.updated(a, c)
   })
   trait Element extends super.Element { this: E =>
     val value: SortedMap[Array[N], ring.E]
     override def isZero = value isEmpty
     def +(that: E) = apply((this.value /: that.iterator) { (l, r) =>
       val (a, b) = r
-      val c = l.getOrElse(a.value, ring.zero) + b
-      if (c isZero) l - a.value else l.updated(a.value, c)
+      val c = l.getOrElse(a, ring.zero) + b
+      if (c isZero) l - a else l.updated(a, c)
     })
     def -(that: E) = apply((this.value /: that.iterator) { (l, r) =>
       val (a, b) = r
-      val c = l.getOrElse(a.value, ring.zero) - b
-      if (c isZero) l - a.value else l.updated(a.value, c)
+      val c = l.getOrElse(a, ring.zero) - b
+      if (c isZero) l - a else l.updated(a, c)
     })
-    def iterator = outer.iterator(this)
+    def iterator = value.iterator
   }
   def apply(value: ring.E) = apply(zero.value + (pp.one.value -> value))
   def apply(value: pp.E) = apply(zero.value + (value.value -> ring.one))
   def apply(value: SortedMap[Array[N], ring.E]): E
 
   def iterator(x: E) = new Iterator[Pair[pp.E, ring.E]] {
-    val it = x.value.iterator
+    val it = x.iterator
     def hasNext = it.hasNext
     def next = {
       val (a, b) = it.next

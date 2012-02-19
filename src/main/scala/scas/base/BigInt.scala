@@ -1,3 +1,3 @@
 package scas.base
 
-object BigInt extends BigInteger
+class BigInt extends BigInteger[BigInt]

@@ -1,6 +1,6 @@
 package scas.structure
 
-trait Monoid extends SemiGroup {
+trait Monoid[S <: Monoid[S]] extends SemiGroup[S] {
   type E <: Element
   def one = fromInt(1)
   def pow(x: E, exp: java.math.BigInteger) = {

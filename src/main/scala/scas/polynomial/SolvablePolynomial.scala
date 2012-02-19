@@ -3,7 +3,7 @@ package scas.polynomial
 import scala.collection.SortedMap
 import scas.structure.Ring
 
-trait SolvablePolynomial[C <: Ring, @specialized(Int, Long) N] extends Polynomial[C, N] {
+trait SolvablePolynomial[S <: SolvablePolynomial[S, C, N], C <: Ring[C], @specialized(Int, Long) N] extends Polynomial[S, C, N] {
   import pp.{dependencyOnVariables, projection}
   type Key = Pair[Int, Int]
   type Relation = Triple[pp.E, pp.E, E]

@@ -2,7 +2,7 @@ package scas.polynomial
 
 import scas.structure.UniqueFactorizationDomain
 
-trait PolynomialOverUFD[C <: UniqueFactorizationDomain, @specialized(Int, Long) N] extends Polynomial[C, N] with UniqueFactorizationDomain {
+trait PolynomialOverUFD[S <: PolynomialOverUFD[S, C, N], C <: UniqueFactorizationDomain[C], @specialized(Int, Long) N] extends Polynomial[S, C, N] with UniqueFactorizationDomain[S] {
   type E <: Element
   implicit val n: Numeric[N]
   def divideAndRemainder(x: E, y: E): (E, E) = {

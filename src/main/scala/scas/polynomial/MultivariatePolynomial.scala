@@ -4,22 +4,20 @@ import scas.structure.UniqueFactorizationDomain
 
 import scas.int2bigInteger
 
-trait MultivariatePolynomial[C <: UniqueFactorizationDomain, @specialized(Int, Long) N] extends PolynomialOverUFD[C, N] {
+trait MultivariatePolynomial[S[C <: UniqueFactorizationDomain[C]] <: MultivariatePolynomial[S, C, N], C <: UniqueFactorizationDomain[C], N] extends PolynomialOverUFD[S[C], C, N] { this: S[C] =>
   import pp.{variables, projection}
-  type F[C <: UniqueFactorizationDomain] <: MultivariatePolynomial[C, N]
-  type S = F[C]
-  def split: F[S]
+  def split: S[S[C]]
   def location = variables.length - 1
   override def gcd(x: E, y: E) = if (variables.length > 1) {
     val s = split
     converter(s)(s.gcd(convert(s, x), convert(s, y)))
   } else super.gcd(x, y)
-  def convert(s: F[S], w: E): s.E = (s.zero /: iterator(w)) { (l, r) =>
+  def convert(s: S[S[C]], w: E): s.E = (s.zero /: iterator(w)) { (l, r) =>
     val (a, b) = r
     val x = projection(a, location)
-    l + s.multiply(s.pow(s.generator(0), n.toInt(pp.degree(x))), /*s.ring.fromElement(multiply(apply(a / x), b))*/ s.ring.one)
+    l + s.multiply(s.pow(s.generator(0), n.toInt(pp.degree(x))), s.ring.fromElement(multiply(apply(a / x), b)))
   }
-  def converter(s: F[S])(w: s.E): E = (zero /: s.iterator(w)) { (l, r) =>
+  def converter(s: S[S[C]])(w: s.E): E = (zero /: s.iterator(w)) { (l, r) =>
     val (a, b) = r
     l + fromElement(b) * pow(generator(location), n.toInt(s.pp.degree(a)))
   }

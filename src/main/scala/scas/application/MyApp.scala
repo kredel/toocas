@@ -29,7 +29,7 @@ object MyApp extends App {
   def polynomial = {
     val r = new Polynomial(ZZ, 'x)
     val s = new Polynomial(r, 'y)
-    val a = ZZ(1)
+    val a = s.ring.ring(1)
     import s.{zero, one, pow}
     assert(zero + a >< one)
     assert(pow(a, 2) >< 1)
@@ -44,7 +44,7 @@ object MyApp extends App {
 
   def univariatePolynomial = {
     val r = new UnivariatePolynomial(QQ, 'x)
-    import r.{generator, gcd, monic}
+    import r.{generator, gcd, monic, ring => frac}
     val x = generator(0)
     assert (monic(gcd((1+x)*(1+frac(1, 2)*x), (1+frac(1, 2)*x)*(1-x))) >< 2+x)
   }
@@ -72,6 +72,7 @@ object MyApp extends App {
   }
 
   def rational = {
+    val frac = QQ
     val a = frac(1, 2)
     assert(a >< frac(2, 4))
     assert(a * a >< frac(1, 4))
