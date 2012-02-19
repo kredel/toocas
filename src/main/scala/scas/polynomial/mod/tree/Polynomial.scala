@@ -1,7 +1,8 @@
 package scas.polynomial.mod.tree
 
 import scas.polynomial.mod.TreePolynomial
-import scas.polynomial.{PowerProduct, Lexicographic}
+import scas.polynomial.ordering.Lexicographic
+import scas.polynomial.PowerProduct
 import scas.base.ModInteger
 import scas.Variable
 

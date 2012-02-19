@@ -52,14 +52,14 @@ object MyApp extends App {
   def mod = {
     val r = new ModInteger(7)
     val s = new Polynomial(r, 'x)
-    val a = s.fromInt(4)
+    val a = s(4)
     assert(2 * a >< 1)
     assert(s.characteristic.intValue == 7)
   }
 
   def modPolynomial = {
     val s = new ModPolynomial(7, 'x)
-    val a = s.fromInt(4)
+    val a = s(4)
     assert(2 * a >< 1)
     assert(s.characteristic.intValue == 7)
   }

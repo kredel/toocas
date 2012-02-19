@@ -1,4 +1,4 @@
-package scas.polynomial
+package scas.polynomial.ordering
 
 import scas.Variable
 

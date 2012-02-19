@@ -1,7 +1,7 @@
 package scas.base
 
 import scas.structure.Field
-import scas.int2bigInteger
+import scas.{int2bigInteger, ZZ}
 
 class Rational extends Field[Rational] {
   type E = Element
@@ -9,8 +9,8 @@ class Rational extends Field[Rational] {
   override def abs(x: E) = apply(x.numerator.abs(), x.denominator)
   def signum(x: E) = x.numerator.signum()
   def characteristic = 0
-  def fromInt(i: Int) = i
-  def fromElement(e: Rational#E) = apply(e.numerator, e.denominator)
+  def apply(i: Int) = i
+  def apply(e: Rational#E) = apply(e.numerator, e.denominator)
   def random(numbits: Int)(implicit rnd: scala.util.Random) = {
     val n = new java.math.BigInteger(numbits, rnd.self)
     val d = new java.math.BigInteger(numbits, rnd.self)
@@ -25,11 +25,7 @@ class Rational extends Field[Rational] {
     def ÷(that: E) = this / that
     override def unary_- = apply(numerator.negate(), denominator)
     def toString(precedence: Int) = (numerator, denominator) match {
-      case (n, d) => if (d.compareTo(1) == 0) {
-        if (n.bitLength < 32) n.toString
-        else if (n.bitLength < 64) n + "l"
-        else "new BigInteger(\"" + n + "\")"
-      } else {
+      case (n, d) => if (ZZ(d) isOne) ZZ(n).toString else {
         if (n.bitLength < 32 && d.bitLength < 32) "frac(" + n + ", " + d + ")"
         else if (n.bitLength < 64 && d.bitLength < 64) "frac(" + n + "l, " + d + "l)"
         else "frac(new BigInteger(\"" + n + "\"), new BigInteger(\"" + d + "\"))"

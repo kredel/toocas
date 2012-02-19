@@ -15,7 +15,7 @@ trait Polynomial[S <: Polynomial[S, C, N], C <: Ring[C], @specialized(Int, Long)
     (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
   }
   def characteristic = ring.characteristic
-  def fromInt(i: Int) = ring.fromInt(i)
+  def apply(i: Int) = ring(i)
   def random(numbits: Int)(implicit rnd: scala.util.Random) = zero
   def compare(x: E, y: E): Int = {
     val it = iterator(y)

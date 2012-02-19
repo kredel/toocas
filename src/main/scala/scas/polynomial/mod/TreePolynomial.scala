@@ -13,7 +13,7 @@ trait TreePolynomial[S <: TreePolynomial[S, N], @specialized(Int, Long) N] exten
     if (!it.hasNext) return 0
     val (a, b) = it.next ; ring.signum(b)
   }
-  def fromElement(e: S#E) = apply((zero.value /: e.iterator) { (l, r) =>
+  def apply(e: S#E) = apply((zero.value /: e.iterator) { (l, r) =>
     val (a, b) = r
     val c = ring(b)
     if (c isZero) l else l.updated(a, c.value)
@@ -45,7 +45,7 @@ trait TreePolynomial[S <: TreePolynomial[S, N], @specialized(Int, Long) N] exten
     }
   }
 
-  override def headPowerProduct(x: E) = pp(x.value.lastKey)
+  override def headPowerProduct(x: E) = pp(x.value.firstKey)
 
   def map(w: E, f: (pp.E, ring.E) => (pp.E, ring.E)) = apply((zero.value /: iterator(w)) { (l, r) =>
     val (a, b) = r

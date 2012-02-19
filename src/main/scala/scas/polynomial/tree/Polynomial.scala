@@ -1,7 +1,8 @@
 package scas.polynomial.tree
 
 import scala.collection.SortedMap
-import scas.polynomial.{TreePolynomial, PowerProduct, Lexicographic}
+import scas.polynomial.ordering.Lexicographic
+import scas.polynomial.{TreePolynomial, PowerProduct}
 import scas.structure.Ring
 import scas.Variable
 

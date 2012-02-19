@@ -1,5 +1,6 @@
-package scas.polynomial
+package scas.polynomial.ordering
 
+import scas.polynomial.PowerProduct
 import scas.Variable
 
 trait DegreeReverseLexicographic[@specialized(Int, Long) N] extends PowerProduct[N] {

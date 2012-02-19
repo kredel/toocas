@@ -10,8 +10,8 @@ trait BigInteger[S <: BigInteger[S]] extends EuclidianDomain[S] {
   def norm(x: E) = (abs(x) << 1) + (if (signum(x) < 0) 1 else 0)
   def gcd(x: E, y: E) = apply(x.value.gcd(y.value))
   def characteristic = 0
-  def fromInt(i: Int) = i
-  def fromElement(e: S#E) = apply(e.value)
+  def apply(i: Int) = i
+  def apply(e: S#E) = apply(e.value)
   def random(numbits: Int)(implicit rnd: scala.util.Random) = {
     val r = new java.math.BigInteger(numbits, rnd.self)
     apply(if (rnd.nextBoolean()) r.negate() else r)

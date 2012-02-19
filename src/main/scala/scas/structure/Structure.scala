@@ -2,8 +2,8 @@ package scas.structure
 
 trait Structure[S <: Structure[S]] { outer =>
   type E <: Element
-  def fromInt(i: Int): E
-  def fromElement(e: S#E): E
+  def apply(i: Int): E
+  def apply(e: S#E): E
   def random(numbits: Int)(implicit rnd: scala.util.Random): E
   def compare(x: E, y: E): Int
   trait Element extends Ordered[E] { this: E =>

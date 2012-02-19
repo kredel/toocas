@@ -4,10 +4,10 @@ package object scas {
   val ZZ = new scas.base.BigInt
   val QQ = new scas.base.Rational
   type ModInteger = scas.base.ModInteger
-  type Lexicographic = scas.polynomial.Lexicographic[Int]
-  type DegreeLexicographic = scas.polynomial.DegreeLexicographic[Int]
-  type DegRevLex = scas.polynomial.DegRevLex[Int]
-  type KthElimination = scas.polynomial.KthElimination[Int]
+  type Lexicographic = scas.polynomial.ordering.Lexicographic[Int]
+  type DegreeLexicographic = scas.polynomial.ordering.DegreeLexicographic[Int]
+  type DegRevLex = scas.polynomial.ordering.DegRevLex[Int]
+  type KthElimination = scas.polynomial.ordering.KthElimination[Int]
   type Polynomial[C <: Ring[C]] = scas.polynomial.tree.Polynomial[C, Int]
   type SolvablePolynomial[C <: Ring[C]] = scas.polynomial.tree.SolvablePolynomial[C, Int]
   type WeylAlgebra[C <: Ring[C]] = scas.polynomial.tree.WeylAlgebra[C, Int]

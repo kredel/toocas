@@ -15,10 +15,10 @@ trait MultivariatePolynomial[S[C <: UniqueFactorizationDomain[C]] <: Multivariat
   def convert(s: S[S[C]], w: E): s.E = (s.zero /: iterator(w)) { (l, r) =>
     val (a, b) = r
     val x = projection(a, location)
-    l + s.multiply(s.pow(s.generator(0), n.toInt(pp.degree(x))), s.ring.fromElement(multiply(apply(a / x), b)))
+    l + s.multiply(s.pow(s.generator(0), n.toInt(pp.degree(x))), s.ring(multiply(apply(a / x), b)))
   }
   def converter(s: S[S[C]])(w: s.E): E = (zero /: s.iterator(w)) { (l, r) =>
     val (a, b) = r
-    l + fromElement(b) * pow(generator(location), n.toInt(s.pp.degree(a)))
+    l + apply(b) * pow(generator(location), n.toInt(s.pp.degree(a)))
   }
 }
