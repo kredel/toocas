@@ -19,13 +19,13 @@ object MyApp extends App {
   variable
 
   def pp = {
-    val m = new Lexicographic('x)
+    val m = new PowerProduct('x)
     import m.{pow, generators}
     val Array(x) = generators
     assert(1 | x)
     assert(x * x >< pow(x, 2))
 
-    val n = new Lexicographic((for (i <- 0 until 4) yield (for (j <- 0 until 2) yield Variable("a", i, j)).toArray).toArray)
+    val n = new PowerProduct((for (i <- 0 until 4) yield (for (j <- 0 until 2) yield Variable("a", i, j)).toArray).toArray)
     val a = n.generatorsBy(2)
     println(a.deep);
   }

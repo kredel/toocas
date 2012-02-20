@@ -1,7 +1,7 @@
 package scas.base
 
 import scas.structure.Field
-import scas.{int2bigInteger, ZZ}
+import scas.{long2bigInteger, ZZ}
 
 class Rational extends Field[Rational] {
   type E = Element
@@ -9,7 +9,7 @@ class Rational extends Field[Rational] {
   override def abs(x: E) = apply(x.numerator.abs(), x.denominator)
   def signum(x: E) = x.numerator.signum()
   def characteristic = 0
-  def apply(i: Int) = i
+  def apply(l: Long) = l
   def apply(e: Rational#E) = apply(e.numerator, e.denominator)
   def random(numbits: Int)(implicit rnd: scala.util.Random) = {
     val n = new java.math.BigInteger(numbits, rnd.self)

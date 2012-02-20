@@ -4,9 +4,10 @@ package object scas {
   val ZZ = new scas.base.BigInt
   val QQ = new scas.base.Rational
   type ModInteger = scas.base.ModInteger
-  type Lexicographic = scas.polynomial.ordering.Lexicographic[Int]
-  type DegreeLexicographic = scas.polynomial.ordering.DegreeLexicographic[Int]
-  type DegRevLex = scas.polynomial.ordering.DegRevLex[Int]
+  type PowerProduct = scas.polynomial.PowerProduct[Int]
+  val Lexicographic = new scas.polynomial.ordering.Lexicographic[Int]
+  val DegreeLexicographic = new scas.polynomial.ordering.DegreeLexicographic[Int]
+  val DegRevLex = new scas.polynomial.ordering.DegRevLex[Int]
   type KthElimination = scas.polynomial.ordering.KthElimination[Int]
   type Polynomial[C <: Ring[C]] = scas.polynomial.tree.Polynomial[C, Int]
   type SolvablePolynomial[C <: Ring[C]] = scas.polynomial.tree.SolvablePolynomial[C, Int]
@@ -20,4 +21,5 @@ package object scas {
   implicit def int2bigInteger(i: Int) = java.math.BigInteger.valueOf(i)
   implicit def long2bigInteger(l: Long) = java.math.BigInteger.valueOf(l)
   type BigInteger = java.math.BigInteger
+  implicit val ordering = Lexicographic
 }

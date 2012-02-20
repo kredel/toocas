@@ -1,6 +1,6 @@
 package scas.structure
 
-import scas.{int2bigInteger, ZZ}
+import scas.ZZ
 
 trait Field[S <: Field[S]] extends EuclidianDomain[S] with NotQuiteGroup[S] {
   type E <: Element

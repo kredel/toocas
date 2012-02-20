@@ -1,7 +1,7 @@
 package scas.base
 
 import scas.structure.EuclidianDomain
-import scas.int2bigInteger
+import scas.{int2bigInteger, long2bigInteger}
 
 trait BigInteger[S <: BigInteger[S]] extends EuclidianDomain[S] {
   type E = Element
@@ -10,7 +10,7 @@ trait BigInteger[S <: BigInteger[S]] extends EuclidianDomain[S] {
   def norm(x: E) = (abs(x) << 1) + (if (signum(x) < 0) 1 else 0)
   def gcd(x: E, y: E) = apply(x.value.gcd(y.value))
   def characteristic = 0
-  def apply(i: Int) = i
+  def apply(l: Long) = l
   def apply(e: S#E) = apply(e.value)
   def random(numbits: Int)(implicit rnd: scala.util.Random) = {
     val r = new java.math.BigInteger(numbits, rnd.self)

@@ -1,23 +1,23 @@
 package scas.polynomial
 
+import scala.math.max
+import scas.polynomial.ordering.Ordering
 import scas.structure.Ring
 
 trait Polynomial[S <: Polynomial[S, C, N], C <: Ring[C], @specialized(Int, Long) N] extends Ring[S] {
   val ring: C
   val pp: PowerProduct[N]
+  val ordering: Ordering[N]
   type E <: Element
-  implicit val nm: Numeric[N]
   implicit val cm: ClassManifest[E]
-  import nm.{max, fromInt}
-  import pp.length
   def generator(n: Int) = apply(pp.generator(n))
-  def generators = (for (i <- 0 until length) yield generator(i)).toArray
+  def generators = (for (i <- 0 until pp.length) yield generator(i)).toArray
   def generatorsBy(n: Int) = {
-    val m = length/n
+    val m = pp.length/n
     (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
   }
   def characteristic = ring.characteristic
-  def apply(i: Int) = ring(i)
+  def apply(l: Long) = ring(l)
   def random(numbits: Int)(implicit rnd: scala.util.Random) = zero
   def compare(x: E, y: E): Int = {
     val it = iterator(y)
@@ -79,7 +79,7 @@ trait Polynomial[S <: Polynomial[S, C, N], C <: Ring[C], @specialized(Int, Long)
 
   def headTerm(x: E) = iterator(x).next
 
-  def degree(x: E) = (fromInt(0) /: iterator(x)) { (l, r) =>
+  def degree(x: E) = (0l /: iterator(x)) { (l, r) =>
       val (a, b) = r
       max(l, pp.degree(a))
     }

@@ -7,7 +7,7 @@ import scas.base.ModInteger
 trait TreePolynomial[S <: TreePolynomial[S, N], @specialized(Int, Long) N] extends Polynomial[S, ModInteger, N] {
   type E = Element
   val cm = implicitly[ClassManifest[E]]
-  override def zero = apply(SortedMap.empty[Array[N], java.math.BigInteger](pp.reverse))
+  override def zero = apply(SortedMap.empty[Array[N], java.math.BigInteger](ordering.reverse))
   def signum(x: E): Int = {
     val it = iterator(x)
     if (!it.hasNext) return 0

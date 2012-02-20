@@ -1,18 +1,19 @@
 package scas.polynomial
 
+import scas.polynomial.ordering.Ordering
 import scas.structure.Monoid
 import scas.Variable
 
-trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { outer =>
-  val variables: Array[Variable]
-  implicit val m: Manifest[N]
-  val nm: Numeric[N]
-  import nm.{fromInt, mkOrderingOps, mkNumericOps, min, max}
-  type S = PowerProduct[N]
+class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(implicit nm: Numeric[N], m: Manifest[N], ordering: Ordering[N]) extends Monoid[PowerProduct[N]] { outer =>
+  def this(s: Variable)(implicit nm: Numeric[N], m: Manifest[N], ordering: Ordering[N]) = this(Array(s))
+  def this(s: Variable, ss: Variable*)(implicit nm: Numeric[N], m: Manifest[N], ordering: Ordering[N]) = this(Array(s) ++ ss)
+  def this(sss: Array[Array[Variable]])(implicit nm: Numeric[N], m: Manifest[N], ordering: Ordering[N]) = this(for (ss <- sss ; s <- ss) yield s)
+  import scala.math.Ordering.Implicits.infixOrderingOps
+  import Numeric.Implicits.infixNumericOps
+  import nm.{fromInt, min, max, toLong}
   type E = Element
-  def take(n: Int) = instance(variables.take(n))
-  def drop(n: Int) = instance(variables.drop(n))
-  def instance(variables: Array[Variable]): PowerProduct[N]
+  def take(n: Int) = new PowerProduct[N](variables.take(n))
+  def drop(n: Int) = new PowerProduct[N](variables.drop(n))
   override def one = apply(one0)
   override def pow(x: E, exp: java.math.BigInteger) = {
     assert (exp.signum() >= 0)
@@ -27,16 +28,16 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { 
     val m = length/n
     (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
   }
-  def apply(i: Int) = {
-    assert (i == 1)
+  def degree(x: E): Long = toLong(degree(x.value))
+  def apply(l: Long) = {
+    assert (l == 1)
     one
   }
   def apply(e: PowerProduct[N]#E) = apply(converter(e.variables)(e.value))
   def random(numbits: Int)(implicit rnd: scala.util.Random) = one
-  def degree(x: E): N = degree(x.value)
   def gcd(x: E, y: E): E = apply(gcd(x.value,y.value))
   def scm(x: E, y: E): E = apply(scm(x.value,y.value))
-  def compare(x: E, y: E) = compare(x.value, y.value)
+  def compare(x: E, y: E) = ordering.compare(x.value, y.value)
   class Element(val value: Array[N]) extends super.Element {
     def isUnit = this isOne
     override def isOne = outer.isOne(value)
@@ -104,8 +105,6 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { 
     r
   }
 
-  def compare(x: Array[N], y: Array[N]): Int
-
   def toString(x: Array[N]) = {
     var s = "1"
     var first = true
@@ -120,17 +119,11 @@ trait PowerProduct[@specialized(Int, Long) N] extends Monoid[PowerProduct[N]] { 
     s
   }
 
-  def isOne(x: Array[N]) = x(length) == 0
+  def isOne(x: Array[N]) = x(length) equiv fromInt(0)
 
   def dependencyOnVariables(x: Array[N]) = (for (i <- 0 until length if (x(i) > fromInt(0))) yield i).toArray
 
   def projection(x: Array[N], n: Int) = (for (i <- 0 until x.length) yield if (i == n || i == length) x(n) else fromInt(0)).toArray
 
   def length = variables.length
-}
-
-object PowerProduct {
-  implicit def pp2ordering[@specialized(Int, Long) N](pp: PowerProduct[N]) = new Ordering[Array[N]] {
-    def compare(x: Array[N], y: Array[N]) = pp.compare(x, y)
-  }
 }
