@@ -1,4 +1,4 @@
-package scas
+package scas.polynomial
 
 import Ordering.{Int, Iterable, String}
 

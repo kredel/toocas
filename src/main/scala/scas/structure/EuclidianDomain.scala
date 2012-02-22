@@ -1,5 +1,5 @@
 package scas.structure
 
-trait EuclidianDomain[S <: EuclidianDomain[S]] extends UniqueFactorizationDomain[S] {
-  def norm(x: E): Ordered[_]
+trait EuclidianDomain[T] extends UniqueFactorizationDomain[T] {
+  def norm(x: T): java.lang.Comparable[_]
 }

@@ -1,19 +1,14 @@
 package scas.polynomial.ufd.tree
 
-import scala.collection.SortedMap
 import scas.polynomial.ordering.Ordering
 import scas.polynomial.{TreePolynomial, PowerProduct}
 import scas.structure.UniqueFactorizationDomain
-import scas.Variable
+import TreePolynomial.Element
 
-class PolynomialWithPrimitiveGCD[C <: UniqueFactorizationDomain[C], @specialized(Int, Long) N](val ring: C, val pp: PowerProduct[N])(implicit val ordering: Ordering[N]) extends scas.polynomial.ufd.PolynomialWithPrimitiveGCD[PolynomialWithPrimitiveGCD, C, N] with TreePolynomial[PolynomialWithPrimitiveGCD[C, N], C, N] {
-  def this(ring: C, ss: Array[Variable])(implicit nm: Numeric[N], m: Manifest[N], ordering: Ordering[N]) = this(ring, new PowerProduct[N](ss))
-  def this(ring: C, s: Variable)(implicit nm: Numeric[N], m: Manifest[N], ordering: Ordering[N]) = this(ring, Array(s))
-  def this(ring: C, s: Variable, ss: Variable*)(implicit nm: Numeric[N], m: Manifest[N], ordering: Ordering[N]) = this(ring, Array(s) ++ ss)
-  def this(ring: C, sss: Array[Array[Variable]])(implicit nm: Numeric[N], m: Manifest[N], ordering: Ordering[N]) = this(ring, for (ss <- sss ; s <- ss) yield s)
-  type E = Element
-  val cm = implicitly[ClassManifest[E]]
+class PolynomialWithPrimitiveGCD[C, @specialized(Int, Long) N](val ring: UniqueFactorizationDomain[C], val pp: PowerProduct[N])(implicit val ordering: Ordering[N], val cm: ClassManifest[Element[C, N]]) extends scas.polynomial.ufd.PolynomialWithPrimitiveGCD[Element, C, N] with TreePolynomial[C, N] {
   def split = new PolynomialWithPrimitiveGCD(new PolynomialWithPrimitiveGCD(ring, pp.take(location)), pp.drop(location))
-  class Element(val value: SortedMap[Array[N], ring.E]) extends super[PolynomialWithPrimitiveGCD].Element with super[TreePolynomial].Element
-  def apply(value: SortedMap[Array[N], ring.E]): E = new Element(value)
+}
+
+object PolynomialWithPrimitiveGCD {
+  def apply[C, @specialized(Int, Long) N](ring: UniqueFactorizationDomain[C], pp: PowerProduct[N])(implicit ordering: Ordering[N], cm: ClassManifest[Element[C, N]]) = new PolynomialWithPrimitiveGCD(ring, pp)
 }

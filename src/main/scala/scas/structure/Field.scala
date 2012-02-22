@@ -1,16 +1,13 @@
 package scas.structure
 
-import scas.ZZ
+import Ordering.Implicits.infixOrderingOps
 
-trait Field[S <: Field[S]] extends EuclidianDomain[S] with NotQuiteGroup[S] {
-  type E <: Element
-  override def gcd(x: E, y: E) = if (norm(x) < norm(y)) y else x
-  override def lcm(x: E, y: E) = if (norm(x) > norm(y)) y else x
-  def norm(x: E) = ZZ(signum(abs(x)))
-  def inverse(x: E) = one / x
-  trait Element extends super[EuclidianDomain].Element with super[NotQuiteGroup].Element { this: E =>
-    override def isUnit = !isZero
-    override def %  (that: E) = zero
-    override def /% (that: E) = (this / that, this % that)
-  }
+trait Field[T] extends EuclidianDomain[T] with NotQuiteGroup[T] {
+  override def gcd(x: T, y: T) = if (norm(x) < norm(y)) y else x
+  override def lcm(x: T, y: T) = if (norm(x) > norm(y)) y else x
+  override def isUnit(x: T) = !(x isZero)
+  override def remainder(x: T, y: T) = zero
+  override def divideAndRemainder(x: T, y: T) = (x / y, x % y)
+  def norm(x: T) = java.math.BigInteger.valueOf(signum(abs(x)))
+  def inverse(x: T) = one / x
 }

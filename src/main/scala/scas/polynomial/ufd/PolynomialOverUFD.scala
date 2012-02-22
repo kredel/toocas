@@ -2,10 +2,20 @@ package scas.polynomial.ufd
 
 import scas.polynomial.Polynomial
 import scas.structure.UniqueFactorizationDomain
+import UniqueFactorizationDomain.Implicits.infixUFDOps
+import Polynomial.Element
 
-trait PolynomialOverUFD[S <: PolynomialOverUFD[S, C, N], C <: UniqueFactorizationDomain[C], @specialized(Int, Long) N] extends Polynomial[S, C, N] with UniqueFactorizationDomain[S] {
-  type E <: Element
-  def divideAndRemainder(x: E, y: E): (E, E) = {
+trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] with UniqueFactorizationDomain[T] {
+  override implicit val ring: UniqueFactorizationDomain[C]
+  def divide(x: T, y: T) = {
+    val (q, r) = divideAndRemainder(x, y)
+    q
+  }
+  def remainder(x: T, y: T) = {
+    val (q, r) = divideAndRemainder(x, y)
+    r
+  }
+  def divideAndRemainder(x: T, y: T) = {
     if (y isZero) throw new ArithmeticException("Polynomial divide by zero")
     else if (x isZero) (zero, zero)
     else {
@@ -17,13 +27,13 @@ trait PolynomialOverUFD[S <: PolynomialOverUFD[S, C, N], C <: UniqueFactorizatio
       }
     }
   }
-  def gcd(x: E, y: E) = {
+  def gcd(x: T, y: T) = {
     val (a, p) = contentAndPrimitivePart(x)
     val (b, q) = contentAndPrimitivePart(y)
     multiply(primitivePart(gcd1(p, q)), ring.gcd(a, b))
   }
-  def gcd1(x: E, y: E): E
-  def remainder(x: E, y: E): E = {
+  def gcd1(x: T, y: T): T
+  def remainder1(x: T, y: T): T = {
     if (x isZero) zero
     else {
       val (s, a) = headTerm(x)
@@ -31,32 +41,21 @@ trait PolynomialOverUFD[S <: PolynomialOverUFD[S, C, N], C <: UniqueFactorizatio
       if (!(t | s)) x else {
         val gcd = ring.gcd(a, b)
         val (a0, b0) = (a / gcd, b / gcd)
-        remainder(multiply(x, b0) - multiply(y, s / t, a0), y)
+        remainder1(multiply(x, b0) - multiply(y, s / t, a0), y)
       }
     }
   }
-  def content(x: E) = (ring.zero /: iterator(x)) { (l, r) =>
+  def content(x: T) = (ring.zero /: iterator(x)) { (l, r) =>
     val (a, b) = r
     ring.gcd(l, b) match { case gcd => if (ring.signum(b) < 0) -gcd else gcd }
   }
-  def contentAndPrimitivePart(x: E) = {
+  def contentAndPrimitivePart(x: T) = {
     val c = content(x)
     if (c isZero) (ring.zero, zero) else (c, divide(x, c))
   }
-  def primitivePart(x: E) = {
+  def primitivePart(x: T) = {
     val (c, p) = contentAndPrimitivePart(x)
     p
   }
-  trait Element extends super[Polynomial].Element with super[UniqueFactorizationDomain].Element { this: E =>
-    def /  (that: E) = {
-      val (d, r) = this /% that
-      d
-    }
-    def %  (that: E) = {
-      val (d, r) = this /% that
-      r
-    }
-    def /% (that: E) = divideAndRemainder(this, that)
-  }
-  def divide(w: E, y: ring.E) = map(w, (a, b) => (a, b / y))
+  def divide(w: T, y: C) = map(w, (a, b) => (a, b / y))
 }

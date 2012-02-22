@@ -1,7 +1,10 @@
 package scas.polynomial.ufd
 
+import scas.polynomial.Polynomial
 import scas.structure.UniqueFactorizationDomain
+import UniqueFactorizationDomain.Implicits.infixUFDOps
+import Polynomial.Element
 
-trait PolynomialWithPrimitiveGCD[S[C <: UniqueFactorizationDomain[C], N] <: PolynomialWithPrimitiveGCD[S, C, N], C <: UniqueFactorizationDomain[C], N] extends MultivariatePolynomial[S, C, N] { this: S[C, N] =>
-  def gcd1(x: E, y: E) = if (y isZero) x else gcd1(y, primitivePart(remainder(x, y)))
+trait PolynomialWithPrimitiveGCD[T[C, N] <: Element[T[C, N], C, N], C, N] extends MultivariatePolynomial[T, C, N] {
+  def gcd1(x: T[C, N], y: T[C, N]) = if (y isZero) x else gcd1(y, primitivePart(remainder1(x, y)))
 }

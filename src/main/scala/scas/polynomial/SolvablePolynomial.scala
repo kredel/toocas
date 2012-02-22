@@ -2,14 +2,15 @@ package scas.polynomial
 
 import scala.collection.SortedMap
 import scas.structure.Ring
+import Ring.Implicits.infixRingOps
+import Polynomial.Element
 
-trait SolvablePolynomial[S <: SolvablePolynomial[S, C, N], C <: Ring[C], @specialized(Int, Long) N] extends Polynomial[S, C, N] {
-  import pp.{dependencyOnVariables, projection}
+trait SolvablePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
   type Key = Pair[Int, Int]
-  type Relation = Triple[pp.E, pp.E, E]
+  type Relation = Triple[PowerProduct.Element[N], PowerProduct.Element[N], T]
   var table = SortedMap.empty[Key, List[Relation]]
-  def update(e: E, f: E, p: E): Unit = update(headPowerProduct(e), headPowerProduct(f), p)
-  def update(e: pp.E, f: pp.E, p: E) = {
+  def update(e: T, f: T, p: T): Unit = update(headPowerProduct(e), headPowerProduct(f), p)
+  def update(e: PowerProduct.Element[N], f: PowerProduct.Element[N], p: T) = {
     val key = makeKey(e, f)
     val list = table.getOrElse(key, Nil)
     table = table.updated(key, insert(list, (e, f, p)))
@@ -18,7 +19,7 @@ trait SolvablePolynomial[S <: SolvablePolynomial[S, C, N], C <: Ring[C], @specia
     case head::tail if (factorOf(relation, head)) => head::insert(tail, relation)
     case _ => relation::list
   }
-  def lookup(e: pp.E, f: pp.E): Relation = {
+  def lookup(e: PowerProduct.Element[N], f: PowerProduct.Element[N]): Relation = {
     val key = makeKey(e, f)
     val list = table.getOrElse(key, Nil)
     list match {
@@ -38,28 +39,28 @@ trait SolvablePolynomial[S <: SolvablePolynomial[S, C, N], C <: Ring[C], @specia
     val (ey, fy, py) = y
     (ex | ey) && (fx | fy)
   }
-  def makeKey(e: pp.E, f: pp.E) = {
-    val de = dependencyOnVariables(e)
-    val df = dependencyOnVariables(f)
+  def makeKey(e: PowerProduct.Element[N], f: PowerProduct.Element[N]) = {
+    val de = pp.dependencyOnVariables(e)
+    val df = pp.dependencyOnVariables(f)
     (de(0), df(0))
   }
   override def toString = super.toString + "[" + (for ((a, b) <- table) yield "[" + (for ((e, f, p) <- b) yield e.toString() + "*" + f.toString() + " = " + p).mkString(", ") + "]").mkString(", ")+ "]"
 
-  override def multiply(w: E, x: pp.E, y: ring.E) = (zero /: iterator(w)) { (l, r) =>
+  override def multiply(w: T, x: PowerProduct.Element[N], y: C) = (zero /: iterator(w)) { (l, r) =>
     val (a, b) = r
     val c = b * y
     if (c isZero) l else l + multiply(multiply(a, x), c)
   }
 
-  def multiply(e: pp.E, f: pp.E) = {
-    val ep = dependencyOnVariables(e)
-    val fp = dependencyOnVariables(f)
+  def multiply(e: PowerProduct.Element[N], f: PowerProduct.Element[N]) = {
+    val ep = pp.dependencyOnVariables(e)
+    val fp = pp.dependencyOnVariables(f)
     if (ep.length == 0 || fp.length == 0) apply(e * f) else {
       val el = ep(ep.length-1)
       val fl = fp(0)
       if (el <= fl) apply(e * f) else {
-        val e2 = projection(e, el)
-        val f2 = projection(f, fl)
+        val e2 = pp.projection(e, el)
+        val f2 = pp.projection(f, fl)
         val e1 = e / e2
         val f1 = f / f2
         val (e3, f3, c3) = lookup(e2, f2)
