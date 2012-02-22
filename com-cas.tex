@@ -160,52 +160,6 @@ $\mathbb{Q}[w]$ and then reading and constructing the polynomial $w^2
 This example is continued in Subsection ?. %\ref{sec:anqf}.
 
 
-\subsection{Algorithms and factories} %-----------------------------
-\label{sec:anf}
-
-Our implemented algorithms are in fact meta-algorithms or functors.
-They do not only compute elements of algebraic structures but
-simultaneously construct the required algebraic structures during
-the computation.  So several implemented methods map pairs of
-algebraic structures together with some elements to other algebraic
-structures and elements. For example Hensel lifting is an algorithm
-which maps
-$$
-  ((\mathbb{Z}[x],a),(\mathbb{Z}_{p}[x],(a_1,...,a_r)),(\mathbb{N},k)) 
-  \mapsto 
-  (\mathbb{Z}_{p^k}[x],(b_1,...,b_r)).  
-$$
-With the meaning
-$
-  (a \in \mathbb{Z}[x],(a_1,...,a_r) \in \mathbb{Z}_{p}[x]^r,k \in \mathbb{N}) 
-  \mapsto 
-  (b_1,...,b_r) \in \mathbb{Z}_{p^k}[x]^r.  
-$
-Using type annotations it would read
-$$
-  (a : \mathbb{Z}[x], (a_1,...,a_r): \mathbb{Z}_{p}[x]^r, k: \mathbb{N}) 
-  \mapsto 
-  (b_1,...,b_r) : \mathbb{Z}_{p^k}[x]^r.  
-$$
-It is important to understand that $\mathbb{Z}_{p^k}[x]$ is an object
-constructed during the computation.  The type annotation hides this
-fact.  
-Note, the rings $\mathbb{Z}_{p}$ and $\mathbb{Z}_{p^k}$ are not
-distinguished by a Java type. To correctly model this as distinct
-types needs the concept of {\em dependent types} which is not
-available in Java 6 but is available in Scala, see Subsection
-?. %\ref{sec:deptyp}.
-
-
-%\begin{figure}[thb]
-%\centering
-%\epsfig{file=AlgebraicMethods,clip=,width=0.81\linewidth}
-%\\
-%\caption{Methods for algebraic numbers}
-%\label{fig:algmeth}
-%\end{figure}
-
-
 \section{Comparison with Magma and Sage} % --------------------------------
 \label{sec:magma}
 
