@@ -31,7 +31,21 @@
 \maketitle
 
 \begin{abstract} 
-  To be written
+  The modeling of algebraic structures in a strongly typed, generic,
+  object oriented computer algebra software has been presented with
+  the systems JAS and ScAS. We started with the design and
+  implementation of strongly typed, generic and object oriented
+  polynomial algorithm libraries in Java and Scala. The libraries are
+  enhanced for interactive usage with the help of the Jython and JRuby
+  scripting languages. The libraries have now grown by several
+  algorithm versions for greatest common divisor, squarefree
+  decomposition, factorization and Gr\"obner bases computation in
+  separate packages. In this paper we discuss the problem of code
+  organization and algebraic structure configuration and deployment.
+  In search of a possible solution we study the category concept in
+  Magma and Sage and propose a novel code organization scheme using
+  mixin composition. The resulting code is again strongly typed,
+  generic and object oriented.
 \end{abstract}
 
 %\keywords{object oriented programming, generic type-safe library, algebraic field extensions}
@@ -63,7 +77,7 @@ Further related work is mentioned in the paper as required.
 
 In this section we first give an introduction into the object oriented
 type systems. For more details see our earlier articles and implementations
-\cite{JollyKredel:2010,Jolly:2010,Kredel:2000,Kredel:2008a,Kredel:2008}. %,Kredel:2006
+\cite{JollyKredel:2009,JollyKredel:2010,Jolly:2010,Kredel:2000,Kredel:2008a,Kredel:2008}. %,Kredel:2006
 Then we discuss the design and implementation of algebraic and
 transcendental extension fields together with the modeling of real
 algebraic and complex algebraic extension fields. The constructed
@@ -187,8 +201,9 @@ However, $\Sigma$-algebras are restricted to $\Sigma$-varieties
 direct product construction.
 % (hence also closed under quotient structures)
 Although $\Sigma$-varieties have nice mathematical properties - they
-can be defined by an equational theory\footnote{by a
-  theorem of Birkhoff} - many important algebraic structures are not
+can be defined by an equational theory
+%\footnote{by a theorem of Birkhoff} 
+- many important algebraic structures are not
 varieties. For example the class of fields (of fixed characteristic)
 are not a variety because they are not closed under direct products.
 So we dont see a rationale for that design decision.
@@ -289,7 +304,7 @@ using abstract classes together with class (multiple) inheritance.
     class ElementMethods:
 \end{verbatim}
 The \code{SageObject} class provides object serialization (called
-pickling in Python) for inherited class objects. the class
+pickling in Python) for inherited class objects. The class
 \code{UniqueRepresentation} tries to ensure that such objects are
 singletons, regardless of object serialization. The singletons are
 maintained with the help of a Python dictionary.  The rationale for
@@ -338,7 +353,7 @@ and for multivariate polynomials an implementation from Singular is
 used by default.
 
 Sage allows the user to define and implement Magma categories and
-algebraic structures (magmas), which is not possible in Magma itself.
+algebraic structures (magmas), which seems not possible in Magma itself.
 
 Sage proves that categories can be designed and implemented with the
 help of (partially abstract) Python classes. API interfaces, in the
