@@ -1,14 +1,20 @@
 package scas.polynomial.ufd.tree
 
+import scala.collection.SortedMap
 import scas.polynomial.ordering.Ordering
 import scas.polynomial.{TreePolynomial, PowerProduct}
+import scas.polynomial.ufd.PolynomialOverUFD
 import scas.structure.UniqueFactorizationDomain
-import TreePolynomial.Element
+import PolynomialWithSimpleGCD.Element
 
-class PolynomialWithSimpleGCD[C, @specialized(Int, Long) N](val ring: UniqueFactorizationDomain[C], val pp: PowerProduct[N])(implicit val ordering: Ordering[N], val cm: ClassManifest[Element[C, N]]) extends scas.polynomial.ufd.PolynomialWithSimpleGCD[Element, C, N] with TreePolynomial[C, N] {
-  def split = new PolynomialWithSimpleGCD(new PolynomialWithSimpleGCD(ring, pp.take(location)), pp.drop(location))
+class PolynomialWithSimpleGCD[C, @specialized(Int, Long) N](val ring: UniqueFactorizationDomain[C], val pp: PowerProduct[N])(implicit val ordering: Ordering[N], val cm: ClassManifest[Element[C, N]]) extends scas.polynomial.ufd.PolynomialWithSimpleGCD[Element, C, N] with TreePolynomial[Element[C, N], C, N] {
+  def split = PolynomialWithSimpleGCD(PolynomialWithSimpleGCD(ring, pp.take(location)), pp.drop(location))
+  def apply(value: SortedMap[Array[N], C]) = new Element(value)(this)
 }
 
 object PolynomialWithSimpleGCD {
   def apply[C, @specialized(Int, Long) N](ring: UniqueFactorizationDomain[C], pp: PowerProduct[N])(implicit ordering: Ordering[N], cm: ClassManifest[Element[C, N]]) = new PolynomialWithSimpleGCD(ring, pp)
+
+  class Element[C, @specialized(Int, Long) N](val value: SortedMap[Array[N], C])(override val factory: PolynomialWithSimpleGCD[C, N]) extends PolynomialOverUFD.Element[Element[C, N], C, N] with TreePolynomial.Element[Element[C, N], C, N]
+  implicit def coef2polynomial[D, C, @specialized(Int, Long) N](value: D)(implicit f: D => C, factory: PolynomialWithSimpleGCD[C, N]) = factory(value)
 }

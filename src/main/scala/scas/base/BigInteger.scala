@@ -3,7 +3,7 @@ package scas.base
 import scas.structure.EuclidianDomain
 import scas.{int2bigInteger, long2bigInteger}
 
-object BigInteger extends EuclidianDomain[java.math.BigInteger] {
+object BigInteger extends EuclidianDomain[java.math.BigInteger] with Ordering[java.math.BigInteger] {
   def apply(x: java.math.BigInteger) = x
   def apply(s: String) = new java.math.BigInteger(s)
   def apply(l: Long) = l
@@ -14,7 +14,9 @@ object BigInteger extends EuclidianDomain[java.math.BigInteger] {
   def characteristic = 0
   def isUnit(x: java.math.BigInteger) = abs(x) isOne
   override def pow(x: java.math.BigInteger, exp: java.math.BigInteger) = x.pow(exp.intValue())
-  override def signum(x: java.math.BigInteger) = x.signum()
+  override def negate(x: java.math.BigInteger) = x.negate()
+  override def abs(x: java.math.BigInteger) = x.abs()
+  def signum(x: java.math.BigInteger) = x.signum()
   def norm(x: java.math.BigInteger) = abs(x).shiftLeft(1).add(if (signum(x) < 0) 1 else 0)
   def gcd(x: java.math.BigInteger, y: java.math.BigInteger) = x.gcd(y)
   def divide(x: java.math.BigInteger, y: java.math.BigInteger) = x.divide(y)

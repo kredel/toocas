@@ -1,22 +1,17 @@
 package scas.base
 
-import scas.structure.Ring
-import scas.ZZ
+import scas.structure.Residue
+import scas.{long2bigInteger, ZZ}
 
-class ModInteger(val mod: java.math.BigInteger) extends Ring[java.math.BigInteger] {
+class ModInteger(val mod: java.math.BigInteger) extends Residue[java.math.BigInteger] with Ordering[java.math.BigInteger] {
+  val ring = ZZ
   def apply(x: java.math.BigInteger) = x.mod(mod)
-  def apply(l: Long) = apply(java.math.BigInteger.valueOf(l))
-  def random(numbits: Int)(implicit rnd: scala.util.Random) = apply(new java.math.BigInteger(numbits, rnd.self))
+  override def apply(l: Long) = l
+  override def random(numbits: Int)(implicit rnd: scala.util.Random) = apply(new java.math.BigInteger(numbits, rnd.self))
   def characteristic = mod
-  def isUnit(x: java.math.BigInteger) = apply(x) isOne
   override def pow(x: java.math.BigInteger, exp: java.math.BigInteger) = x.modPow(exp, mod)
-  override def signum(x: java.math.BigInteger) = apply(x).signum()
-  def plus(x: java.math.BigInteger, y: java.math.BigInteger) = apply(x.add(y))
-  def minus(x: java.math.BigInteger, y: java.math.BigInteger) = apply(x.subtract(y))
-  def times(x: java.math.BigInteger, y: java.math.BigInteger) = apply(x.multiply(y))
-  def compare(x: java.math.BigInteger, y: java.math.BigInteger) = apply(x).compareTo(apply(y))
-  override def toCode(x: java.math.BigInteger, precedence: Int) = ZZ.toCode(apply(x), precedence)
-  override def toString = ZZ.toString + "(" + mod + ")"
+  def compare(x: java.math.BigInteger, y: java.math.BigInteger) = ring.compare(x, y)
+  override def toString = ring.toString + "(" + mod + ")"
 }
 
 object ModInteger {

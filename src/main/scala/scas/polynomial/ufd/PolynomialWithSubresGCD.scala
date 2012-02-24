@@ -1,10 +1,9 @@
 package scas.polynomial.ufd
 
 import scas.long2bigInteger
-import scas.polynomial.Polynomial
 import scas.structure.UniqueFactorizationDomain
 import UniqueFactorizationDomain.Implicits.infixUFDOps
-import Polynomial.Element
+import PolynomialOverUFD.Element
 
 trait PolynomialWithSubresGCD[T[C, N] <: Element[T[C, N], C, N], C, N] extends MultivariatePolynomial[T, C, N] {
   def gcd1(x: T[C, N], y: T[C, N]) = if (degree(x) < degree(y)) gcd1(y, x) else gcd(x, y, ring.one, ring.one)

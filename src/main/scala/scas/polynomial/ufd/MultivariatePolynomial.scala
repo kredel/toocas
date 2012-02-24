@@ -1,10 +1,11 @@
 package scas.polynomial.ufd
 
 import scas.long2bigInteger
-import scas.polynomial.Polynomial
+import scas.polynomial.PowerProduct
 import scas.structure.UniqueFactorizationDomain
 import UniqueFactorizationDomain.Implicits.infixUFDOps
-import Polynomial.Element
+import PowerProduct.Implicits.infixPowerProductOps
+import PolynomialOverUFD.Element
 
 trait MultivariatePolynomial[T[C, N] <: Element[T[C, N], C, N], C, N] extends PolynomialOverUFD[T[C, N], C, N] {
   def split: MultivariatePolynomial[T, T[C, N], N]
@@ -16,7 +17,7 @@ trait MultivariatePolynomial[T[C, N] <: Element[T[C, N], C, N], C, N] extends Po
   def convertTo(s: MultivariatePolynomial[T, T[C, N], N], w: T[C, N]): T[T[C, N], N] = (s.zero /: iterator(w)) { (l, r) =>
     val (a, b) = r
     val x = pp.projection(a, location)
-    l + s.multiply(s.pow(s.generator(0), pp.degree(x)), s.ring(multiply(apply(a / x), b)))
+    l + s.multiply(s.pow(s.generator(0), pp.degree(x)), s.ring(multiply(fromPowerProduct(a / x), b)))
   }
   def convertFrom(s: MultivariatePolynomial[T, T[C, N], N], w: T[T[C, N], N]): T[C, N] = (zero /: s.iterator(w)) { (l, r) =>
     val (a, b) = r

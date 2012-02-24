@@ -2,7 +2,7 @@ package scas.polynomial.ordering
 
 class KthElimination[@specialized(Int, Long) N](val k: Int)(implicit val nm: scala.math.Ordering[N]) extends Ordering[N] {
   import scala.math.Ordering.Implicits.infixOrderingOps
-  val ordering = new DegreeReverseLexicographic[N]
+  val ordering = DegreeReverseLexicographic[N]
   override def compare(x: Array[N], y: Array[N]): Int = {
     for (i <- 0 until k) {
       if (x(i) < y(i)) return -1

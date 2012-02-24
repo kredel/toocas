@@ -1,9 +1,10 @@
 package scas.polynomial.ufd
 
-import scas.polynomial.Polynomial
+import scas.polynomial.{Polynomial, PowerProduct}
 import scas.structure.UniqueFactorizationDomain
 import UniqueFactorizationDomain.Implicits.infixUFDOps
-import Polynomial.Element
+import PowerProduct.Implicits.infixPowerProductOps
+import PolynomialOverUFD.Element
 
 trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] with UniqueFactorizationDomain[T] {
   override implicit val ring: UniqueFactorizationDomain[C]
@@ -22,7 +23,7 @@ trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N]
       val (s, a) = headTerm(x)
       val (t, b) = headTerm(y)
       if (!(t | s) || !(b | a)) (zero, x) else {
-        val c = multiply(apply(s / t), a / b)
+        val c = multiply(fromPowerProduct(s / t), a / b)
         divideAndRemainder(x - c * y, y) match { case (q, r) => (c + q, r) }
       }
     }
@@ -58,4 +59,10 @@ trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N]
     p
   }
   def divide(w: T, y: C) = map(w, (a, b) => (a, b / y))
+}
+
+object PolynomialOverUFD {
+  trait Element[T <: Element[T, C, N], C, N] extends Polynomial.Element[T, C, N] with UniqueFactorizationDomain.Element[T] { this: T =>
+    override val factory: PolynomialOverUFD[T, C, N]
+  }
 }

@@ -5,52 +5,47 @@ import scas.structure.Ring
 import Ring.Implicits.infixRingOps
 import TreePolynomial.Element
 
-trait TreePolynomial[C, N] extends Polynomial[Element[C, N], C, N] {
+trait TreePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
   override def zero = apply(SortedMap.empty[Array[N], C](ordering.reverse))
-  override def signum(x: Element[C, N]): Int = {
+  def signum(x: T): Int = {
     val it = iterator(x)
     if (!it.hasNext) return 0
     val (a, b) = it.next ; ring.signum(b)
   }
-  def apply(x: Element[C, N]) = apply((zero.value /: x.value.iterator) { (l, r) =>
+  def apply(x: T) = apply((zero.value /: x.value.iterator) { (l, r) =>
     val (a, b) = r
     val (m, c) = (pp.converter(x.factory.variables)(a), ring(b))
     if (c isZero) l else l.updated(m, c)
   })
-  override def isZero(x: Element[C, N]) = x.value isEmpty
-  def plus(x: Element[C, N], y: Element[C, N]) = apply((x.value /: y.value.iterator) { (l, r) =>
+  override def isZero(x: T) = x.value isEmpty
+  def plus(x: T, y: T) = apply((x.value /: y.value.iterator) { (l, r) =>
     val (a, b) = r
     val c = l.getOrElse(a, ring.zero) + b
     if (c isZero) l - a else l.updated(a, c)
   })
-  def minus(x: Element[C, N], y: Element[C, N]) = apply((x.value /: y.value.iterator) { (l, r) =>
+  def minus(x: T, y: T) = apply((x.value /: y.value.iterator) { (l, r) =>
     val (a, b) = r
     val c = l.getOrElse(a, ring.zero) - b
     if (c isZero) l - a else l.updated(a, c)
   })
-  def apply(value: C) = apply(if(value isZero) zero.value else zero.value + (pp.one.value -> value))
-  def apply(value: PowerProduct.Element[N]) = apply(zero.value + (value.value -> ring.one))
-  def apply(value: SortedMap[Array[N], C]) = new Element(value)(this)
+  def apply(value: C) = apply(if(value isZero) zero.value else zero.value + (pp.one -> value))
+  def fromPowerProduct(value: Array[N]) = apply(zero.value + (value -> ring.one))
+  def apply(value: SortedMap[Array[N], C]): T
 
-  def iterator(x: Element[C, N]) = new Iterator[Pair[PowerProduct.Element[N], C]] {
-    val it = x.value.iterator
-    def hasNext = it.hasNext
-    def next = {
-      val (a, b) = it.next
-      (pp(a), b)
-    }
-  }
+  def iterator(x: T) = x.value.iterator
 
-  override def headPowerProduct(x: Element[C, N]) = pp(x.value.firstKey)
+  override def headPowerProduct(x: T) = x.value.firstKey
 
-  def map(w: Element[C, N], f: (PowerProduct.Element[N], C) => (PowerProduct.Element[N], C)) = apply((zero.value /: w.value.iterator) { (l, r) =>
+  def map(w: T, f: (Array[N], C) => (Array[N], C)) = apply((zero.value /: iterator(w)) { (l, r) =>
     val (a, b) = r
-    val (m, c) = f(pp(a), b)
-    if (c isZero) l else l.updated(m.value, c)
+    val (m, c) = f(a, b)
+    if (c isZero) l else l.updated(m, c)
   })
 }
 
 object TreePolynomial {
-  class Element[C, @specialized(Int, Long) N](val value: SortedMap[Array[N], C])(override val factory: TreePolynomial[C, N]) extends Polynomial.Element[Element[C, N], C, N]
-  implicit def coef2polynomial[D, C, @specialized(Int, Long) N](value: D)(implicit f: D => C, factory: TreePolynomial[C, N]) = factory(value)
+  trait Element[T <: Element[T, C, N], C, N] extends Polynomial.Element[T, C, N] { this: T =>
+    override val factory: TreePolynomial[T, C, N]
+    val value: SortedMap[Array[N], C]
+  }
 }

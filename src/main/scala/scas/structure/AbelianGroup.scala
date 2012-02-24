@@ -4,10 +4,10 @@ trait AbelianGroup[T] extends Structure[T] { outer =>
   def zero = apply(0)
   def plus(x: T, y: T): T
   def minus(x: T, y: T): T
-  def negate(x: T) = minus(zero, x)
-  def abs(x: T) = if (signum(x) < 0) negate(x) else x
-  def signum(x: T) = if (lt(x, zero)) -1 else if (gt(x, zero)) 1 else 0
-  def isZero(x: T) = equiv(x, zero)
+  def negate(x: T) = zero - x
+  def abs(x: T) = if (signum(x) < 0) -x else x
+  def signum(x: T): Int
+  def isZero(x: T) = x >< zero
   trait Ops extends super.Ops {
     def isZero = outer.isZero(lhs)
     def +(rhs: T) = plus(lhs, rhs)

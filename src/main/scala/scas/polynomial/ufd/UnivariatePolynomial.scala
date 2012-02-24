@@ -1,9 +1,10 @@
 package scas.polynomial.ufd
 
-import scas.polynomial.Polynomial
+import scas.polynomial.PowerProduct
 import scas.structure.{Field, EuclidianDomain, UniqueFactorizationDomain}
 import UniqueFactorizationDomain.Implicits.infixUFDOps
-import Polynomial.Element
+import PowerProduct.Implicits.infixPowerProductOps
+import PolynomialOverUFD.Element
 
 trait UnivariatePolynomial[T <: Element[T, C, N], C, N] extends PolynomialOverUFD[T, C, N] with EuclidianDomain[T] {
   override implicit val ring: Field[C]

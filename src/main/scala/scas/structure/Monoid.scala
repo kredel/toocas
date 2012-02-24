@@ -7,7 +7,7 @@ trait Monoid[T] extends SemiGroup[T] { outer =>
     (one /: (1 to exp.intValue())) { (l, r) => l * x }
   }
   def isUnit(x: T): Boolean
-  def isOne(x: T) = equiv(x, one)
+  def isOne(x: T) = x >< one
   trait Ops extends super.Ops {
     def isUnit = outer.isUnit(lhs)
     def isOne = outer.isOne(lhs)
