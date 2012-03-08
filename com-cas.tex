@@ -31,7 +31,19 @@
 \maketitle
 
 \begin{abstract} 
-  To be written
+  The modeling of algebraic structures in a strongly typed, generic,
+  object oriented computer algebra software has been presented with
+  the systems JAS and ScAS. We started with the design and
+  implementation of strongly typed, generic and object oriented
+  polynomial algorithm libraries in Java and Scala. The libraries have
+  now grown by several algorithm versions for greatest common divisor,
+  squarefree decomposition, factorization and Gr\"obner bases
+  computation in separate packages. In this paper we discuss the
+  problem of code organization and algebraic structure configuration
+  and deployment.  In search of a possible solution we study the
+  category concept in Magma and Sage and propose a novel code
+  organization scheme using mixin composition. The resulting code is
+  again strongly typed, generic and object oriented.
 \end{abstract}
 
 %\keywords{object oriented programming, generic type-safe library, algebraic field extensions}
@@ -39,47 +51,66 @@
 
 \section{Introduction} %------------
 
-To be written
+The modeling of algebraic structures in a strongly typed, generic,
+object oriented computer algebra software has been presented with the
+systems JAS \cite{Kredel:2008} and ScAS \cite{Jolly:2010}. %Kredel:2000,
+The design and implementation of our strongly typed, generic and
+object oriented polynomial algorithm libraries in Java and Scala is
+presented in \cite{JollyKredel:2010,JollyKredel:2011}.  The libraries
+are enhanced for interactive usage with the help of the Jython and
+JRuby scripting languages \cite{JollyKredel:2009}.  The libraries have
+now grown by several algorithm versions for greatest common divisor,
+squarefree decomposition, factorization and Gr\"obner bases
+computation in separate packages \cite{Kredel:2011}. In this paper we
+discuss the problem of code organization and algebraic structure
+configuration and deployment.  
+
+In search of a possible solution we study the category concept in
+Magma \cite{BosmaCannonPlayoust:1997} and Sage \cite{Stein:2005} and
+compare it our JAS and ScAS approach. In the comparison we focus on
+the computer science aspects and ignore the mathematical scope of the
+systems as well as some questions related to the software
+architecture, like run-time infrastructure with automatic memory
+management and scripting languages for interactive use, we also to not
+elaborate on performance aspects.
+
+We propose a new concept to provide library code organization scheme
+using mixin composition. The new category concept combines algebraic
+structures and configurations of optimaly suitable algorithm
+implementations based on properties of the incorporated basic
+algebraic structures.  The resulting code is again strongly typed,
+generic and object oriented.
+
 
 \subsection{Related work} % -----------------------------------
 
-The related work published on type systems for computer algebra or
-abstract data type (ADT) approaches to computer algebra has been
-summarized in \cite{JollyKredel:2010,JollyKredel:2011}.  Type-safe
-design considerations in computer algebra are mostly centered around
-the {\em axiom} and {\em Magma} computer algebra systems and are
-described, for example in
-\cite{JenksSutor:1992,Watt:2003,BosmaCannonPlayoust:1997,Stein:2005,SageWiki:2009}.
-%
-Further related work is mentioned in the paper as required.
+As we provide a detailed comparison with Magma
+\cite{BosmaCannonPlayoust:1997} and Sage \cite{Stein:2005} with
+comments on {\em axiom} \cite{JenksSutor:1992,Watt:2003} in section
+\ref{sec:compare}, we will mention related work there.
+%Further related work is mentioned in the paper as required.
 
 
 \subsection{Outline} % -----------------------------------
 
+to be written
 
 
 \section{Generic, typed object oriented computer algebra software} % ----------------
 \label{sec:asto}
 
-In this section we first give an introduction into the object oriented
-type systems. For more details see our earlier articles and implementations
-\cite{JollyKredel:2010,Jolly:2010,Kredel:2000,Kredel:2008a,Kredel:2008}. %,Kredel:2006
-Then we discuss the design and implementation of algebraic and
-transcendental extension fields together with the modeling of real
-algebraic and complex algebraic extension fields. The constructed
-extension fields can be used in other algorithms on polynomials with
-coefficients from such fields, for example in (parallel) Gr\"obner
-base or greatest common divisor computations. Other algorithms like
-polynomial factorization will however require an implemented case for
-such fields. Due to space limitations we will not discuss performance,
-but will give some hints on computing times and possible improvements.
-We will also not be able to discuss mappings of elements between the
-various extension rings and fields, as for example evaluation
-homomorphisms between polynomial rings. Currently all such mappings
-and their application have to be coded explicitly, but some automatic
-mapping construction and convenient coercion would be desirable, at
-least in scripting interpreters (for a special case see Subsection
-? ): %\ref{sec:deptyp}).
+In this section we give an introduction into the object oriented
+stronly typed generic software libraries. For more details see our
+earlier articles and implementations
+\cite{JollyKredel:2009,JollyKredel:2010,Jolly:2010,Kredel:2011,Kredel:2008}. %Kredel:2000,
+
+First we discuss the design of interfaces to capture the functionality
+of ring elements and so called ring factories, as examples for the
+representation of algebraic structures. Then we summarize the design
+and implementation of our main data structure, namely polynomials and
+polynomial rings. Finally we give an overview on important parts of
+our algorithm libraries, namely greatest common divisors, squarefree
+decomposition and factorization of polynomials.
 
 
 \subsection{Ring elements and ring factories} %------------
@@ -107,6 +138,9 @@ the ring,
 \caption{Basic types}
 \label{fig:bastype}
 \end{figure}
+
+
+\subsection{Polynomials and polynomial rings} %------------
 
 The polynomial class \code{Gen\-Polynomial} with type parameter
 \code{C} for the coefficient type implements the \code{Ring\-Elem}
@@ -157,103 +191,280 @@ $\mathbb{Q}[w]$ and then reading and constructing the polynomial $w^2
  GenPolynomial<BigRational> a = pf.parse("w^2 - 2");
 \end{verbatim}
 }
-This example is continued in Subsection ?. %\ref{sec:anqf}.
+%This example is continued in Subsection ?. %\ref{sec:anqf}.
 
 
-\subsection{Algorithms and factories} %-----------------------------
-\label{sec:anf}
+\subsection{Algorithm libraries} %------------
 
-Our implemented algorithms are in fact meta-algorithms or functors.
-They do not only compute elements of algebraic structures but
-simultaneously construct the required algebraic structures during
-the computation.  So several implemented methods map pairs of
-algebraic structures together with some elements to other algebraic
-structures and elements. For example Hensel lifting is an algorithm
-which maps
-$$
-  ((\mathbb{Z}[x],a),(\mathbb{Z}_{p}[x],(a_1,...,a_r)),(\mathbb{N},k)) 
-  \mapsto 
-  (\mathbb{Z}_{p^k}[x],(b_1,...,b_r)).  
-$$
-With the meaning
-$
-  (a \in \mathbb{Z}[x],(a_1,...,a_r) \in \mathbb{Z}_{p}[x]^r,k \in \mathbb{N}) 
-  \mapsto 
-  (b_1,...,b_r) \in \mathbb{Z}_{p^k}[x]^r.  
-$
-Using type annotations it would read
-$$
-  (a : \mathbb{Z}[x], (a_1,...,a_r): \mathbb{Z}_{p}[x]^r, k: \mathbb{N}) 
-  \mapsto 
-  (b_1,...,b_r) : \mathbb{Z}_{p^k}[x]^r.  
-$$
-It is important to understand that $\mathbb{Z}_{p^k}[x]$ is an object
-constructed during the computation.  The type annotation hides this
-fact.  
-Note, the rings $\mathbb{Z}_{p}$ and $\mathbb{Z}_{p^k}$ are not
-distinguished by a Java type. To correctly model this as distinct
-types needs the concept of {\em dependent types} which is not
-available in Java 6 but is available in Scala, see Subsection
-?. %\ref{sec:deptyp}.
+We focus on algorithms for multivariate polynomials in (constructive)
+unique factorization do\-mains.  Other algorithms, for example Gr\"ob\-ner
+bases, comprehensive Gr\"obner bases, real and complex root isolation,
+univariate power series and elementary integration of rational
+functions are discussed elsewhere. %\cite{Kredel:2000,Kredel:2009,Kredel:2009a}.  
+%For the mathematical background see some text books on the topic, like
+%\cite{GeddesCzaporLabahn:1993}. %--++ zur Gathen, Kaltofen.
 
+We give an overview of the respective interfaces and classes of JAS
+implementation of greatest common divisors. First, there is an
+interface \code{Greatest\-Common\-Divisor}.  It defines the method
+names for a ring with gcd algorithm.  First there is the method
+\code{gcd()} itself, together with the method \code{lcm()} to compute
+the least common multiple of two polynomials. With the help of
+\code{gcd()} the algorithms for the content \code{con\-tent()} and the
+primitive part \code{primitive\-Part()} computation can be
+implemented.
+%
+The methods \code{coPrime()} compute lists of
+co-prime polynomials from given lists of polynomials.
 
-%\begin{figure}[thb]
-%\centering
-%\epsfig{file=AlgebraicMethods,clip=,width=0.81\linewidth}
-%\\
-%\caption{Methods for algebraic numbers}
-%\label{fig:algmeth}
-%\end{figure}
+% The abstract super class for the implementations is called
+% \code{Greatest\-Common\-Divisor\-Abstract}. It implements nearly all
+% methods defined in the \code{Greatest\-Common\-Divisor} interface.
+% The abstract methods are \code{base\-Gcd()} and
+% \code{recursive\-Uni\-vari\-ate\-Gcd()}.  The method \code{gcd()}
+% first checks for the recursion base, and eventually calls
+% \code{base\-Gcd()}.  Otherwise it converts the input polynomials to
+% recursive representation, as univariate polynomials with multivariate
+% polynomial coefficients, and calls method
+% \code{recursive\-Uni\-vari\-ate\-Gcd()}.  
+
+The concrete implementations come in two flavors.  The first flavor
+implements only the methods \code{base\-Gcd()} and
+\code{recursive\-Univariate\-Gcd()}, using the setup provided by the
+abstract super class.  There are implementations for various
+polynomial remainder sequence (PRS) algorithms: simple, monic,
+primitive and the sub-resultant algorithm (in the respective classes).
+These implementations are generic for any (UFD) coefficient ring.  The
+second flavor directly implements \code{gcd()} without providing
+\code{base\-Gcd()} and \code{recursive\-Univariate\-Gcd()}.  The
+algorithms compute gcds first modulo some suitable prime numbers and
+then interpolate the result using Chinese remainder algorithms, or in
+the Hensel case via powers of the prime number.  
+%The later versions are
+%only valid for integer or modular coefficient classes
+%\code{Big\-Inte\-ger}, \code{Mod\-Integer} or \code{Mod\-Long}.
+
+A similar design is used for squarefree decomposition where we have to
+distinguish three major and two sub cases: coefficient fields of
+characteristic zero, and coefficients not from a field. For
+coefficient fields of characteristic non-zero we need two sub-cases
+and classes for finite and infinite fields.
+
+For polynomial factorization the design must reflect the fact that
+factorization stronly depend on the respective coefficient ring.  At
+least the factorization of a square-free univariate polynomial (an
+abstract method) must be implemented for each coefficient ring.  For
+multivariate polynomials Kronecker's algorithm is used to reduce this
+case to a univariate problem and to reassemble multivariate factors
+from univariate ones. For integer coefficents there now also the
+algorithm of Wang which uses a multivariate Hensel lifting algorithm.
+The factorization algorithm is generic in the sence that it can factor
+over arbitrary stacked coefficient field extensions, like mixed
+transcendental and algebraic extensions, of some existing base field,
+for which a factorization is avaliable.
+
+The selection of a suitable algorithm implementation for any given
+coefficient field and polynomial ring is handled using by the
+algorithm factories \code{GCD\-Factory}, \code{Squarefee\-Factory} and
+two \code{Factor\-Factory} classes. Each factory has at least methods
+\code{get\-Implemen\-tation(cofac)} for different coefficient ring
+factories \code{cofac}.
 
 
 \section{Comparison with Magma and Sage} % --------------------------------
-\label{sec:magma}
+\label{sec:compare}
 
-``Theoretical Foundations'':
+In this section we discuss and compare the Magma, based on
+\cite{BosmaCannonMatthews:1994,BosmaCannonPlayoust:1997}, and the
+Sage, see \cite{Stein:2005,SageWiki:2009}, computer algebra systems to
+our JAS and ScAS approach. We focus on the computer science aspects
+and deliberately ignore performance aspects and mathematical scope of
+the systems.
+%
+As Sage aims to provide an open source alternative to Magma
+\cite{SageWiki:2009}, we first give a summary of the computer science
+of mathematical concepts of Magma and then look into the Sage
+implementation.
 
-{\em Universal Algebra} and order/multi sorted $\Sigma$-algebras for types,
+
+\subsection{Magma} % --------------------------------
+
+In the ``Theoretical Foundations'' of \cite{BosmaCannonPlayoust:1997}
+the concepts from {\em Universal Algebra} are named as basis for the
+interaction and programming language of Magma. They use order
+respectively multi sorted $\Sigma$-algebras for types and provide
 homomorphic images of $\Sigma$-algebras, sub-$\Sigma$-algebras,
-quotient $\Sigma$-algebras, direct product of $\Sigma$-algebras.
+quotient $\Sigma$-algebras and direct products of $\Sigma$-algebras.
+%
+However, $\Sigma$-algebras are restricted to $\Sigma$-varieties
+($\Sigma$-algebras closed under sub-structure, homomorphic image and
+direct product construction.
+% (hence also closed under quotient structures)
+Although $\Sigma$-varieties have nice mathematical properties - they
+can be defined by an equational theory
+%\footnote{by a theorem of Birkhoff} 
+- many important algebraic structures are not
+varieties. For example the class of fields (of fixed characteristic)
+are not a variety because they are not closed under direct products.
+So we dont see a rationale for that design decision.
 
-$\Sigma$-variety: $\Sigma$-algebra closed under sub-algebras,
-homomorphic images, direct products (hence also closed under quotient
-structures)
+$\Sigma$-algebras are then organized according to concepts from {\em
+  category theory} with objects (carrier sets), morphisms, composition
+of morphisms and functors between categories. Magma focuses on the
+existence of free algebras (generated by some set $X$) to construct
+such structures in the interaction language. The existence of
+generators then allows the construction of quotients of free algebras
+and the representation of homomorphisms via images of generators.
 
-$\Sigma$-algebras defined by an equational theory with equations $P$ 
-$\Longleftrightarrow$ variety
-
-example the class of fields (of characteristic x) are not a variety
-because they are not closed under direct products.
-
-{\em Categories} objects (carrier sets), morphisms, and composition of morphisms.
-Functors between categories, existance of free algebras (generated by a set X)
-existance of generators via quotients of free algebras, 
-homomorphism representation via images of generators.
-
-{\em Magma model} {\bf magma} = $\Sigma$-algebra:
-$\Sigma$-varieties (defined by equations $P$) $V = Var(\Sigma,P)$, 
-categories (varieties sharing the same representation $R$) $C = Cat(V,R)$.
-generic functions: $\sim$ abstract methods.
-examples: groups, commutative rings, modules,
-
-categories are concrete (no abtract parts with missing implementations) $\sim$ axiom domains.
-families of categories: multivariate polynomial rings indexed by coefficient rings
-
-compositon of categories: construction of new magmas.
-category determines: representation of elements and the carrier sets, 
+The Magma {\em computational model} starts from $\Sigma$-varieties
+called {\bf magma}s $V = Var(\Sigma,P)$, where $P$ is a set of
+equations over $\Sigma$. Then categories are defined as varieties
+sharing the same representation $R$: $C = Cat(V,R)$. Generic functions
+are modeled using abstract methods.
+%examples: groups, commutative rings, modules,
+Magma categories are concrete with no abstract parts of missing
+implementations like {\em domain}s in Axiom and unlike the use of
+categories in Axiom \cite{JenksSutor:1992}.  For example multivariate
+polynomial rings indexed by coefficient rings are then modeled by
+families of categories.  By the composition of categories new algebraic
+structures (magmas) can be constructed. A Magma category determines
+the representation of elements and the carrier sets together with the
 operations on elements and carrier sets (of a magma).
+%
+The model then allows the creation and deletion of magmas, of elements
+and morphisms, of mappings and coercion, the $\Sigma$-operations and
+other representation specific operations.
 
-creation and deletion of magmas, elements and morphisms, mappings and coercion,
-$\Sigma$-operations, representation specific operations.
+The Magma {\em interaction language} is an imperative, (dynamically)
+strongly typed programming language which allows algebraic structures
+as first class citizens. It defines constructors for magmas and for
+elements and mappings, starting from primitive (build-in) magmas.
+Then the constructions from universal algebra, namely sub-structures,
+quotients, homomorphisms, products and extensions are specified.
+% S, Q, H, E, P universal algebra constructions
+Coercions between elements of different algebraic structures are
+automatic for sub-structure and quotient structures.  Coercions can
+also be forced. % by the bang-notation: $type\, !\, expression$.
+The Magma {\em programming language} is the same as the interaction
+language. 
+%
+Besides loops and functions there are no ways to use object oriented
+programming features, like defining classes and instantiating objects.
+%
+Further there is a concept to integrate and interoperate
+with C programs mentioned in \cite{BosmaCannonMatthews:1994} which
+seems to have disappeared in the current version of Magma.  The
+integration of C programs would allow the usage of a common run-time
+system with memory management and mentions some kind of interfaces
+between the C parts, probably C header files.
 
-constructors for magmas, elements and mappings: primitive magmas,
-mappings, generators and relations (equations), S, Q, H, E, P
-universal algebra constructions (ua cons).
 
-coercions: automatic for S and Q ua cons, forced coercions $type\, !\, expression$.
+\subsection{Sage} % --------------------------------
 
-{\em Magma language}
+We now look into the Sage open source implementation of Magma concepts
+\cite{Stein:2005,SageWiki:2009}.  The Sage computer algebra system is
+implemented in the Python scripting language \cite{vanRossum:1991}.
+Python is an object oriented programming language which allows (among
+many other features) hierarchical packages and can interoperate with C
+libraries through Cython. Sage uses a super-set of Python in its
+scripting interpreter, i.e. it provides Magma concepts together with
+Python programming facilities. First there is a notable extension to
+the Python syntax to allow the Magma generator assignment syntax, for
+example
+\begin{verbatim}
+  R.<x,y> = PolynomialRing(QQ)
+\end{verbatim}
+This creates a multivariate polynomial ring over the rational numbers
+\code{QQ} in two variables and assigns it to the (program) variable
+\code{R}. Further the (program) variables \code{x} and \code{y} get
+assigned the two generator polynomials of the polynomial ring. The
+proposed syntax in Magma is \code{R<x,y>}, without the dot, which is
+slightly different.  Without the syntax extension the example
+would be
+\begin{verbatim}
+  R = PolynomialRing(QQ, "x,y"); (x,y) = R.gens()
+\end{verbatim}
+%  print x, y # -> x, y
+or equivalently
+\begin{verbatim}
+  R = PolynomialRing(QQ, "x,y"); R.inject_variables()
+\end{verbatim}
+% In the jython front-end to JAS and ScAS it would be 
+% \begin{verbatim}
+%   R = PolyRing(QQ(), "x,y")
+%   R.inject_variables()
+%   print x, y # -> x, y
+% \end{verbatim}
+It should be noted, that the syntax extensions of Sage do not add to
+the expressiveness but are solely for user convenience.
 
+Second, the implementation of Magma concepts uses Pythons object oriented
+programming features. For example the Magma categories are implemented
+using abstract classes together with class (multiple) inheritance.
+\begin{verbatim}
+  class Category (UniqueRepresentation, SageObject):
+    class ParentMethods:
+    class ElementMethods:
+\end{verbatim}
+The \code{SageObject} class provides object serialization (called
+pickling in Python) for inherited class objects. The class
+\code{UniqueRepresentation} tries to ensure that such objects are
+singletons, regardless of object serialization. The singletons are
+maintained with the help of a Python dictionary.  The rationale for
+such a design is to spare memory and uniquely identify categories by
+their pointers (object references). 
+%
+In JAS and ScAS design we have not taken the singleton approach
+because in a distributed environment, in which we envision part of the
+usage, there are no singletons, except at high communication costs.
+Moreover, the creation and comparison costs for the factory objects in
+JAS and ScAS seem to be neglectable. The importance of object
+serialization for all algebraic objects is regarded the same in JAS an
+ScAS where it is ensured by implementation of the \code{Serializable}
+interface.
+
+The inner classes \code{ParentMethods} and \code{ElementMethods} are
+designed to re\-cord the respective methods. For example for
+(multiplicative) monoids there will be a method \code{one()} or
+\code{prod()} to construct the $1$ from the category or to define the
+multiplication method in \code{ParentMethods}. The element methods
+class defines for example \code{is\_one()} to test if an element object
+is equal to $1$ in the category.
+%
+Magma/Sage elements are instances of Python Sage classes and refer to
+the category by the \code{parent()} method. Sage categories are using
+inheritance for defining the programmatic representation properties
+(such as serialization and singleton status).  The algebraic relations
+between the Sage categories are maintained in a separate list of
+`super categories' which are accessible via the method
+\code{categories()}.  Properties of these relations are maintained
+dynamically in the Python code and are not modeled using the
+inheritance features or other static language features of Python.
+
+Constructors are often designed as Python (top-level) functions, for
+example for polynomial rings we have:
+\begin{verbatim}
+  def PolynomialRing(base_ring, names, ...):
+\end{verbatim}
+The parameters \code{base\_ring}, \code{names} (and others) define the
+generic base ring and give names to the variables of the of the
+polynomial ring.  Within the constructor function several cases, of
+univariate and multivariate polynomials are distinguished and
+additionally back-end polynomial objects are created. For example for
+univariate polynomials an implementation of FLINT or NTL can be used
+and for multivariate polynomials an implementation from Singular is
+used by default.
+
+Sage allows the user to define and implement Magma categories and
+algebraic structures (magmas), which seems not possible in Magma itself.
+
+Sage proves that categories can be designed and implemented with the
+help of (partially abstract) Python classes. API interfaces, in the
+sense of Java interfaces, for the Sage classes are often modeled and
+maintained dynamically using inner (abstract) classes. As Sage uses
+several back-end C/C++ implementations of computer algebra systems, the
+Python code for methods or functions is often full of case distinctions
+to level the different APIs of these systems.
 
 
 \section{Mixins for software organization like categories} % -----------------
@@ -268,7 +479,6 @@ different algorithms and implementations.
 is there pattern \cite{Gamma:1995} for such a use case? some kind of
 simplifying facade for a complex set of classes and interfaces? or can
 we sell this as a new pattern for CAS software, e.g. ``algebraic system pattern'' 
-
 
 
 \subsection{Package structure} % -------------
@@ -363,6 +573,12 @@ PolynomialCategoryFactory.<BigRational>getImplementation(coFac)
 \section{Conclusions} % --------------------------
 
 To be written
+
+mention 
+universal algebra versus computer science
+program constructs to represent and compute with mathematical concepts
+categories in Axiom and Magma, Sage
+new concept for code organization(?)
 
 
 \subsection*{Acknowledgments} %-------------------------
