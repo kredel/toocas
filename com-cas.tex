@@ -20,7 +20,7 @@
 
 \begin{document}
 
-\title{Categories as classes with mixin composition}
+\title{Categories as classes and mixin composition}
 
 \author{Heinz Kredel\inst{1} and Raphael Jolly\inst{2}} 
 \institute{IT-Center, University of Mannheim, Germany,
@@ -71,10 +71,10 @@ compare it our JAS and ScAS approach. In the comparison we focus on
 the computer science aspects and ignore the mathematical scope of the
 systems as well as some questions related to the software
 architecture, like run-time infrastructure with automatic memory
-management and scripting languages for interactive use, we also to not
+management and scripting languages for interactive use, we also do not
 elaborate on performance aspects.
 
-We propose a new concept to provide library code organization scheme
+We propose a new concept to provide library code organization
 using mixin composition. The new category concept combines algebraic
 structures and configurations of optimaly suitable algorithm
 implementations based on properties of the incorporated basic
@@ -146,7 +146,7 @@ The polynomial class \code{Gen\-Polynomial} with type parameter
 \code{C} for the coefficient type implements the \code{Ring\-Elem}
 interface and specifies that coefficients must be of type
 \code{Ring\-Elem}.  In addition to the methods mandated by the
-interface, the \code{Gen\-Polynomial} implements the methods like
+interface, \code{Gen\-Polynomial} implements methods like
 \code{leading\-Monomial()} or \code{degree()}.  Polynomials are to be
 created with a polynomial factory \code{Gen\-Polynomial\-Ring}. In
 addition to the ring factory methods it defines for example methods
@@ -161,7 +161,7 @@ inversion of control principle.
 Figure \ref{fig:bastype} shows dependency arrows from the factories to
 the element interfaces as factories create the respective elements.
 The modeling of the constructors is not shown as it is not denotable
-in Java. The constructors of ring elements implement an opposite
+in UML. The constructors of ring elements implement an opposite
 dependency : each constructor takes a corresponding ring
 factory as parameter.  It is only indirectly enforced since the
 \code{RingElem} interface specifies a method \code{factory()} to
@@ -205,7 +205,7 @@ functions are discussed elsewhere. %\cite{Kredel:2000,Kredel:2009,Kredel:2009a}.
 %\cite{GeddesCzaporLabahn:1993}. %--++ zur Gathen, Kaltofen.
 
 We give an overview of the respective interfaces and classes of JAS
-implementation of greatest common divisors. First, there is an
+implementation of greatest common divisors. We start with an
 interface \code{Greatest\-Common\-Divisor}.  It defines the method
 names for a ring with gcd algorithm.  First there is the method
 \code{gcd()} itself, together with the method \code{lcm()} to compute
@@ -258,13 +258,13 @@ multivariate polynomials Kronecker's algorithm is used to reduce this
 case to a univariate problem and to reassemble multivariate factors
 from univariate ones. For integer coefficents there now also the
 algorithm of Wang which uses a multivariate Hensel lifting algorithm.
-The factorization algorithm is generic in the sence that it can factor
+The factorization algorithm is generic in the sense that it can factor
 over arbitrary stacked coefficient field extensions, like mixed
 transcendental and algebraic extensions, of some existing base field,
 for which a factorization is avaliable.
 
 The selection of a suitable algorithm implementation for any given
-coefficient field and polynomial ring is handled using by the
+coefficient field and polynomial ring is handled by the
 algorithm factories \code{GCD\-Factory}, \code{Squarefee\-Factory} and
 two \code{Factor\-Factory} classes. Each factory has at least methods
 \code{get\-Implemen\-tation(cofac)} for different coefficient ring
@@ -298,7 +298,7 @@ quotient $\Sigma$-algebras and direct products of $\Sigma$-algebras.
 %
 However, $\Sigma$-algebras are restricted to $\Sigma$-varieties
 ($\Sigma$-algebras closed under sub-structure, homomorphic image and
-direct product construction.
+direct product construction).
 % (hence also closed under quotient structures)
 Although $\Sigma$-varieties have nice mathematical properties - they
 can be defined by an equational theory
@@ -307,6 +307,8 @@ can be defined by an equational theory
 varieties. For example the class of fields (of fixed characteristic)
 are not a variety because they are not closed under direct products.
 So we dont see a rationale for that design decision.
+%note of RJ : because of my weak mathematical background, I don't understand
+%this one (why fields are not closed under direct products)
 
 $\Sigma$-algebras are then organized according to concepts from {\em
   category theory} with objects (carrier sets), morphisms, composition
@@ -447,7 +449,7 @@ example for polynomial rings we have:
   def PolynomialRing(base_ring, names, ...):
 \end{verbatim}
 The parameters \code{base\_ring}, \code{names} (and others) define the
-generic base ring and give names to the variables of the of the
+generic base ring and give names to the variables of the
 polynomial ring.  Within the constructor function several cases, of
 univariate and multivariate polynomials are distinguished and
 additionally back-end polynomial objects are created. For example for
@@ -467,119 +469,189 @@ Python code for methods or functions is often full of case distinctions
 to level the different APIs of these systems.
 
 
-\section{Mixins for software organization like categories} % -----------------
+\section{Mixins for category-like software organization} % -----------------
 \label{sec:mixin}
 
-An algebraic view of code organization.
+%An algebraic view of code organization.
 
-Axiom: polynomial category includes for example gcd and factorization.
-$\Longrightarrow$ unclear code organization and limited flexibility for
-different algorithms and implementations.
+%Axiom: polynomial category includes for example gcd and factorization.
+%$\Longrightarrow$ unclear code organization and limited flexibility for
+%different algorithms and implementations.
 
-is there pattern \cite{Gamma:1995} for such a use case? some kind of
-simplifying facade for a complex set of classes and interfaces? or can
-we sell this as a new pattern for CAS software, e.g. ``algebraic system pattern'' 
+%is there pattern \cite{Gamma:1995} for such a use case? some kind of
+%simplifying facade for a complex set of classes and interfaces? or can
+%we sell this as a new pattern for CAS software, e.g. ``algebraic system pattern'' 
 
+In this section we aim to investigate if and how it is possible to improve on
+the use of Java interfaces to implement computer algebra libraries.
+As explained in \cite{Kredel:2008}, Subsection 7.1 ``Interfaces as types'',
+``With the aid of interfaces it is possible to define a abstract type system
+separate of any implementation types defined by class hierarchies. This approach
+was partly anticipated in the Axiom system \cite{JenksSutor:1992} with so called
+categories and domains. A category is a kind of interface, but with the
+possibility to give implementations for certain methods, like a Java abstract
+class. A domain in Axiom is similar to a Java class''.
 
-\subsection{Package structure} % -------------
+It turns out that just this kind of interface with method implementations
+exists in the Scala programming language \cite{Odersky:2003}, whereby it is
+called ``traits'' and considered in the more general context of mixin
+composition \cite{Odersky:2005}.
 
-Lastly, there is a question about whether several algorithm flavors
-(for e.g. gcd, factorization and so on) could be implemented as
-polynomial (factory) sub-classes as is currently investigated in ScAS,
-or should remain in distinct class hierarchies as in JAS (see
-\cite{Kredel:2008}, Subsection 7.5 ``Recursive types'').
+\subsection{Peer (mixin) vs hierarchical composition} % -------------
 
-
-\subsection{Implementations of different algorithms} % -------------
-
-example several gcd implementations: different PRS, modular: Chinese
-remainder or Hensel
-
-unified by factories:
-GCDFactory, SquarefreeFactory, FactorFactory, GBFactory, ...
-
-\subsection{Polynomial GCD} % -------------
-
-see figure \ref{fig:poly}
-
-\begin{figure}[thb]
-\centering
-\epsfig{file=Polynomial,clip=,width=0.7\linewidth}
-\caption{Polynomial GCD}
-\label{fig:poly}
-\end{figure}
-
-\subsection{Categories using mixins} % -------------
-
+Suppose we have a polynomial ring with a GCD operation. As we may have several
+implementations of such operation (different PRS, modular : Chinese
+remainder or Hensel), we have to declare it abstract and to later
+provide the concrete implementation. This can be done in two ways. The first
+way is through hierarchical composition, where a GCD engine is provided as an
+abstract value member of the ring:
 
 \begin{verbatim}
-class RationalPolynomialCategory(n: Int, vars: Array[String])
-  extends PolynomialRing[BigRational](new BigRational(), n, vars)
-          with GcdEngineX[BigRational] 
-          with SquarefreeEngineZ[BigRational]
-          with FactEngineY[BigRational]
-\end{verbatim}
-
-\begin{verbatim}
-RationalPolynomialCategoryGcdXSqfZFactY
-\end{verbatim}
-
-\begin{verbatim}
-trait GcdEngineX[C <: RingElem[C]] {
-      //??val coFac: RingFactory[C];
-      Polynomial[C] gcd(a: Polynomial[C], b: Polynomial[C]) {
-                // implementation 
-      }
-      ...
+trait Polynomial[C: Ring] {
+  val engine: GCDEngine[C]
+  def gcd(x: Element[C], y: Element[C]) = engine.gcd(x, y)
+}
+trait GCDEngine[C: Ring] {
+  def gcd(x: Element[C], y: Element[C]): Element[C]
+}
+trait GCDSimple[C: Ring] extends GCDEngine[C] {
+  def gcd(x: Element[C], y: Element[C]) = ...
+}
+val r = new Polynomial[BigInteger] {
+  val engine = new GCDSimple[BigInteger]
 }
 \end{verbatim}
 
-\begin{verbatim}
-trait SquarefreeEngineZ[C <: RingElem[C]] {
-      //??val coFac: RingFactory[C];
-      Polynomial[C] squarefreePart(a: Polynomial[C]) {
-                // implementation 
-      }
-      List[Polynomial[C]] squarefreeFactors(a: Polynomial[C]) {
-                // implementation 
-      }
-      ...
-}
-\end{verbatim}
+The other way is through mixin composition, where a final ring class inherits
+both from the polynomial ring and the GCD engine (which is itself defined as a
+subtrait of the polynomial ring):
 
 \begin{verbatim}
-trait FactorEngineY[C <: RingElem[C]] {
-      //??val coFac: RingFactory[C];
-      List[Polynomial[C]] factorList(a: Polynomial[C]) {
-                // implementation 
-      }
-      SortedMap[Polynomial[C],Long] factors(a: Polynomial[C]) {
-                // implementation 
-      }
-      ...
+trait Polynomial[C: Ring] {
+  def gcd(x: Element[C], y: Element[C]): Element[C]
 }
+trait GCDSimple[C: Ring] extends Polynomial[C] {
+  def gcd(x: Element[C], y: Element[C]) = ...
+}
+val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
+\end{verbatim}
+
+\subsection{Multiple inheritance and categories} % -------------
+
+Mixin composition provides a convenient way to organise different algorithm
+implementations. In addition to GCD algorithms, we can imagine algorithms for
+squarefree decomposition, factorization, groebner basis computation. Then we
+can select precisely which ones we require for given ring implementations:
+
+\begin{verbatim}
+trait GCDEngineX[C: Ring] extends Polynomial[C] {
+  def gcd(x: Element[C], y: Element[C]) = ...
+}
+trait SquarefreeEngineY[C: Ring] extends Polynomial[C] {
+  def squarefreePart(x: Element[C]): Element[C] = ...
+  def squarefreeFactors(x: Element[C]): List[Element[C]] = ...
+}
+trait FactorEngineZ[C: Ring] extends Polynomial[C] {
+  def factorList(x: Element[C]): List[Element[C]] = ...
+  def factors(x: Element[C]): Map[Element[C], Long] = ...
+}
+val r = new Polynomial[BigRational]
+        with GcdEngineX[BigRational] 
+        with SquarefreeEngineY[BigRational]
+        with FactorEngineZ[BigRational]
+\end{verbatim}
+
+In the sample code above, the coefficient ring \code{C} is kept abstract until
+the definition of the final ring \code{r}. But it is not necessarily so. For
+instance, some versions of Euclid's algorithm only work for \code{BigInteger}
+or \code{ModInteger} coefficients, namely \code{GCDModular} or
+\code{GCDHensel}:
+
+\begin{verbatim}
+trait GCDModular extends Polynomial[BigInteger] {
+  def gcd(x: Element[BigInteger], y: Element[BigInteger]) = ...
+}
+val r = new Polynomial[BigInteger] with GCDModular
 \end{verbatim}
 
 %\begin{verbatim}
 %\end{verbatim}
 
-Implementations could be retrieved via factories:
+%Implementations could be retrieved via factories:
+%\begin{verbatim}
+%PolynomialCategoryFactory.<BigRational>getImplementation(coFac)
+%\end{verbatim}
+
+\subsection{Computer representation of polynomials} % -------------
+
+The same technique as above can be used to devise several internal
+representations for polynomials, e.g. based on array, list or tree data
+structures. These can be factored out of algebraic computations and reused
+in a modular fashion, thus preventing code duplication, see figure
+\ref{fig:poly}.
+
+\begin{figure}[thb]
+\centering
+\epsfig{file=Polynomial,clip=,width=0.7\linewidth}
+\caption{Polynomial representation}
+\label{fig:poly}
+\end{figure}
+
+\subsection{Some problems solved} % -------------
+
+Mixin composition brings a solution to some code duplication related problems,
+summarized in \cite{JollyKredel:2011}, Section 3. The first one is with
+\code{SolvablePolynomial}, which should inherit nearly all its code from
+\code{Polynomial}, except just the \code{multiply()} method, rewritten in a
+non-commutative way. However, direct inheritance is forbidden by the fact that
+the class would have to inherit both from \code{RingElem\-<Polynomial<C>>} and
+\code{RingElem<SolvablePolynomial<C>>}, which is not allowed. In the new design,
+the common code is factored out in a trait which is then mixed in with both
+\code{Polynomial} and \code{SolvablePolynomial}. A similar solution is possible
+(though not yet implemented) in the case of \code{Real/AlgebraicNumber}.
+
+A second problem, also resulting in code duplication, is with multivariate
+GCD computation, see \cite{Kredel:2008}, Subsection 7.5 ``Recursive types''.
+The implementation of the algorithm as a subtrait of
+\code{MultivariatePolynomial} with a ``splitting'' capability allows to
+unify the methods \code{baseGCD()} and \code{recursive\-UnivariateGCD()}. These
+are essentially the same, except for the type of the parameters, namely:
+\code{Polynomial.Element[C]} in the base case, and
+\code{Polynomial\-.Element[Polynomial.Element[C]]} in the recursive case:
+
 \begin{verbatim}
-PolynomialCategoryFactory.<BigRational>getImplementation(coFac)
+trait MultivariatePolynomial[C] extends Polynomial[C] {
+  def split: MultivariatePolynomial[Polynomial.Element[C]]
+}
 \end{verbatim}
 
+Here we must note that this solution would not be possible without higher-kinded
+types, another advanced feature of Scala. As we are defining several kinds of
+polynomials for each algorithm flavor or data structure representation, the
+above \code{Polynomial.Element[C]} type must be abstracted over, which mandates a
+so-called type constructor \code{T}:
 
+\begin{verbatim}
+trait MultivariatePolynomial[T[C] <: Polynomial.Element[T[C],C],C]
+    extends Polynomial[T[C], C] {
+  def split: MultivariatePolynomial[T, T[C]]
+}
+\end{verbatim}
 
 \section{Conclusions} % --------------------------
 
 To be written
 
-mention 
-universal algebra versus computer science
-program constructs to represent and compute with mathematical concepts
+mention :
+universal algebra versus computer science ;
+program constructs to represent and compute with mathematical concepts ;
 categories in Axiom and Magma, Sage
-new concept for code organization(?)
 
+A new concept for code organization in computer algebra is proposed in the form
+of mixin composition, which allows to define and choose among several algebraic
+computation algorithms and data structure representations in a modular fashion,
+and also solves some long standing code duplication problems while still
+preserving type-safety.
 
 \subsection*{Acknowledgments} %-------------------------
 
