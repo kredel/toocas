@@ -13,6 +13,7 @@ object MyApp extends App {
   rational
   rationalPolynomial
   univariatePolynomial
+  rf
   gcdSimple
   gcdPrimitive
   gcdSubres
@@ -102,6 +103,17 @@ object MyApp extends App {
     assert (monic(gcd((1+x)*(1+frac(1, 2)*x), (1+frac(1, 2)*x)*(1-x))) >< 2+x)
   }
 
+  def rf = {
+    implicit val r = UnivariatePolynomial(QQ, PowerProduct[Int]('x))
+    implicit val q = RationalFunction(r)
+    val Array(x) = q.generators
+    assert (x + frac(1, 2) >< frac(1, 2) + x)
+    assert (x + 1 >< 1 + x)
+    assert ((pow(x, 2) - 1)/(x - 1) >< x + 1)
+    assert ((x/(2 * x)).toString == "frac(1, 2)")
+    assert (q.toString == "QQ(x)")
+  }
+
   def gcdSimple = {
     implicit val r = PolynomialWithSimpleGCD(ZZ, PowerProduct[Int]('x))
     import r.{generators, gcd}
@@ -127,7 +139,7 @@ object MyApp extends App {
   }
 
   def gcdMultivariate = {
-    implicit val r = PolynomialWithSimpleGCD(ZZ, PowerProduct[Int]('x, 'y, 'z))
+    implicit val r = MultivariatePolynomial(ZZ, PowerProduct[Int]('x, 'y, 'z))
     import r.{generators, gcd}
     val Array(x, y, z) = generators
     assert (gcd(x*y, x*z) >< x)

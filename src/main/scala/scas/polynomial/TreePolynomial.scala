@@ -7,7 +7,7 @@ import TreePolynomial.Element
 
 trait TreePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
   override def zero = apply(SortedMap.empty[Array[N], C](ordering.reverse))
-  def signum(x: T): Int = {
+  override def signum(x: T): Int = {
     val it = iterator(x)
     if (!it.hasNext) return 0
     val (a, b) = it.next ; ring.signum(b)

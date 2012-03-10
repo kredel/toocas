@@ -494,8 +494,8 @@ class. A domain in Axiom is similar to a Java class''.
 
 It turns out that just this kind of interface with method implementations
 exists in the Scala programming language \cite{Odersky:2003}, whereby it is
-called ``traits'' and considered in the more general context of mixin
-composition \cite{Odersky:2005}.
+called ``traits'' and considered in the more general context of reusable
+software components and mixin composition \cite{Odersky:2005}.
 
 \subsection{Peer (mixin) vs hierarchical composition} % -------------
 
@@ -574,13 +574,13 @@ trait GCDModular extends Polynomial[BigInteger] {
 val r = new Polynomial[BigInteger] with GCDModular
 \end{verbatim}
 
-%\begin{verbatim}
-%\end{verbatim}
+Suitable implementations may be chosen automatically for the user in function
+of the coefficient ring:
 
-%Implementations could be retrieved via factories:
-%\begin{verbatim}
-%PolynomialCategoryFactory.<BigRational>getImplementation(coFac)
-%\end{verbatim}
+\begin{verbatim}
+val r = Polynomial(ring, pp)
+// may return a GCDModular instance if ring == ZZ and so on
+\end{verbatim}
 
 \subsection{Computer representation of polynomials} % -------------
 

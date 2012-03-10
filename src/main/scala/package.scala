@@ -18,7 +18,9 @@ package object scas {
   val Polynomial = scas.polynomial.tree.Polynomial
   val SolvablePolynomial = scas.polynomial.tree.SolvablePolynomial
   val WeylAlgebra = scas.polynomial.tree.WeylAlgebra
+  val RationalFunction = scas.polynomial.ufd.RationalFunction
   val UnivariatePolynomial = scas.polynomial.ufd.tree.UnivariatePolynomial
+  val MultivariatePolynomial = scas.polynomial.ufd.tree.MultivariatePolynomial
   val PolynomialWithSimpleGCD = scas.polynomial.ufd.tree.PolynomialWithSimpleGCD
   val PolynomialWithPrimitiveGCD = scas.polynomial.ufd.tree.PolynomialWithPrimitiveGCD
   val PolynomialWithSubresGCD = scas.polynomial.ufd.tree.PolynomialWithSubresGCD

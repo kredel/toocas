@@ -12,27 +12,29 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
   val ordering: Ordering[N]
   implicit val cm: ClassManifest[T]
   def generator(n: Int) = fromPowerProduct(pp.generator(n))
-  def generators = (for (i <- 0 until pp.length) yield generator(i)).toArray
+  def generators = (for (i <- 0 until length) yield generator(i)).toArray
   def generatorsBy(n: Int) = {
-    val m = pp.length/n
+    val m = length/n
     (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
   }
   def characteristic = ring.characteristic
   def apply(l: Long) = apply(ring(l))
   def random(numbits: Int)(implicit rnd: scala.util.Random) = zero
-  def equiv(x: T, y: T): Boolean = {
+  def compare(x: T, y: T): Int = {
     val it = iterator(y)
     for ((a, b) <- iterator(x)) {
-      if (!it.hasNext) return false
+      if (!it.hasNext) return 1
       val (c, d) = it.next
-      val s = pp.equiv(a, c)
-      if (!s) return false
+      val s = pp.compare(a, c)
+      if (s < 0) return -1
+      else if (s > 0) return 1
       else {
-        val s = ring.equiv(b, d)
-        if (!s) return false
+        val s = ring.compare(b, d)
+        if (s < 0) return -1
+        else if (s > 0) return 1
       }
     }
-    if (!it.hasNext) true else false
+    if (!it.hasNext) 0 else -1
   }
   def isUnit(x: T) = abs(x) isOne
   def times(x: T, y: T) = (zero /: iterator(y)) { (l, r) =>
@@ -40,20 +42,29 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
     l + multiply(x, a, b)
   }
   override def toCode(x: T, precedence: Int) = {
-    var s = ring.zero.toCode(0)
+    var s = ""
     var n = 0
+    var m = 0
     for ((a, b) <- iterator(x)) {
       val c = ring.abs(b)
-      val t = {
-        if (a isOne) c.toCode(0)
-        else if (c isOne) a.toCode(0)
-        else c.toCode(1) + "*" + a.toCode(1)
+      val (t, u) = {
+        if (a isOne) (c.toCode(0), 1)
+        else if (c isOne) (a.toCode(0), pp.size(a))
+        else (c.toCode(1) + "*" + a.toCode(1), 1 + pp.size(a))
       }
-      if (n == 0) s = (if (ring.signum(b) < 0) "-" else "") + t
-      else s = s + (if (ring.signum(b) < 0) "-" else "+") + t
+      s = s + (if (ring.signum(b) < 0) "-" else (if (n == 0) "" else "+")) + t
+      m = u + (if (ring.signum(b) < 0) 1 else 0)
       n += 1
     }
-    if (precedence > 0 && n > 1) "(" + s + ")" else s
+    if (n == 0) ring.zero.toCode(0) else {
+      val fenced = {
+        if (n == 1) {
+          if (m == 1) false
+          else precedence > 1
+        } else precedence > 0
+      }
+      if (fenced) "(" + s + ")" else s
+    }
   }
   override def toString = ring.toString + pp.toString
   def apply(value: C): T
@@ -62,6 +73,8 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
   def iterator(x: T): Iterator[Pair[Array[N], C]]
 
   def variables = pp.variables
+
+  def length = variables.length
 
   def headPowerProduct(x: T) = {
     val (a, b) = headTerm(x)

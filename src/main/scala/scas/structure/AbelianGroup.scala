@@ -6,7 +6,7 @@ trait AbelianGroup[T] extends Structure[T] { outer =>
   def minus(x: T, y: T): T
   def negate(x: T) = zero - x
   def abs(x: T) = if (signum(x) < 0) -x else x
-  def signum(x: T): Int
+  def signum(x: T) = if (x < zero) -1 else if (x > zero) 1 else 0
   def isZero(x: T) = x >< zero
   trait Ops extends super.Ops {
     def isZero = outer.isZero(lhs)

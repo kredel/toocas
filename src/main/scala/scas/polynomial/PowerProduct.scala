@@ -3,7 +3,7 @@ package scas.polynomial
 import scas.polynomial.ordering.Ordering
 import scas.structure.Monoid
 
-class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) extends Monoid[Array[N]] with scala.math.Ordering[Array[N]] {
+class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) extends Monoid[Array[N]] {
   import scala.math.Ordering.Implicits.infixOrderingOps
   import Numeric.Implicits.infixNumericOps
   import nm.{fromInt, toLong}
@@ -62,17 +62,17 @@ class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(im
   def dependencyOnVariables(x: Array[N]) = (for (i <- 0 until length if (x(i) > fromInt(0))) yield i).toArray
   def projection(x: Array[N], n: Int) = (for (i <- 0 until x.length) yield if (i == n || i == length) x(n) else fromInt(0)).toArray
   override def toCode(x: Array[N], precedence: Int) = {
-    var s = "1"
-    var first = true
-    for (i <- 0 until length) {
-      val n = x(i)
-      if (n > fromInt(0)) {
-        val t = if (n equiv fromInt(1)) variables(i).toString else "pow(" + variables(i) + ", " + x(i) + ")"
-        if (first) s = t else s = s + "*" + t
-        first = false
+    var s = ""
+    var m = 0
+    for (i <- 0 until length) if (x(i) > fromInt(0)) {
+      val t = {
+        if (x(i) equiv fromInt(1)) variables(i).toString
+        else "pow(" + variables(i) + ", " + x(i) + ")"
       }
+      s = s + (if (m == 0) "" else "*") + t
+      m += 1
     }
-    s
+    if (m == 0) "1" else s
   }
   override def toString = "["+variables.mkString(", ")+"]"
 
@@ -89,6 +89,14 @@ class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(im
   }
 
   def length = variables.length
+
+  def size(x: Array[N]) = {
+    var m = 0
+    for (i <- 0 until length) if (x(i) > fromInt(0)) {
+      m += 1
+    }
+    m
+  }
 
   class Ops(val lhs: Array[N]) extends super[Monoid].Ops {
     def /(rhs: Array[N]) = divide(lhs, rhs)

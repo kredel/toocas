@@ -9,7 +9,7 @@ trait Residue[R] extends Ring[R] {
   override def pow(x: R, exp: java.math.BigInteger) = apply(ring.pow(x, exp))
   override def negate(x: R) = apply(ring.negate(x))
   override def abs(x: R) = x
-  def signum(x: R) = ring.signum(x)
+  override def signum(x: R) = ring.signum(x)
   def plus(x: R, y: R) = apply(ring.plus(x, y))
   def minus(x: R, y: R) = apply(ring.minus(x, y))
   def times(x: R, y: R) = apply(ring.times(x, y))

@@ -5,7 +5,7 @@ import scas.{int2bigInteger, long2bigInteger, ZZ}
 import Ring.Implicits.infixRingOps
 import Quotient.Element
 
-object Rational extends Quotient[java.math.BigInteger] with Ordering[Element[java.math.BigInteger]] {
+object Rational extends Quotient[java.math.BigInteger] {
   val ring = ZZ
   def reduce(n: java.math.BigInteger, d: java.math.BigInteger) = {
     val gcd = n.gcd(d) match { case gcd => if (d.signum() < 0) gcd.negate() else gcd }
@@ -17,14 +17,15 @@ object Rational extends Quotient[java.math.BigInteger] with Ordering[Element[jav
     val d = new java.math.BigInteger(numbits, rnd.self)
     reduce(if (rnd.nextBoolean()) n.negate() else n, d.add(1))
   }
-  def compare(x: Element[java.math.BigInteger], y: Element[java.math.BigInteger]) = {
+  override def compare(x: Element[java.math.BigInteger], y: Element[java.math.BigInteger]) = {
     val Element(a, b) = x
     val Element(c, d) = y
     ring.compare(a * d, c * b)
   }
   override def toCode(x: Element[java.math.BigInteger], precedence: Int) = {
     val Element(n, d) = x
-    if (ring.isOne(d)) ring.toCode(n, precedence) else "frac(" + ring.toCode(n, 0) + ", " + ring.toCode(d, 0) + ")"
+    if (ring.isOne(d)) ring.toCode(n, precedence)
+    else "frac(" + ring.toCode(n, 0) + ", " + ring.toCode(d, 0) + ")"
   }
   override def toString = "QQ"
 }

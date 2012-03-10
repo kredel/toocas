@@ -9,8 +9,8 @@ import PolynomialOverUFD.Element
 
 trait MultivariatePolynomial[T[C, N] <: Element[T[C, N], C, N], C, N] extends PolynomialOverUFD[T[C, N], C, N] {
   def split: MultivariatePolynomial[T, T[C, N], N]
-  def location = pp.length - 1
-  override def gcd(x: T[C, N], y: T[C, N]) = if (pp.length > 1) {
+  def location = length - 1
+  override def gcd(x: T[C, N], y: T[C, N]) = if (length > 1) {
     val s = split
     convertFrom(s, s.gcd(convertTo(s, x), convertTo(s, y)))
   } else super.gcd(x, y)

@@ -26,7 +26,7 @@ trait Quotient[R] extends Field[Element[R]] {
     val Element(n, d) = x
     apply(ring.abs(n), d)
   }
-  def signum(x: Element[R]) = {
+  override def signum(x: Element[R]) = {
     val Element(n, d) = x
     ring.signum(n)
   }
@@ -54,6 +54,23 @@ trait Quotient[R] extends Field[Element[R]] {
   override def negate(x: Element[R]) = {
     val Element(n, d) = x
     apply(-n, d)
+  }
+  def compare(x: Element[R], y: Element[R]) = {
+    val Element(a, b) = x
+    val Element(c, d) = y
+    val s = ring.compare(a, c)
+    if (s < 0) -1
+    else if (s > 0) 1
+    else ring.compare(b, d)
+  }
+  override def toCode(x: Element[R], precedence: Int) = {
+    val Element(n, d) = x
+    if (ring.isOne(d)) ring.toCode(n, precedence)
+    else {
+      val s = ring.toCode(n, 2) + "/" + ring.toCode(d, 2)
+      val fenced = precedence > 1
+      if (fenced) "(" + s + ")" else s
+    }
   }
 }
 

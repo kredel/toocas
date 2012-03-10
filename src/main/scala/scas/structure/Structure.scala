@@ -1,6 +1,6 @@
 package scas.structure
 
-trait Structure[T] extends Equiv[T] { outer =>
+trait Structure[T] extends Ordering[T] { outer =>
   def apply(x: T): T
   def apply(l: Long): T
   def random(numbits: Int)(implicit rnd: scala.util.Random): T
@@ -20,8 +20,9 @@ object Structure {
   }
   object Implicits extends ExtraImplicits
 
-  trait Element[T <: Element[T]] { this: T =>
+  trait Element[T <: Element[T]] extends Ordered[T] { this: T =>
     val factory: Structure[T]
+    def compare(that: T) = factory.compare(this, that)
     def ><(that: T) = factory.equiv(this, that)
     def <>(that: T) = !factory.equiv(this, that)
     def toCode(precedence: Int) = factory.toCode(this, precedence)
