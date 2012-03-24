@@ -1,8 +1,8 @@
 package scas.base
 
-import scas.structure.{Quotient, Ring}
-import scas.{int2bigInteger, long2bigInteger, ZZ}
-import Ring.Implicits.infixRingOps
+import scas.structure.Quotient
+import scas.{int2bigInteger, long2bigInteger}
+import scas.Implicits.{ZZ, infixRingOps}
 import Quotient.Element
 
 object Rational extends Quotient[java.math.BigInteger] {

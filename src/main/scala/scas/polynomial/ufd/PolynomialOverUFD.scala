@@ -1,9 +1,8 @@
 package scas.polynomial.ufd
 
-import scas.polynomial.{Polynomial, PowerProduct}
+import scas.polynomial.Polynomial
 import scas.structure.UniqueFactorizationDomain
-import UniqueFactorizationDomain.Implicits.infixUFDOps
-import PowerProduct.Implicits.infixPowerProductOps
+import scas.Implicits.{infixUFDOps, infixPowerProductOps}
 import PolynomialOverUFD.Element
 
 trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] with UniqueFactorizationDomain[T] {
@@ -17,8 +16,8 @@ trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N]
     r
   }
   def divideAndRemainder(x: T, y: T) = {
-    if (y isZero) throw new ArithmeticException("Polynomial divide by zero")
-    else if (x isZero) (zero, zero)
+    if (y.isZero) throw new ArithmeticException("Polynomial divide by zero")
+    else if (x.isZero) (zero, zero)
     else {
       val (s, a) = headTerm(x)
       val (t, b) = headTerm(y)
@@ -35,7 +34,7 @@ trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N]
   }
   def gcd1(x: T, y: T): T
   def remainder1(x: T, y: T): T = {
-    if (x isZero) zero
+    if (x.isZero) zero
     else {
       val (s, a) = headTerm(x)
       val (t, b) = headTerm(y)
@@ -52,7 +51,7 @@ trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N]
   }
   def contentAndPrimitivePart(x: T) = {
     val c = content(x)
-    if (c isZero) (ring.zero, zero) else (c, divide(x, c))
+    if (c.isZero) (ring.zero, zero) else (c, divide(x, c))
   }
   def primitivePart(x: T) = {
     val (c, p) = contentAndPrimitivePart(x)

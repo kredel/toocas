@@ -12,7 +12,7 @@ object BigInteger extends EuclidianDomain[java.math.BigInteger] {
     if (rnd.nextBoolean()) r.negate() else r
   }
   def characteristic = 0
-  def isUnit(x: java.math.BigInteger) = abs(x) isOne
+  def isUnit(x: java.math.BigInteger) = abs(x).isOne
   override def pow(x: java.math.BigInteger, exp: java.math.BigInteger) = x.pow(exp.intValue())
   override def negate(x: java.math.BigInteger) = x.negate()
   override def abs(x: java.math.BigInteger) = x.abs()

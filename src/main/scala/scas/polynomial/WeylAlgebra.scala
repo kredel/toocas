@@ -1,6 +1,5 @@
 package scas.polynomial
 
-import scas.structure.Ring
 import Polynomial.Element
 
 trait WeylAlgebra[T <: Element[T, C, N], C, N] extends SolvablePolynomial[T, C, N] {

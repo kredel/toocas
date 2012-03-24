@@ -1,10 +1,7 @@
 package scas.polynomial.ufd
 
 import scas.long2bigInteger
-import scas.polynomial.PowerProduct
-import scas.structure.UniqueFactorizationDomain
-import UniqueFactorizationDomain.Implicits.infixUFDOps
-import PowerProduct.Implicits.infixPowerProductOps
+import scas.Implicits.{infixUFDOps, infixPowerProductOps}
 import PolynomialOverUFD.Element
 
 trait MultivariatePolynomial[T[C, N] <: Element[T[C, N], C, N], C, N] extends PolynomialOverUFD[T[C, N], C, N] {

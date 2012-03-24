@@ -1,7 +1,7 @@
 package scas.polynomial.ufd
 
-import scas.structure.{Quotient, UniqueFactorizationDomain}
-import UniqueFactorizationDomain.Implicits.infixUFDOps
+import scas.structure.Quotient
+import scas.Implicits.infixUFDOps
 import Quotient.Element
 
 class RationalFunction[R <: PolynomialOverUFD.Element[R, C, N], C, N](override val ring: PolynomialOverField[R, C, N]) extends Quotient[R] {

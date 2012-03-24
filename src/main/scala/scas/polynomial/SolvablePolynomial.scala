@@ -1,9 +1,7 @@
 package scas.polynomial
 
 import scala.collection.SortedMap
-import scas.structure.Ring
-import Ring.Implicits.infixRingOps
-import PowerProduct.Implicits.infixPowerProductOps
+import scas.Implicits.{infixRingOps, infixPowerProductOps}
 import Polynomial.Element
 
 trait SolvablePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
@@ -50,7 +48,7 @@ trait SolvablePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N
   override def multiply(w: T, x: Array[N], y: C) = (zero /: iterator(w)) { (l, r) =>
     val (a, b) = r
     val c = b * y
-    if (c isZero) l else l + multiply(multiply(a, x), c)
+    if (c.isZero) l else l + multiply(multiply(a, x), c)
   }
 
   def multiply(e: Array[N], f: Array[N]) = {
@@ -66,16 +64,16 @@ trait SolvablePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N
         val f1 = f / f2
         val (e3, f3, c3) = lookup(e2, f2)
         var cs = c3
-        if (!(f3 isOne)) {
+        if (!(f3.isOne)) {
           cs = cs * fromPowerProduct(f3)
           update(e2 / e3, f2, cs)
         }
-        if (!(e3 isOne)) {
+        if (!(e3.isOne)) {
           cs = fromPowerProduct(e3) * cs
           update(e2, f2, cs)
         }
-        if (!(f1 isOne)) cs = cs * fromPowerProduct(f1)
-        if (!(e1 isOne)) cs = fromPowerProduct(e1) * cs
+        if (!(f1.isOne)) cs = cs * fromPowerProduct(f1)
+        if (!(e1.isOne)) cs = fromPowerProduct(e1) * cs
         cs
       }
     }

@@ -46,7 +46,8 @@
   again strongly typed, generic and object oriented.
 \end{abstract}
 
-%\keywords{object oriented programming, generic type-safe library, algebraic field extensions}
+%\keywords{object oriented programming, generic type-safe library,
+%mixin composition, categories}
 
 
 \section{Introduction} %------------
@@ -67,7 +68,7 @@ configuration and deployment.
 
 In search of a possible solution we study the category concept in
 Magma \cite{BosmaCannonPlayoust:1997} and Sage \cite{Stein:2005} and
-compare it our JAS and ScAS approach. In the comparison we focus on
+compare it to our JAS and ScAS approach. In the comparison we focus on
 the computer science aspects and ignore the mathematical scope of the
 systems as well as some questions related to the software
 architecture, like run-time infrastructure with automatic memory
@@ -93,8 +94,12 @@ comments on {\em axiom} \cite{JenksSutor:1992,Watt:2003} in section
 
 \subsection{Outline} % -----------------------------------
 
-to be written
-
+The paper is organized as follows : Section \ref{sec:asto} introduces our
+generic, strongly typed, object oriented computer algebra software. A comparison
+with the computer algebra systems Magma and Sage is then made in Section
+\ref{sec:compare}, where the concept of categories as used in Magma, is 
+summarized. Lastly, Section \ref{sec:mixin} shows how in our software, algorithm implementations can be packaged and re-combined using traits in a category-like
+fashion.
 
 \section{Generic, typed object oriented computer algebra software} % ----------------
 \label{sec:asto}
@@ -306,9 +311,7 @@ can be defined by an equational theory
 - many important algebraic structures are not
 varieties. For example the class of fields (of fixed characteristic)
 are not a variety because they are not closed under direct products.
-So we dont see a rationale for that design decision.
-%note of RJ : because of my weak mathematical background, I don't understand
-%this one (why fields are not closed under direct products)
+So we do not see a rationale for that design decision.
 
 $\Sigma$-algebras are then organized according to concepts from {\em
   category theory} with objects (carrier sets), morphisms, composition
@@ -421,7 +424,7 @@ because in a distributed environment, in which we envision part of the
 usage, there are no singletons, except at high communication costs.
 Moreover, the creation and comparison costs for the factory objects in
 JAS and ScAS seem to be neglectable. The importance of object
-serialization for all algebraic objects is regarded the same in JAS an
+serialization for all algebraic objects is regarded the same in JAS and
 ScAS where it is ensured by implementation of the \code{Serializable}
 interface.
 
@@ -500,19 +503,19 @@ software components and mixin composition \cite{Odersky:2005}.
 \subsection{Peer (mixin) vs hierarchical composition} % -------------
 
 Suppose we have a polynomial ring with a GCD operation. As we may have several
-implementations of such operation (different PRS, modular : Chinese
-remainder or Hensel), we have to declare it abstract and to later
-provide the concrete implementation. This can be done in two ways. The first
-way is through hierarchical composition, where a GCD engine is provided as an
-abstract value member of the ring:
+implementations of such operation (different polynomial remainder sequences,
+modular : Chinese remainder or Hensel), we have to declare it abstract and to
+later provide the concrete implementation. This can be done in two ways. The
+first way is through hierarchical composition, where a GCD engine is provided as
+an abstract value member of the ring:
 
+%trait GCDEngine[C: Ring] {
+%  def gcd(x: Element[C], y: Element[C]): Element[C]
+%}
 \begin{verbatim}
 trait Polynomial[C: Ring] {
   val engine: GCDEngine[C]
   def gcd(x: Element[C], y: Element[C]) = engine.gcd(x, y)
-}
-trait GCDEngine[C: Ring] {
-  def gcd(x: Element[C], y: Element[C]): Element[C]
 }
 trait GCDSimple[C: Ring] extends GCDEngine[C] {
   def gcd(x: Element[C], y: Element[C]) = ...
@@ -582,76 +585,75 @@ val r = Polynomial(ring, pp)
 // may return a GCDModular instance if ring == ZZ and so on
 \end{verbatim}
 
-\subsection{Computer representation of polynomials} % -------------
-
-The same technique as above can be used to devise several internal
-representations for polynomials, e.g. based on array, list or tree data
-structures. These can be factored out of algebraic computations and reused
-in a modular fashion, thus preventing code duplication, see figure
-\ref{fig:poly}.
-
-\begin{figure}[thb]
-\centering
-\epsfig{file=Polynomial,clip=,width=0.7\linewidth}
-\caption{Polynomial representation}
-\label{fig:poly}
-\end{figure}
-
-\subsection{Some problems solved} % -------------
-
-Mixin composition brings a solution to some code duplication related problems,
-summarized in \cite{JollyKredel:2011}, Section 3. The first one is with
-\code{SolvablePolynomial}, which should inherit nearly all its code from
-\code{Polynomial}, except just the \code{multiply()} method, rewritten in a
-non-commutative way. However, direct inheritance is forbidden by the fact that
-the class would have to inherit both from \code{RingElem\-<Polynomial<C>>} and
-\code{RingElem<SolvablePolynomial<C>>}, which is not allowed. In the new design,
-the common code is factored out in a trait which is then mixed in with both
-\code{Polynomial} and \code{SolvablePolynomial}. A similar solution is possible
-(though not yet implemented) in the case of \code{Real/AlgebraicNumber}.
-
-A second problem, also resulting in code duplication, is with multivariate
-GCD computation, see \cite{Kredel:2008}, Subsection 7.5 ``Recursive types''.
-The implementation of the algorithm as a subtrait of
-\code{MultivariatePolynomial} with a ``splitting'' capability allows to
-unify the methods \code{baseGCD()} and \code{recursive\-UnivariateGCD()}. These
-are essentially the same, except for the type of the parameters, namely:
-\code{Polynomial.Element[C]} in the base case, and
-\code{Polynomial\-.Element[Polynomial.Element[C]]} in the recursive case:
-
-\begin{verbatim}
-trait MultivariatePolynomial[C] extends Polynomial[C] {
-  def split: MultivariatePolynomial[Polynomial.Element[C]]
-}
-\end{verbatim}
-
-Here we must note that this solution would not be possible without higher-kinded
-types, another advanced feature of Scala. As we are defining several kinds of
-polynomials for each algorithm flavor or data structure representation, the
-above \code{Polynomial.Element[C]} type must be abstracted over, which mandates a
-so-called type constructor \code{T}:
-
-\begin{verbatim}
-trait MultivariatePolynomial[T[C] <: Polynomial.Element[T[C],C],C]
-    extends Polynomial[T[C], C] {
-  def split: MultivariatePolynomial[T, T[C]]
-}
-\end{verbatim}
+%\subsection{Computer representation of polynomials} % -------------
+%
+%The same technique as above can be used to devise several internal
+%representations for polynomials, e.g. based on array, list or tree data
+%structures. These can be factored out of algebraic computations and reused
+%in a modular fashion, thus preventing code duplication, see figure
+%\ref{fig:poly}.
+%
+%\begin{figure}[thb]
+%\centering
+%\epsfig{file=Polynomial,clip=,width=0.7\linewidth}
+%\caption{Polynomial representation}
+%\label{fig:poly}
+%\end{figure}
+%
+%\subsection{Some problems solved} % -------------
+%
+%Mixin composition brings a solution to some code duplication related problems,
+%summarized in \cite{JollyKredel:2011}, Section 3. The first one is with
+%\code{SolvablePolynomial}, which should inherit nearly all its code from
+%\code{Polynomial}, except just the \code{multiply()} method, rewritten in a
+%non-commutative way. However, direct inheritance is forbidden by the fact that
+%the class would have to inherit both from \code{RingElem\-<Polynomial<C>>} and
+%\code{RingElem<SolvablePolynomial<C>>}, which is not allowed. In the new design,
+%the common code is factored out in a trait which is then mixed in with both
+%\code{Polynomial} and \code{SolvablePolynomial}. A similar solution is possible
+%(though not yet implemented) in the case of \code{Real/AlgebraicNumber}.
+%
+%A second problem, also resulting in code duplication, is with multivariate
+%GCD computation, see \cite{Kredel:2008}, Subsection 7.5 ``Recursive types''.
+%The implementation of the algorithm as a subtrait of
+%\code{MultivariatePolynomial} with a ``splitting'' capability allows to
+%unify the methods \code{baseGCD()} and \code{recursive\-UnivariateGCD()}. These
+%are essentially the same, except for the type of the parameters, namely:
+%\code{Polynomial.Element[C]} in the base case, and
+%\code{Polynomial\-.Element[Polynomial.Element[C]]} in the recursive case:
+%
+%\begin{verbatim}
+%trait MultivariatePolynomial[C] extends Polynomial[C] {
+%  def split: MultivariatePolynomial[Polynomial.Element[C]]
+%}
+%\end{verbatim}
+%
+%Here we must note that this solution would not be possible without higher-kinded
+%types, another advanced feature of Scala. As we are defining several kinds of
+%polynomials for each algorithm flavor or data structure representation, the
+%above \code{Polynomial.Element[C]} type must be abstracted over, which mandates a
+%so-called type constructor \code{T}:
+%
+%\begin{verbatim}
+%trait MultivariatePolynomial[T[C] <: Polynomial.Element[T[C],C],C]
+%    extends Polynomial[T[C], C] {
+%  def split: MultivariatePolynomial[T, T[C]]
+%}
+%\end{verbatim}
 
 \section{Conclusions} % --------------------------
 
-To be written
-
-mention :
-universal algebra versus computer science ;
-program constructs to represent and compute with mathematical concepts ;
-categories in Axiom and Magma, Sage
-
-A new concept for code organization in computer algebra is proposed in the form
-of mixin composition, which allows to define and choose among several algebraic
-computation algorithms and data structure representations in a modular fashion,
-and also solves some long standing code duplication problems while still
-preserving type-safety.
+Universal algebra can not always model all that is possible in a computer
+science perspective, where program constructs which can represent and compute
+with mathematical concepts, are needed. An interesting view in that respect is
+the one of categories as used in Axiom, Magma and Sage. In our current,
+Java-based software, a new concept for code organization in computer algebra is
+proposed in the form of mixin composition, which allows to define and choose
+among several algebraic computation algorithms in a modular, category-like
+fashion.
+%and data structure representations
+%It also solves some long standing code duplication
+%problems while still preserving type-safety.
 
 \subsection*{Acknowledgments} %-------------------------
 
@@ -659,7 +661,8 @@ We thank our colleagues Thomas Becker, Wolfgang K. Seiler, Thomas
 Sturm, Axel Kramer, Jaime Gutierrez, Sherm Ostrowsky, Ted Kosan and
 others for various discussions on the design of and the requirements
 for JAS and ScAS. 
-%Thanks also to the referees for the insightful suggestions to improve the paper.
+%Thanks also to the referees for the insightful suggestions to improve the
+%paper.
 
 
 \bibliographystyle{splncs}

@@ -5,7 +5,7 @@ trait Residue[R] extends Ring[R] {
   def apply(x: R): R
   def apply(l: Long) = apply(ring(l))
   def random(numbits: Int)(implicit rnd: scala.util.Random) = apply(ring.random(numbits))
-  def isUnit(x: R) = x isOne
+  def isUnit(x: R) = x.isOne
   override def pow(x: R, exp: java.math.BigInteger) = apply(ring.pow(x, exp))
   override def negate(x: R) = apply(ring.negate(x))
   override def abs(x: R) = x

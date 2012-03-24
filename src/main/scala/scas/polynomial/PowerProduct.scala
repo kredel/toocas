@@ -1,5 +1,6 @@
 package scas.polynomial
 
+import scas.int2powerProduct
 import scas.polynomial.ordering.Ordering
 import scas.structure.Monoid
 
@@ -9,12 +10,8 @@ class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(im
   import nm.{fromInt, toLong}
   def take(n: Int) = new PowerProduct[N](variables.take(n))
   def drop(n: Int) = new PowerProduct[N](variables.drop(n))
-  override def one = {
-    new Array[N](length + 1)
-  }
-  def generator(n: Int) = {
-    (for (i <- 0 until length + 1) yield fromInt(if (i == n || i == length) 1 else 0)).toArray
-  }
+  override def one = new Array[N](length + 1)
+  def generator(n: Int) = (for (i <- 0 until length + 1) yield fromInt(if (i == n || i == length) 1 else 0)).toArray
   def generators = (for (i <- 0 until length) yield generator(i)).toArray
   def generatorsBy(n: Int) = {
     val m = length/n
@@ -57,7 +54,7 @@ class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(im
     for (i <- 0 until x.length) if (x(i) > y(i)) return false
     true
   }
-  def isUnit(x: Array[N]) = x isOne
+  def isUnit(x: Array[N]) = x.isOne
   override def isOne(x: Array[N]) = x(length) equiv fromInt(0)
   def dependencyOnVariables(x: Array[N]) = (for (i <- 0 until length if (x(i) > fromInt(0))) yield i).toArray
   def projection(x: Array[N], n: Int) = (for (i <- 0 until x.length) yield if (i == n || i == length) x(n) else fromInt(0)).toArray
@@ -102,12 +99,13 @@ class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(im
     def /(rhs: Array[N]) = divide(lhs, rhs)
     def |(rhs: Array[N]) = factorOf(lhs, rhs)
   }
-  override implicit def mkOps(lhs: Array[N]) = new Ops(lhs)
+  override implicit def mkOps(lhs: Array[N]): Ops = new Ops(lhs)
 }
 
 object PowerProduct {
   trait ExtraImplicits {
-    implicit def infixPowerProductOps[N](lhs: Array[N])(implicit factory: PowerProduct[N]): PowerProduct[N]#Ops = factory.mkOps(lhs)
+    implicit def infixPowerProductOps[N: PowerProduct](lhs: Array[N]) = implicitly[PowerProduct[N]].mkOps(lhs)
+    implicit def int2powerProductOps[N: PowerProduct](lhs: Int) = infixPowerProductOps(int2powerProduct(lhs))
   }
   object Implicits extends ExtraImplicits
 

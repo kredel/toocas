@@ -1,6 +1,6 @@
 package scas.structure
 
-import Ring.Implicits.infixRingOps
+import scas.Implicits.infixRingOps
 import Quotient.Element
 
 trait Quotient[R] extends Field[Element[R]] {

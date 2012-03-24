@@ -1,8 +1,7 @@
 package scas.polynomial
 
 import scala.collection.SortedMap
-import scas.structure.Ring
-import Ring.Implicits.infixRingOps
+import scas.Implicits.infixRingOps
 import TreePolynomial.Element
 
 trait TreePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
@@ -15,20 +14,20 @@ trait TreePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
   def apply(x: T) = apply((zero.value /: x.value.iterator) { (l, r) =>
     val (a, b) = r
     val (m, c) = (pp.converter(x.factory.variables)(a), ring(b))
-    if (c isZero) l else l.updated(m, c)
+    if (c.isZero) l else l.updated(m, c)
   })
   override def isZero(x: T) = x.value isEmpty
   def plus(x: T, y: T) = apply((x.value /: y.value.iterator) { (l, r) =>
     val (a, b) = r
     val c = l.getOrElse(a, ring.zero) + b
-    if (c isZero) l - a else l.updated(a, c)
+    if (c.isZero) l - a else l.updated(a, c)
   })
   def minus(x: T, y: T) = apply((x.value /: y.value.iterator) { (l, r) =>
     val (a, b) = r
     val c = l.getOrElse(a, ring.zero) - b
-    if (c isZero) l - a else l.updated(a, c)
+    if (c.isZero) l - a else l.updated(a, c)
   })
-  def apply(value: C) = apply(if(value isZero) zero.value else zero.value + (pp.one -> value))
+  def apply(value: C) = apply(if(value.isZero) zero.value else zero.value + (pp.one -> value))
   def fromPowerProduct(value: Array[N]) = apply(zero.value + (value -> ring.one))
   def apply(value: SortedMap[Array[N], C]): T
 
@@ -39,7 +38,7 @@ trait TreePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
   def map(w: T, f: (Array[N], C) => (Array[N], C)) = apply((zero.value /: iterator(w)) { (l, r) =>
     val (a, b) = r
     val (m, c) = f(a, b)
-    if (c isZero) l else l.updated(m, c)
+    if (c.isZero) l else l.updated(m, c)
   })
 }
 

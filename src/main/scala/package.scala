@@ -1,20 +1,22 @@
-import scas.structure.Monoid
+import scas.structure.{Monoid, Ring, UniqueFactorizationDomain}
 import scas.polynomial.PowerProduct
 
 package object scas {
-  val Ring = scas.structure.Ring
-  val UFD = scas.structure.UniqueFactorizationDomain
-  val PowerProduct = scas.polynomial.PowerProduct
-  implicit val ZZ = scas.base.BigInteger
-  implicit val QQ = scas.base.Rational
-  val BigInteger = ZZ
-  val frac = QQ
+  trait ExtraImplicits {
+    implicit val ZZ = scas.base.BigInteger
+    implicit val QQ = scas.base.Rational
+  }
+  object Implicits extends ExtraImplicits with Ordering.ExtraImplicits with Ring.ExtraImplicits with UniqueFactorizationDomain.ExtraImplicits with PowerProduct.ExtraImplicits
+
+  val BigInteger = Implicits.ZZ
+  val frac = Implicits.QQ
   val ModInteger = scas.base.ModInteger
   val Variable = scas.polynomial.Variable
   val Lexicographic = scas.polynomial.ordering.Lexicographic
   val DegreeLexicographic = scas.polynomial.ordering.DegreeLexicographic
   val DegreeReverseLexicographic = scas.polynomial.ordering.DegreeReverseLexicographic
   val KthElimination = scas.polynomial.ordering.KthElimination
+  val PowerProduct = scas.polynomial.PowerProduct
   val Polynomial = scas.polynomial.tree.Polynomial
   val SolvablePolynomial = scas.polynomial.tree.SolvablePolynomial
   val WeylAlgebra = scas.polynomial.tree.WeylAlgebra

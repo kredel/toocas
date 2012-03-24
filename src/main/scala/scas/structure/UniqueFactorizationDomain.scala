@@ -6,7 +6,7 @@ trait UniqueFactorizationDomain[T] extends Ring[T] {
   def divide(x: T, y: T): T
   def remainder(x: T, y: T): T
   def divideAndRemainder(x: T, y: T): (T, T)
-  def factorOf(x: T, y: T) = (x % y) isZero
+  def factorOf(x: T, y: T) = (x % y).isZero
   trait Ops extends super.Ops {
     def /  (rhs: T) = divide(lhs, rhs)
     def %  (rhs: T) = remainder(lhs, rhs)

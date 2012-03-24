@@ -1,9 +1,7 @@
 package scas.polynomial.ufd
 
-import scas.polynomial.PowerProduct
-import scas.structure.{EuclidianDomain, UniqueFactorizationDomain}
-import UniqueFactorizationDomain.Implicits.infixUFDOps
-import PowerProduct.Implicits.infixPowerProductOps
+import scas.structure.EuclidianDomain
+import scas.Implicits.{infixUFDOps, infixPowerProductOps}
 import PolynomialOverUFD.Element
 
 trait UnivariatePolynomial[T <: Element[T, C, N], C, N] extends PolynomialOverField[T, C, N] with EuclidianDomain[T] {

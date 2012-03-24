@@ -1,9 +1,8 @@
 package scas.polynomial
 
-import scas.polynomial.ordering.Ordering
 import scas.structure.Ring
-import Ring.Implicits.infixRingOps
-import PowerProduct.Implicits.infixPowerProductOps
+import scas.polynomial.ordering.Ordering
+import scas.Implicits.{infixRingOps, infixPowerProductOps}
 import Polynomial.Element
 
 trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
@@ -36,7 +35,7 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
     }
     if (!it.hasNext) 0 else -1
   }
-  def isUnit(x: T) = abs(x) isOne
+  def isUnit(x: T) = abs(x).isOne
   def times(x: T, y: T) = (zero /: iterator(y)) { (l, r) =>
     val (a, b) = r
     l + multiply(x, a, b)
@@ -48,8 +47,8 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
     for ((a, b) <- iterator(x)) {
       val c = ring.abs(b)
       val (t, u) = {
-        if (a isOne) (c.toCode(0), 1)
-        else if (c isOne) (a.toCode(0), pp.size(a))
+        if (a.isOne) (c.toCode(0), 1)
+        else if (c.isOne) (a.toCode(0), pp.size(a))
         else (c.toCode(1) + "*" + a.toCode(1), 1 + pp.size(a))
       }
       s = s + (if (ring.signum(b) < 0) "-" else (if (n == 0) "" else "+")) + t

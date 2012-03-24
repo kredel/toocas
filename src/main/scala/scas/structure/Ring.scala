@@ -9,6 +9,7 @@ trait Ring[T] extends AbelianGroup[T] with Monoid[T] {
 object Ring {
   trait ExtraImplicits {
     implicit def infixRingOps[T: Ring](lhs: T) = implicitly[Ring[T]].mkOps(lhs)
+    implicit def int2ringOps[T: Ring](lhs: Int) = infixRingOps(implicitly[Ring[T]].apply(lhs))
   }
   object Implicits extends ExtraImplicits
 
