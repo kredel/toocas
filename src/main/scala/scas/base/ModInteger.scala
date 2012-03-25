@@ -5,7 +5,6 @@ import scas.long2bigInteger
 import scas.Implicits.ZZ
 
 class ModInteger(val mod: java.math.BigInteger) extends Residue[java.math.BigInteger] {
-  val ring = ZZ
   def apply(x: java.math.BigInteger) = x.mod(mod)
   override def apply(l: Long) = l
   override def random(numbits: Int)(implicit rnd: scala.util.Random) = apply(new java.math.BigInteger(numbits, rnd.self))

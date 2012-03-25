@@ -14,17 +14,21 @@ object MyApp extends App {
   rationalPolynomial
   univariatePolynomial
   rf
+  module
+  syzygy
   gcdSimple
   gcdPrimitive
   gcdSubres
   gcdMultivariate
 
   def pp1 = {
-    import Implicits.{infixOrderingOps, infixPowerProductOps, int2powerProductOps}
+    import Implicits.{infixOrderingOps, infixPowerProductOps, int2powerProductOps, int2powerProductOrderingOps}
     implicit val m = PowerProduct[Int]('x)
     val Array(x) = m.generators
     assert (x > 1)
+    assert (1 < x)
     assert (1 | x)
+    assert (x * 1 >< x)
     assert (x * x >< pow(x, 2))
   }
 
@@ -116,6 +120,30 @@ object MyApp extends App {
     assert ((pow(x, 2) - 1)/(x - 1) >< x + 1)
     assert ((x/(2 * x)).toString == "frac(1, 2)")
     assert (q.toString == "QQ(x)")
+  }
+
+  def module = {
+    import Implicits.{ZZ, infixModuleOps, ring2moduleOps}
+    implicit val m = Module("e", 2, ZZ)
+    val e = m.generators
+    assert (2 * e(0) >< e(0) * 2)
+    assert (e(0) + e(1) >< e(0) + e(1))
+    assert ((2 * e(0) + e(1)).deep.toString == "Array(2, 1)")
+    assert (m.toString == "ZZ^2")
+  }
+
+  def syzygy = {
+    import Implicits.{ZZ, infixModuleOps, ring2moduleOps}
+    implicit val r = Polynomial(ZZ, PowerProduct[Int]('x))
+    val Array(x) = r.generators
+    implicit val m = Module("e", 2, r)
+    val e = m.generators
+    assert (2 * e(0) >< e(0) * 2)
+    assert (x * e(0) >< e(0) * x)
+    assert (2 * x * e(0) >< e(0) * 2 * x)
+    assert (e(0) + e(1) >< e(0) + e(1))
+    assert ((2 * e(0) + e(1)).toCode(0) == "2*e(0)+e(1)")
+    assert (m.toString == "ZZ[x]^2")
   }
 
   def gcdSimple = {

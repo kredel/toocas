@@ -4,7 +4,7 @@ import scas.structure.Quotient
 import scas.Implicits.infixUFDOps
 import Quotient.Element
 
-class RationalFunction[R <: PolynomialOverUFD.Element[R, C, N], C, N](override val ring: PolynomialOverField[R, C, N]) extends Quotient[R] {
+class RationalFunction[R <: PolynomialOverUFD.Element[R, C, N], C, N](override implicit val ring: PolynomialOverField[R, C, N]) extends Quotient[R] {
   implicit val rr = ring.ring
   def generator(n: Int) = apply(ring.generator(n))
   def generators = (for (i <- 0 until length) yield generator(i)).toArray
@@ -32,7 +32,7 @@ class RationalFunction[R <: PolynomialOverUFD.Element[R, C, N], C, N](override v
       }
     }
   }
-  override def toString = rr.toString + "("+variables.mkString(", ")+")"
+  override def toString = rr.toString + "(" + variables.mkString(", ") + ")"
 
   def variables = ring.variables
 
@@ -40,5 +40,5 @@ class RationalFunction[R <: PolynomialOverUFD.Element[R, C, N], C, N](override v
 }
 
 object RationalFunction {
-  def apply[R <: PolynomialOverUFD.Element[R, C, N], C, N](ring: PolynomialOverField[R, C, N]) = new RationalFunction(ring)
+  def apply[R <: PolynomialOverUFD.Element[R, C, N], C, N](implicit ring: PolynomialOverField[R, C, N]) = new RationalFunction[R, C, N]
 }

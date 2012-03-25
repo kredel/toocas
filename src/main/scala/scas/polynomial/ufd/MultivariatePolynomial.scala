@@ -14,7 +14,7 @@ trait MultivariatePolynomial[T[C, N] <: Element[T[C, N], C, N], C, N] extends Po
   def convertTo(s: MultivariatePolynomial[T, T[C, N], N], w: T[C, N]): T[T[C, N], N] = (s.zero /: iterator(w)) { (l, r) =>
     val (a, b) = r
     val x = pp.projection(a, location)
-    l + s.multiply(s.pow(s.generator(0), pp.degree(x)), s.ring(multiply(fromPowerProduct(a / x), b)))
+    l + s.multiply(s.pow(s.generator(0), pp.degree(x)), s.ring(multiply(one, a / x, b)))
   }
   def convertFrom(s: MultivariatePolynomial[T, T[C, N], N], w: T[T[C, N], N]): T[C, N] = (zero /: s.iterator(w)) { (l, r) =>
     val (a, b) = r

@@ -1,7 +1,6 @@
 package scas.structure
 
-trait Residue[R] extends Ring[R] {
-  implicit val ring: Ring[R]
+abstract class Residue[R](implicit val ring: Ring[R]) extends Ring[R] {
   def apply(x: R): R
   def apply(l: Long) = apply(ring(l))
   def random(numbits: Int)(implicit rnd: scala.util.Random) = apply(ring.random(numbits))

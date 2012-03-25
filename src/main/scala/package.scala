@@ -6,12 +6,11 @@ package object scas {
     implicit val ZZ = scas.base.BigInteger
     implicit val QQ = scas.base.Rational
   }
-  object Implicits extends ExtraImplicits with Ordering.ExtraImplicits with Ring.ExtraImplicits with UniqueFactorizationDomain.ExtraImplicits with PowerProduct.ExtraImplicits
+  object Implicits extends ExtraImplicits with Ordering.ExtraImplicits with Ring.ExtraImplicits with UniqueFactorizationDomain.ExtraImplicits with PowerProduct.ExtraImplicits with scas.module.Module.ExtraImplicits
 
   val BigInteger = Implicits.ZZ
   val frac = Implicits.QQ
   val ModInteger = scas.base.ModInteger
-  val Variable = scas.polynomial.Variable
   val Lexicographic = scas.polynomial.ordering.Lexicographic
   val DegreeLexicographic = scas.polynomial.ordering.DegreeLexicographic
   val DegreeReverseLexicographic = scas.polynomial.ordering.DegreeReverseLexicographic
@@ -26,6 +25,7 @@ package object scas {
   val PolynomialWithSimpleGCD = scas.polynomial.ufd.tree.PolynomialWithSimpleGCD
   val PolynomialWithPrimitiveGCD = scas.polynomial.ufd.tree.PolynomialWithPrimitiveGCD
   val PolynomialWithSubresGCD = scas.polynomial.ufd.tree.PolynomialWithSubresGCD
+  val Module = scas.module.Module
   implicit def int2bigInteger(i: Int) = java.math.BigInteger.valueOf(i)
   implicit def long2bigInteger(l: Long) = java.math.BigInteger.valueOf(l)
   implicit def int2powerProduct[N: PowerProduct](i: Int) = implicitly[PowerProduct[N]].apply(i)

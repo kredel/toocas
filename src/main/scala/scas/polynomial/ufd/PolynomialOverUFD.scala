@@ -22,7 +22,7 @@ trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N]
       val (s, a) = headTerm(x)
       val (t, b) = headTerm(y)
       if (!(t | s) || !(b | a)) (zero, x) else {
-        val c = multiply(fromPowerProduct(s / t), a / b)
+        val c = multiply(one, s / t, a / b)
         divideAndRemainder(x - c * y, y) match { case (q, r) => (c + q, r) }
       }
     }
@@ -39,9 +39,7 @@ trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N]
       val (s, a) = headTerm(x)
       val (t, b) = headTerm(y)
       if (!(t | s)) x else {
-        val gcd = ring.gcd(a, b)
-        val (a0, b0) = (a / gcd, b / gcd)
-        remainder1(multiply(x, b0) - multiply(y, s / t, a0), y)
+        remainder1(multiply(x, b) - multiply(y, s / t, a), y)
       }
     }
   }

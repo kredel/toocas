@@ -1,6 +1,6 @@
 package scas.polynomial
 
-import scas.int2powerProduct
+import scas.{Variable, int2powerProduct}
 import scas.polynomial.ordering.Ordering
 import scas.structure.Monoid
 
@@ -106,6 +106,7 @@ object PowerProduct {
   trait ExtraImplicits {
     implicit def infixPowerProductOps[N: PowerProduct](lhs: Array[N]) = implicitly[PowerProduct[N]].mkOps(lhs)
     implicit def int2powerProductOps[N: PowerProduct](lhs: Int) = infixPowerProductOps(int2powerProduct(lhs))
+    implicit def int2powerProductOrderingOps[N: PowerProduct](lhs: Int) = scas.Implicits.infixOrderingOps(int2powerProduct(lhs))
   }
   object Implicits extends ExtraImplicits
 

@@ -6,7 +6,6 @@ import scas.Implicits.{ZZ, infixRingOps}
 import Quotient.Element
 
 object Rational extends Quotient[java.math.BigInteger] {
-  val ring = ZZ
   def reduce(n: java.math.BigInteger, d: java.math.BigInteger) = {
     val gcd = n.gcd(d) match { case gcd => if (d.signum() < 0) gcd.negate() else gcd }
     apply(n.divide(gcd), d.divide(gcd))

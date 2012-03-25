@@ -3,8 +3,7 @@ package scas.structure
 import scas.Implicits.infixRingOps
 import Quotient.Element
 
-trait Quotient[R] extends Field[Element[R]] {
-  implicit val ring: Ring[R]
+abstract class Quotient[R](implicit val ring: Ring[R]) extends Field[Element[R]] {
   def apply(x: Element[R]) = {
     val Element(n, d) = x
     reduce(n, d)
@@ -76,5 +75,5 @@ trait Quotient[R] extends Field[Element[R]] {
 
 object Quotient {
   case class Element[R](_1: R, _2: R)(override val factory: Quotient[R]) extends Product2[R, R] with UniqueFactorizationDomain.Element[Element[R]]
-  implicit def ring2quotient[D, R](value: D)(implicit f: D => R, factory: Quotient[R]) = factory(value)
+  implicit def ring2quotient[S <% R, R: Quotient](value: S) = implicitly[Quotient[R]].apply(value)
 }
