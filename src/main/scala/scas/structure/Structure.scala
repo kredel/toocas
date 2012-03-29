@@ -3,7 +3,7 @@ package scas.structure
 trait Structure[T] extends Ordering[T] { outer =>
   def apply(x: T): T
   def apply(l: Long): T
-  def random(numbits: Int)(implicit rnd: scala.util.Random): T
+  def random(numbits: Int)(implicit rnd: java.util.Random): T
   def toCode(x: T, precedence: Int) = x.toString
   trait Ops {
     val lhs: T

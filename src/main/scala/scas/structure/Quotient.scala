@@ -12,7 +12,7 @@ abstract class Quotient[R](implicit val ring: Ring[R]) extends Field[Element[R]]
   def apply(n: R, d: R) = new Element(n, d)(this)
   def apply(n: R): Element[R] = apply(n, ring.one)
   def apply(l: Long) = apply(ring(l))
-  def random(numbits: Int)(implicit rnd: scala.util.Random) = {
+  def random(numbits: Int)(implicit rnd: java.util.Random) = {
     val n = ring.random(numbits)
     val d = ring.random(numbits)
     reduce(if (rnd.nextBoolean()) -n else n, d + ring.one)

@@ -16,7 +16,7 @@ class RationalFunction[R <: PolynomialOverUFD.Element[R, C, N], C, N](override i
     val gcd = ring.gcd(n, d) match { case gcd => if (ring.signum(d) < 0) -gcd else gcd }
     apply(n / gcd, d / gcd)
   }
-  override def random(numbits: Int)(implicit rnd: scala.util.Random) = zero
+  override def random(numbits: Int)(implicit rnd: java.util.Random) = zero
   override def toCode(x: Element[R], precedence: Int) = {
     val Element(n, d) = x
     if (ring.isOne(d)) ring.toCode(n, precedence)

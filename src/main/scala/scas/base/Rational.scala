@@ -11,9 +11,9 @@ object Rational extends Quotient[java.math.BigInteger] {
     apply(n.divide(gcd), d.divide(gcd))
   }
   override def apply(l: Long) = apply(l, 1)
-  override def random(numbits: Int)(implicit rnd: scala.util.Random) = {
-    val n = new java.math.BigInteger(numbits, rnd.self)
-    val d = new java.math.BigInteger(numbits, rnd.self)
+  override def random(numbits: Int)(implicit rnd: java.util.Random) = {
+    val n = new java.math.BigInteger(numbits, rnd)
+    val d = new java.math.BigInteger(numbits, rnd)
     reduce(if (rnd.nextBoolean()) n.negate() else n, d.add(1))
   }
   override def compare(x: Element[java.math.BigInteger], y: Element[java.math.BigInteger]) = {

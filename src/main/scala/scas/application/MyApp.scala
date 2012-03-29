@@ -10,10 +10,12 @@ object MyApp extends App {
   solvablePolynomial
   bigint
   modint
+  product
   rational
   rationalPolynomial
   univariatePolynomial
   rf
+  complex
   module
   syzygy
   gcdSimple
@@ -88,6 +90,15 @@ object MyApp extends App {
     assert (r.characteristic.intValue == 7)
   }
 
+  def product = {
+    implicit val r = Product(ModInteger(2), ModInteger(4))
+    val a = r(1,3)
+    val b = a + a
+    assert (b >< r(0,2))
+    assert (r.toString == "ZZ(2)*ZZ(4)")
+    assert (r.characteristic.intValue == 4)
+  }
+
   def rational = {
     import Implicits.QQ
     assert (1 + frac(1, 2) >< frac(1, 2) + 1)
@@ -105,9 +116,10 @@ object MyApp extends App {
   def univariatePolynomial = {
     import Implicits.QQ
     implicit val r = UnivariatePolynomial(QQ, PowerProduct[Int]('x))
-    import r.{generator, gcd, monic}
+    import r.{generator, gcd, monic, modInverse}
     val x = generator(0)
     assert (monic(gcd((1+x)*(1+frac(1, 2)*x), (1+frac(1, 2)*x)*(1-x))) >< 2+x)
+    assert (modInverse(1-x, pow(1+x, 2)) >< frac(1, 4)*x+frac(3, 4))
   }
 
   def rf = {
@@ -122,18 +134,23 @@ object MyApp extends App {
     assert (q.toString == "QQ(x)")
   }
 
+  def complex = {
+    import Implicits.{QQ, complex, CC, infixUFDOps}
+    println((I+1)/(I-1))
+  }
+
   def module = {
-    import Implicits.{ZZ, infixModuleOps, ring2moduleOps}
+    import Implicits.ZZ
     implicit val m = Module("e", 2, ZZ)
     val e = m.generators
     assert (2 * e(0) >< e(0) * 2)
     assert (e(0) + e(1) >< e(0) + e(1))
-    assert ((2 * e(0) + e(1)).deep.toString == "Array(2, 1)")
+    assert ((2 * e(0) + e(1)).value.deep.toString == "Array(2, 1)")
     assert (m.toString == "ZZ^2")
   }
 
   def syzygy = {
-    import Implicits.{ZZ, infixModuleOps, ring2moduleOps}
+    import Implicits.ZZ
     implicit val r = Polynomial(ZZ, PowerProduct[Int]('x))
     val Array(x) = r.generators
     implicit val m = Module("e", 2, r)

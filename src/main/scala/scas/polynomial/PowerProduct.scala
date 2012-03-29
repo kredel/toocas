@@ -31,7 +31,7 @@ class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(im
     one
   }
   def apply(x: Array[N]) = x
-  def random(numbits: Int)(implicit rnd: scala.util.Random) = one
+  def random(numbits: Int)(implicit rnd: java.util.Random) = one
   def gcd(x: Array[N], y: Array[N]): Array[N] = {
     val r = new Array[N](length + 1)
     for (i <- 0 until length) r(i) = nm.min(x(i), y(i))

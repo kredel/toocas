@@ -7,8 +7,8 @@ object BigInteger extends EuclidianDomain[java.math.BigInteger] {
   def apply(x: java.math.BigInteger) = x
   def apply(s: String) = new java.math.BigInteger(s)
   def apply(l: Long) = l
-  def random(numbits: Int)(implicit rnd: scala.util.Random) = {
-    val r = new java.math.BigInteger(numbits, rnd.self)
+  def random(numbits: Int)(implicit rnd: java.util.Random) = {
+    val r = new java.math.BigInteger(numbits, rnd)
     if (rnd.nextBoolean()) r.negate() else r
   }
   def characteristic = 0

@@ -5,12 +5,13 @@ package object scas {
   trait ExtraImplicits {
     implicit val ZZ = scas.base.BigInteger
     implicit val QQ = scas.base.Rational
+    implicit val complex = UnivariatePolynomial(QQ, PowerProduct[Int]('I))
+    implicit val CC = scas.base.Complex
   }
-  object Implicits extends ExtraImplicits with Ordering.ExtraImplicits with Ring.ExtraImplicits with UniqueFactorizationDomain.ExtraImplicits with PowerProduct.ExtraImplicits with scas.module.Module.ExtraImplicits
+  object Implicits extends ExtraImplicits with Ordering.ExtraImplicits with Ring.ExtraImplicits with UniqueFactorizationDomain.ExtraImplicits with PowerProduct.ExtraImplicits
 
-  val BigInteger = Implicits.ZZ
-  val frac = Implicits.QQ
   val ModInteger = scas.base.ModInteger
+  val PrimeModInteger = scas.base.PrimeModInteger
   val Lexicographic = scas.polynomial.ordering.Lexicographic
   val DegreeLexicographic = scas.polynomial.ordering.DegreeLexicographic
   val DegreeReverseLexicographic = scas.polynomial.ordering.DegreeReverseLexicographic
@@ -25,10 +26,15 @@ package object scas {
   val PolynomialWithSimpleGCD = scas.polynomial.ufd.tree.PolynomialWithSimpleGCD
   val PolynomialWithPrimitiveGCD = scas.polynomial.ufd.tree.PolynomialWithPrimitiveGCD
   val PolynomialWithSubresGCD = scas.polynomial.ufd.tree.PolynomialWithSubresGCD
+  val Product = scas.structure.Product
   val Module = scas.module.Module
   implicit def int2bigInteger(i: Int) = java.math.BigInteger.valueOf(i)
   implicit def long2bigInteger(l: Long) = java.math.BigInteger.valueOf(l)
   implicit def int2powerProduct[N: PowerProduct](i: Int) = implicitly[PowerProduct[N]].apply(i)
   def pow[T: Monoid](x: T, exp: java.math.BigInteger) = implicitly[Monoid[T]].pow(x, exp)
   implicit val ordering = Lexicographic[Int]
+  implicit val random = new java.util.Random()
+  val BigInteger = Implicits.ZZ
+  val frac = Implicits.QQ
+  val I = Implicits.CC.I
 }

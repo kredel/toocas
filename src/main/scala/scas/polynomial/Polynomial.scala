@@ -18,7 +18,7 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
   }
   def characteristic = ring.characteristic
   def apply(l: Long) = apply(ring(l))
-  def random(numbits: Int)(implicit rnd: scala.util.Random) = zero
+  def random(numbits: Int)(implicit rnd: java.util.Random) = zero
   def compare(x: T, y: T): Int = {
     val it = iterator(y)
     for ((a, b) <- iterator(x)) {
@@ -35,7 +35,7 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
     }
     if (!it.hasNext) 0 else -1
   }
-  def isUnit(x: T) = abs(x).isOne
+  def isUnit(x: T) = if (x.isZero) false else headCoefficient(x).isUnit
   def times(x: T, y: T) = (zero /: iterator(y)) { (l, r) =>
     val (a, b) = r
     l + multiply(x, a, b)
