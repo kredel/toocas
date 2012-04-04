@@ -1,10 +1,11 @@
 package scas.base
 
-import scas.polynomial.ufd.AlgebraicNumber
-import scas.Implicits.{QQ, complex}
-import scas.{int2bigInteger, pow}
+import scas.polynomial.ufd.tree.int.AlgebraicNumber
+import scas.int2bigInteger
+import scas.Implicits.QQ
 
-object Complex extends AlgebraicNumber {
-  val I = ring.generator(0)
+object Complex extends AlgebraicNumber(QQ, "I") {
+  implicit val self = this
+  val I = generator
   update(pow(I, 2) + 1)
 }

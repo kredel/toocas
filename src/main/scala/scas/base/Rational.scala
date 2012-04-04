@@ -2,19 +2,16 @@ package scas.base
 
 import scas.structure.Quotient
 import scas.{int2bigInteger, long2bigInteger}
-import scas.Implicits.{ZZ, infixRingOps}
+import scas.Implicits.{ZZ, infixUFDOps}
+import Predef.{any2stringadd => _, _}
 import Quotient.Element
 
 object Rational extends Quotient[java.math.BigInteger] {
-  def reduce(n: java.math.BigInteger, d: java.math.BigInteger) = {
-    val gcd = n.gcd(d) match { case gcd => if (d.signum() < 0) gcd.negate() else gcd }
-    apply(n.divide(gcd), d.divide(gcd))
-  }
   override def apply(l: Long) = apply(l, 1)
   override def random(numbits: Int)(implicit rnd: java.util.Random) = {
     val n = new java.math.BigInteger(numbits, rnd)
     val d = new java.math.BigInteger(numbits, rnd)
-    reduce(if (rnd.nextBoolean()) n.negate() else n, d.add(1))
+    reduce(if (rnd.nextBoolean()) -n else n, d + 1)
   }
   override def compare(x: Element[java.math.BigInteger], y: Element[java.math.BigInteger]) = {
     val Element(a, b) = x

@@ -33,16 +33,6 @@ trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N]
     multiply(primitivePart(gcd1(p, q)), ring.gcd(a, b))
   }
   def gcd1(x: T, y: T): T
-  def remainder1(x: T, y: T): T = {
-    if (x.isZero) zero
-    else {
-      val (s, a) = headTerm(x)
-      val (t, b) = headTerm(y)
-      if (!(t | s)) x else {
-        remainder1(multiply(x, b) - multiply(y, s / t, a), y)
-      }
-    }
-  }
   def content(x: T) = (ring.zero /: iterator(x)) { (l, r) =>
     val (a, b) = r
     ring.gcd(l, b) match { case gcd => if (ring.signum(b) < 0) -gcd else gcd }

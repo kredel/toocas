@@ -1,6 +1,7 @@
 package scas.application
 
 import scas._
+import Predef.{any2stringadd => _, _}
 
 object MyApp extends App {
 
@@ -16,6 +17,7 @@ object MyApp extends App {
   univariatePolynomial
   rf
   complex
+  an
   module
   syzygy
   gcdSimple
@@ -24,7 +26,7 @@ object MyApp extends App {
   gcdMultivariate
 
   def pp1 = {
-    import Implicits.{infixOrderingOps, infixPowerProductOps, int2powerProductOps, int2powerProductOrderingOps}
+    import Implicits.{infixOrderingOps, infixPowerProductOps}
     implicit val m = PowerProduct[Int]('x)
     val Array(x) = m.generators
     assert (x > 1)
@@ -62,7 +64,7 @@ object MyApp extends App {
   }
 
   def bigint = {
-    import Implicits.{ZZ, infixRingOps, int2ringOps}
+    import Implicits.{ZZ, infixOrderingOps, infixRingOps}
     val a = BigInteger(1)
     val b = a + a
     val c = pow(b, 32)
@@ -70,6 +72,10 @@ object MyApp extends App {
     val e = BigInteger("18446744073709551616")
     assert (b >< 2)
     assert (2 >< b)
+    assert (a + 1 >< b)
+    assert (1 + a >< b)
+    assert (b > 1)
+    assert (1 < b)
     assert (b.toCode(0) == "2")
     assert (c.toCode(0) == "4294967296l")
     assert (d.toCode(0) == "BigInteger(\"18446744073709551616\")")
@@ -77,7 +83,7 @@ object MyApp extends App {
   }
 
   def modint = {
-    import Implicits.{infixRingOps, int2ringOps}
+    import Implicits.infixRingOps
     implicit val r = ModInteger(7)
     val a = r(4)
     val b = a + a
@@ -91,12 +97,12 @@ object MyApp extends App {
   }
 
   def product = {
-    implicit val r = Product(ModInteger(2), ModInteger(4))
+    implicit val r = Product(ModInteger(3), ModInteger(5))
     val a = r(1,3)
     val b = a + a
-    assert (b >< r(0,2))
-    assert (r.toString == "ZZ(2)*ZZ(4)")
-    assert (r.characteristic.intValue == 4)
+    assert (b >< r(2,1))
+    assert (r.toString == "ZZ(3)*ZZ(5)")
+    assert (r.characteristic.intValue == 15)
   }
 
   def rational = {
@@ -115,7 +121,7 @@ object MyApp extends App {
 
   def univariatePolynomial = {
     import Implicits.QQ
-    implicit val r = UnivariatePolynomial(QQ, PowerProduct[Int]('x))
+    implicit val r = UnivariatePolynomial(QQ, "x")
     import r.{generator, gcd, monic, modInverse}
     val x = generator(0)
     assert (monic(gcd((1+x)*(1+frac(1, 2)*x), (1+frac(1, 2)*x)*(1-x))) >< 2+x)
@@ -124,7 +130,7 @@ object MyApp extends App {
 
   def rf = {
     import Implicits.QQ
-    implicit val r = UnivariatePolynomial(QQ, PowerProduct[Int]('x))
+    implicit val r = UnivariatePolynomial(QQ, "x")
     implicit val q = RationalFunction(r)
     val Array(x) = q.generators
     assert (x + frac(1, 2) >< frac(1, 2) + x)
@@ -135,8 +141,17 @@ object MyApp extends App {
   }
 
   def complex = {
-    import Implicits.{QQ, complex, CC, infixUFDOps}
-    println((I+1)/(I-1))
+    import Implicits.{QQ, CC}
+    assert ((I+1)/(I-1) >< -I)
+  }
+
+  def an = {
+    import Implicits.QQ
+    implicit val r = AlgebraicNumber(QQ, "x")
+    val x = r.generator
+    r.update(pow(x, 2) - 2)
+    assert (pow(x, 2) >< 2)
+    assert (r.toString == "QQ(pow(x, 2)-2)")
   }
 
   def module = {

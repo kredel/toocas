@@ -1,7 +1,7 @@
 package scas.polynomial
 
 import scas.{Variable, int2powerProduct}
-import scas.polynomial.ordering.Ordering
+import scas.polynomial.ordering.{Ordering, Lexicographic}
 import scas.structure.Monoid
 
 class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) extends Monoid[Array[N]] {
@@ -105,13 +105,11 @@ class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(im
 object PowerProduct {
   trait ExtraImplicits {
     implicit def infixPowerProductOps[N: PowerProduct](lhs: Array[N]) = implicitly[PowerProduct[N]].mkOps(lhs)
-    implicit def int2powerProductOps[N: PowerProduct](lhs: Int) = infixPowerProductOps(int2powerProduct(lhs))
-    implicit def int2powerProductOrderingOps[N: PowerProduct](lhs: Int) = scas.Implicits.infixOrderingOps(int2powerProduct(lhs))
   }
   object Implicits extends ExtraImplicits
 
-  def apply[@specialized(Int, Long) N](variables: Array[Variable])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) = new PowerProduct[N](variables)
-  def apply[@specialized(Int, Long) N](s: Variable)(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) = new PowerProduct[N](Array(s))
-  def apply[@specialized(Int, Long) N](s: Variable, ss: Variable*)(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) = new PowerProduct[N](Array(s) ++ ss)
-  def apply[@specialized(Int, Long) N](sss: Array[Array[Variable]])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) = new PowerProduct[N](for (ss <- sss ; s <- ss) yield s)
+  def apply[@specialized(Int, Long) N](variables: Array[Variable])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]]) = new PowerProduct[N](variables)(nm, m, cm, Lexicographic[N])
+  def apply[@specialized(Int, Long) N](s: Variable)(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]]): PowerProduct[N] = apply(Array(s))
+  def apply[@specialized(Int, Long) N](s: Variable, ss: Variable*)(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]]): PowerProduct[N] = apply(Array(s) ++ ss)
+  def apply[@specialized(Int, Long) N](sss: Array[Array[Variable]])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]]): PowerProduct[N] = apply(for (ss <- sss ; s <- ss) yield s)
 }

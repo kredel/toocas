@@ -1,14 +1,17 @@
 package scas.structure
 
-import scas.Implicits.infixRingOps
+import scas.Implicits.infixUFDOps
 import Quotient.Element
 
-abstract class Quotient[R](implicit val ring: Ring[R]) extends Field[Element[R]] {
+class Quotient[R](implicit val ring: UniqueFactorizationDomain[R]) extends Field[Element[R]] {
   def apply(x: Element[R]) = {
     val Element(n, d) = x
     reduce(n, d)
   }
-  def reduce(n: R, d: R): Element[R]
+  def reduce(n: R, d: R) = {
+    val gcd = ring.gcd(n, d) match { case gcd => if (ring.signum(d) < 0) -gcd else gcd }
+    apply(n / gcd, d / gcd)
+  }
   def apply(n: R, d: R) = new Element(n, d)(this)
   def apply(n: R): Element[R] = apply(n, ring.one)
   def apply(l: Long) = apply(ring(l))

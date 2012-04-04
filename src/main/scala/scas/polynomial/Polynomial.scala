@@ -24,7 +24,7 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
     for ((a, b) <- iterator(x)) {
       if (!it.hasNext) return 1
       val (c, d) = it.next
-      val s = pp.compare(a, c)
+      val s = ordering.compare(a, c)
       if (s < 0) return -1
       else if (s > 0) return 1
       else {
@@ -88,9 +88,20 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
   def headTerm(x: T) = iterator(x).next
 
   def degree(x: T) = (0l /: iterator(x)) { (l, r) =>
-      val (a, b) = r
-      scala.math.max(l, pp.degree(a))
+    val (a, b) = r
+    scala.math.max(l, pp.degree(a))
+  }
+
+  def reduce(x: T, y: T): T = {
+    if (x.isZero) zero
+    else {
+      val (s, a) = headTerm(x)
+      val (t, b) = headTerm(y)
+      if (!(t | s)) x else {
+        reduce(multiply(x, b) - multiply(y, s / t, a), y)
+      }
     }
+  }
 
   def multiply(w: T, x: Array[N], y: C) = map(w, (a, b) => (a * x, b * y))
 

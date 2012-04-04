@@ -13,7 +13,7 @@ class PolynomialWithPrimitiveGCD[C, @specialized(Int, Long) N](val ring: UniqueF
 }
 
 object PolynomialWithPrimitiveGCD {
-  def apply[C, @specialized(Int, Long) N](ring: UniqueFactorizationDomain[C], pp: PowerProduct[N])(implicit ordering: Ordering[N], cm: ClassManifest[Element[C, N]]) = new PolynomialWithPrimitiveGCD(ring, pp)
+  def apply[C, @specialized(Int, Long) N](ring: UniqueFactorizationDomain[C], pp: PowerProduct[N])(implicit ordering: Ordering[N]) = new PolynomialWithPrimitiveGCD(ring, pp)
 
   class Element[C, @specialized(Int, Long) N](val value: SortedMap[Array[N], C])(override val factory: PolynomialWithPrimitiveGCD[C, N]) extends TreePolynomial.Element[Element[C, N], C, N] with PolynomialOverUFD.Element[Element[C, N], C, N]
   implicit def coef2polynomial[D, C, @specialized(Int, Long) N](value: D)(implicit f: D => C, factory: PolynomialWithPrimitiveGCD[C, N]) = factory(value)

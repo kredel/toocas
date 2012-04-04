@@ -4,17 +4,13 @@ import scas.structure.Quotient
 import scas.Implicits.infixUFDOps
 import Quotient.Element
 
-class RationalFunction[R <: PolynomialOverUFD.Element[R, C, N], C, N](override implicit val ring: PolynomialOverField[R, C, N]) extends Quotient[R] {
+class RationalFunction[R <: PolynomialOverUFD.Element[R, C, N], C, N](override val ring: PolynomialOverField[R, C, N]) extends Quotient[R]()(ring) {
   implicit val rr = ring.ring
   def generator(n: Int) = apply(ring.generator(n))
   def generators = (for (i <- 0 until length) yield generator(i)).toArray
   def generatorsBy(n: Int) = {
     val m = length/n
     (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
-  }
-  def reduce(n: R, d: R) = {
-    val gcd = ring.gcd(n, d) match { case gcd => if (ring.signum(d) < 0) -gcd else gcd }
-    apply(n / gcd, d / gcd)
   }
   override def random(numbits: Int)(implicit rnd: java.util.Random) = zero
   override def toCode(x: Element[R], precedence: Int) = {
@@ -40,5 +36,5 @@ class RationalFunction[R <: PolynomialOverUFD.Element[R, C, N], C, N](override i
 }
 
 object RationalFunction {
-  def apply[R <: PolynomialOverUFD.Element[R, C, N], C, N](implicit ring: PolynomialOverField[R, C, N]) = new RationalFunction[R, C, N]
+  def apply[R <: PolynomialOverUFD.Element[R, C, N], C, N](ring: PolynomialOverField[R, C, N]) = new RationalFunction(ring)
 }
