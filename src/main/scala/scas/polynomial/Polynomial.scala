@@ -8,7 +8,6 @@ import Polynomial.Element
 trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
   implicit val ring: Ring[C]
   implicit val pp: PowerProduct[N]
-  val ordering: Ordering[N]
   implicit val cm: ClassManifest[T]
   def generator(n: Int) = fromPowerProduct(pp.generator(n))
   def generators = (for (i <- 0 until length) yield generator(i)).toArray
@@ -24,7 +23,7 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
     for ((a, b) <- iterator(x)) {
       if (!it.hasNext) return 1
       val (c, d) = it.next
-      val s = ordering.compare(a, c)
+      val s = pp.compare(a, c)
       if (s < 0) return -1
       else if (s > 0) return 1
       else {
