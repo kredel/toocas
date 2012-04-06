@@ -5,7 +5,7 @@ import scas.Implicits.infixRingOps
 import TreePolynomial.Element
 
 trait TreePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
-  override def zero = apply(SortedMap.empty[Array[N], C](ordering.reverse))
+  override def zero = apply(SortedMap.empty[Array[N], C](pp.ordering.reverse))
   override def signum(x: T): Int = {
     val it = iterator(x)
     if (!it.hasNext) return 0
