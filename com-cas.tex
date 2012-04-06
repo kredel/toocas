@@ -33,17 +33,17 @@
 \begin{abstract} 
   The modeling of algebraic structures in a strongly typed, generic,
   object oriented computer algebra software has been presented with
-  the systems JAS and ScAS. We started with the design and
+  the systems JAS and ScAS. These systems exemplify the design and
   implementation of strongly typed, generic and object oriented
   polynomial algorithm libraries in Java and Scala. The libraries have
-  now grown by several algorithm versions for greatest common divisor,
-  squarefree decomposition, factorization and Gr\"obner bases
-  computation in separate packages. In this paper we discuss the
-  problem of code organization and algebraic structure configuration
-  and deployment.  In search of a possible solution we study the
-  category concept in Magma and Sage and propose a novel code
-  organization scheme using mixin composition. The resulting code is
-  again strongly typed, generic and object oriented.
+  grown over the time by several algorithm versions for greatest
+  common divisor, squarefree decomposition, factorization and
+  Gr\"obner bases computation in separate packages. In this paper we
+  discuss the problem of code organization and algebraic structure
+  configuration and deployment.  In search of a possible solution we
+  study the category concept in Magma and Sage and propose a novel
+  code organization scheme using mixin composition. The resulting code
+  is again strongly typed, generic and object oriented.
 \end{abstract}
 
 %\keywords{object oriented programming, generic type-safe library,
@@ -55,26 +55,36 @@
 The modeling of algebraic structures in a strongly typed, generic,
 object oriented computer algebra software has been presented with the
 systems JAS \cite{Kredel:2008} and ScAS \cite{Jolly:2010}. %Kredel:2000,
-The design and implementation of our strongly typed, generic and
+The design and implementation of these strongly typed, generic and
 object oriented polynomial algorithm libraries in Java and Scala is
 presented in \cite{JollyKredel:2010,JollyKredel:2011}.  The libraries
 are enhanced for interactive usage with the help of the Jython and
-JRuby scripting languages \cite{JollyKredel:2009}.  The libraries have
-now grown by several algorithm versions for greatest common divisor,
+JRuby scripting languages \cite{JollyKredel:2009}.  The libraries now
+provide several algorithm versions for greatest common divisor,
 squarefree decomposition, factorization and Gr\"obner bases
-computation in separate packages \cite{Kredel:2011}. In this paper we
-discuss the problem of code organization and algebraic structure
-configuration and deployment.  
+computation in separate packages \cite{Kredel:2011}.
+
+In this paper we discuss the problem of code organization and
+algebraic structure configuration and deployment. Elements of algebric
+structures are implemented by classes and instantiated as objects with
+methods implementing the `inner' algorithms of the structure in the
+programming language. The algorithm libraries, for example the
+construction of Gr\"obner bases, are kept in separate source code trees
+and packages. This code organization helps in the separation of the
+various possibilities for algorithm implementation and helps in the
+transparent selection of appropriate algorithms for a given problem.
+However, it is not always clear where to draw the line between `inner'
+structure algorithms and `external' library algorithms.
 
 In search of a possible solution we study the category concept in
 Magma \cite{BosmaCannonPlayoust:1997} and Sage \cite{Stein:2005} and
-compare it to our JAS and ScAS approach. In the comparison we focus on
-the computer science aspects and ignore the mathematical scope of the
-systems as well as some questions related to the software
-architecture, like run-time infrastructure with automatic memory
-management and scripting languages for interactive use, we also do not
-elaborate on performance aspects.
-
+compare it to our approach. In the comparison we focus on the computer
+science aspects and ignore the mathematical scope of the systems as
+well as some questions related to the software architecture, like
+run-time infrastructure with automatic memory management and scripting
+languages for interactive use, we also do not elaborate on performance
+aspects.
+%
 We propose a new concept to provide library code organization
 using mixin composition. The new category concept combines algebraic
 structures and configurations of optimaly suitable algorithm
@@ -94,21 +104,23 @@ comments on {\em axiom} \cite{JenksSutor:1992,Watt:2003} in section
 
 \subsection{Outline} % -----------------------------------
 
-The paper is organized as follows : Section \ref{sec:asto} introduces our
-generic, strongly typed, object oriented computer algebra software. A comparison
-with the computer algebra systems Magma and Sage is then made in Section
-\ref{sec:compare}, where the concept of categories as used in Magma, is 
-summarized. Lastly, Section \ref{sec:mixin} shows how in our software, algorithm implementations can be packaged and re-combined using traits in a category-like
+The paper is organized as follows : Section \ref{sec:asto} introduces
+our generic, strongly typed, object oriented computer algebra
+software. A comparison with the computer algebra systems Magma and
+Sage is then made in Section \ref{sec:compare}, where the concept of
+categories as used in Magma, is summarized. Lastly, Section
+\ref{sec:mixin} shows how in our software, algorithm implementations
+can be packaged and re-combined using traits in a category-like
 fashion.
 
-\section{Generic, typed object oriented computer algebra software} % ----------------
+\section{Generic, strongly typed, object oriented computer algebra software} % -----------
 \label{sec:asto}
 
 In this section we give an introduction into the object oriented
 stronly typed generic software libraries. For more details see our
 earlier articles and implementations
 \cite{JollyKredel:2009,JollyKredel:2010,Jolly:2010,Kredel:2011,Kredel:2008}. %Kredel:2000,
-
+%
 First we discuss the design of interfaces to capture the functionality
 of ring elements and so called ring factories, as examples for the
 representation of algebraic structures. Then we summarize the design
@@ -118,7 +130,8 @@ our algorithm libraries, namely greatest common divisors, squarefree
 decomposition and factorization of polynomials.
 
 
-\subsection{Ring elements and ring factories} %------------
+\subsection{Ring elements, ring factories and polynomial rings} %------------
+\label{sec:ring}
 
 The basic building blocks of the type system consists of the
 interfaces \code{RingElem} and \code{RingFactory} and the classes
@@ -138,14 +151,13 @@ the ring,
 
 \begin{figure}[thb]
 \centering
-\epsfig{file=BasicTypes,clip=,width=0.7\linewidth}
+\epsfig{file=BasicTypes,clip=,width=0.55\linewidth}
 %\\
 \caption{Basic types}
 \label{fig:bastype}
 \end{figure}
 
-
-\subsection{Polynomials and polynomial rings} %------------
+%\subsection{Polynomials and polynomial rings} %------------
 
 The polynomial class \code{Gen\-Polynomial} with type parameter
 \code{C} for the coefficient type implements the \code{Ring\-Elem}
@@ -165,8 +177,9 @@ inversion of control principle.
 
 Figure \ref{fig:bastype} shows dependency arrows from the factories to
 the element interfaces as factories create the respective elements.
-The modeling of the constructors is not shown as it is not denotable
-in UML. The constructors of ring elements implement an opposite
+%The modeling of the constructors is not shown as it is not denotable
+%with Java interfaces. 
+The constructors of ring elements implement an opposite
 dependency : each constructor takes a corresponding ring
 factory as parameter.  It is only indirectly enforced since the
 \code{RingElem} interface specifies a method \code{factory()} to
@@ -174,15 +187,18 @@ obtain the corresponding factory.
 % So methods on ring elements have access to the corresponding
 % factory for construction of new elements.
 
-The factory methods are not static (which is apparent from the
-modeling as an interface) since a ring factory might depend on other
-rings or specific parameters. In case of a polynomial factory it
-depends on a factory for the coefficients and at least the number of
-variables of the polynomial ring. By this modeling the types of
-elements of algebraic structures are not simply denoted in the program
-text but have to be created as programming objects (by instantiating
-the respective classes). Type denotations show up explicitly in Java
-program code and are mostly inferred in Scala via type resolution.
+The factory methods are not static 
+%(which is apparent from the modeling as an interface) 
+since a ring factory might depend on other rings or specific
+parameters. In case of a polynomial factory it depends on a factory
+for the coefficients and at least the number of variables of the
+polynomial ring. By this modeling the types of elements of algebraic
+structures are not simply denoted in the program text but have to be
+created as programming objects (by instantiating the respective
+classes). Type denotations show up explicitly in Java program code and
+are mostly inferred in Scala via type resolution. In the Scala we have
+experiemented with elements as inner classes of factories and vice
+versa, which will be discussed in a future publication.
 
 For example a polynomial $w^2 - 2 \in \mathbb{Q}[w]$ can be
 constructed by first constructing an object for the ring
@@ -190,16 +206,17 @@ $\mathbb{Q}[w]$ and then reading and constructing the polynomial $w^2
 - 2$ with the factory method \code{parse()}.
 {\small
 \begin{verbatim}
- BigRational rf = new BigRational(1); // here element = factory
- GenPolynomialRing<BigRational> pf 
-  = new GenPolynomialRing<BigRational>(rf,new String[]{ "w" });
- GenPolynomial<BigRational> a = pf.parse("w^2 - 2");
+  BigRational rf = new BigRational(1); // here element = factory
+  GenPolynomialRing<BigRational> pf 
+   = new GenPolynomialRing<BigRational>(rf,new String[]{ "w" });
+  GenPolynomial<BigRational> a = pf.parse("w^2 - 2");
 \end{verbatim}
 }
 %This example is continued in Subsection ?. %\ref{sec:anqf}.
 
 
 \subsection{Algorithm libraries} %------------
+\label{sec:algo}
 
 We focus on algorithms for multivariate polynomials in (constructive)
 unique factorization do\-mains.  Other algorithms, for example Gr\"ob\-ner
@@ -208,16 +225,17 @@ univariate power series and elementary integration of rational
 functions are discussed elsewhere. %\cite{Kredel:2000,Kredel:2009,Kredel:2009a}.  
 %For the mathematical background see some text books on the topic, like
 %\cite{GeddesCzaporLabahn:1993}. %--++ zur Gathen, Kaltofen.
+%
+We give an overview of the respective interfaces and classes of the JAS
+implementation. 
 
-We give an overview of the respective interfaces and classes of JAS
-implementation of greatest common divisors. We start with an
-interface \code{Greatest\-Common\-Divisor}.  It defines the method
-names for a ring with gcd algorithm.  First there is the method
-\code{gcd()} itself, together with the method \code{lcm()} to compute
-the least common multiple of two polynomials. With the help of
-\code{gcd()} the algorithms for the content \code{con\-tent()} and the
-primitive part \code{primitive\-Part()} computation can be
-implemented.
+We start with an interface \code{Greatest\-Common\-Divisor}.  It
+defines the method names for a ring with gcd algorithm.  First there
+is the method \code{gcd()} itself, together with the method
+\code{lcm()} to compute the least common multiple of two polynomials.
+With the help of \code{gcd()} the algorithms for the content
+\code{con\-tent()} and the primitive part \code{primitive\-Part()}
+computation can be implemented.
 %
 The methods \code{coPrime()} compute lists of
 co-prime polynomials from given lists of polynomials.
@@ -274,6 +292,13 @@ algorithm factories \code{GCD\-Factory}, \code{Squarefee\-Factory} and
 two \code{Factor\-Factory} classes. Each factory has at least methods
 \code{get\-Implemen\-tation(cofac)} for different coefficient ring
 factories \code{cofac}.
+
+{\bf Problem:} The algebraic structures and elements of them together
+with the algorithm libraries provide a precise way to use a suitable
+combination for a given situation. It is, however, elaborate and one
+would like to combine or package together certain configurations to be
+able to deploy and use them as a single object or thing. In section
+\ref{sec:mixin} we will sketch a solution to this problem.
 
 
 \section{Comparison with Magma and Sage} % --------------------------------
@@ -365,6 +390,7 @@ between the C parts, probably C header files.
 
 
 \subsection{Sage} % --------------------------------
+\label{sec:sage}
 
 We now look into the Sage open source implementation of Magma concepts
 \cite{Stein:2005,SageWiki:2009}.  The Sage computer algebra system is
@@ -385,15 +411,10 @@ This creates a multivariate polynomial ring over the rational numbers
 assigned the two generator polynomials of the polynomial ring. The
 proposed syntax in Magma is \code{R<x,y>}, without the dot, which is
 slightly different.  Without the syntax extension the example
-would be
-\begin{verbatim}
-  R = PolynomialRing(QQ, "x,y"); (x,y) = R.gens()
-\end{verbatim}
+would be \code{R = Poly\-nomial\-Ring(QQ, "x,y");} and then \code{(x,y) = R.\-gens()}
 %  print x, y # -> x, y
-or equivalently
-\begin{verbatim}
-  R = PolynomialRing(QQ, "x,y"); R.inject_variables()
-\end{verbatim}
+or equivalently \code{R.in\-ject\-\_variables()}.
+Both alternatives also with auto-inject of the variables are implemented in JAS.
 % In the jython front-end to JAS and ScAS it would be 
 % \begin{verbatim}
 %   R = PolyRing(QQ(), "x,y")
@@ -476,114 +497,151 @@ to level the different APIs of these systems.
 \label{sec:mixin}
 
 %An algebraic view of code organization.
-
 %Axiom: polynomial category includes for example gcd and factorization.
 %$\Longrightarrow$ unclear code organization and limited flexibility for
 %different algorithms and implementations.
-
 %is there pattern \cite{Gamma:1995} for such a use case? some kind of
 %simplifying facade for a complex set of classes and interfaces? or can
 %we sell this as a new pattern for CAS software, e.g. ``algebraic system pattern'' 
 
-In this section we aim to investigate if and how it is possible to improve on
-the use of Java interfaces to implement computer algebra libraries.
-As explained in \cite{Kredel:2008}, Subsection 7.1 ``Interfaces as types'',
-``With the aid of interfaces it is possible to define a abstract type system
-separate of any implementation types defined by class hierarchies. This approach
-was partly anticipated in the Axiom system \cite{JenksSutor:1992} with so called
-categories and domains. A category is a kind of interface, but with the
-possibility to give implementations for certain methods, like a Java abstract
-class. A domain in Axiom is similar to a Java class''.
+In this section we sketch a solution to the packaging problem of
+section \ref{sec:algo}.  In the previous section \ref{sec:sage} we
+have seen that categories can be implemented in Sage using classes
+with multiple inheritance. In Axiom, categories are abstract classes
+with multiple inheritance.  As in Java there is (only) single
+inheritance for classes and multiple inheritance for interfaces it
+seems that this is not directly possible.
+%
+% As explained in \cite{Kredel:2008}, Subsection 7.1 ``Interfaces as
+% types'', ``With the aid of interfaces it is possible to define a
+% abstract type system separate of any implementation types defined by
+% class hierarchies. This approach was partly anticipated in the Axiom
+% system \cite{JenksSutor:1992} with so called categories and domains. A
+% category is a kind of interface, but with the possibility to give
+% implementations for certain methods, like a Java abstract class. A
+% domain in Axiom is similar to a Java class''.
+%
+We would at least need some way to mimic multiple inheritance for
+method implementations in interfaces. It turns out that such things
+are available in some recent porogramming languages with the concept
+of {\em mixins}. Mixins exist in the Scala programming language
+\cite{Odersky:2003}, where they are called ``traits'' and considered
+in the more general context of reusable software components and mixin
+composition \cite{Odersky:2005}. Further the concept exists in the
+Ruby (and JRuby) \cite{Matsumo:1995} scripting language and it will
+eventually be available in Java 8 as interface methods with default
+implementations.
 
-It turns out that just this kind of interface with method implementations
-exists in the Scala programming language \cite{Odersky:2003}, whereby it is
-called ``traits'' and considered in the more general context of reusable
-software components and mixin composition \cite{Odersky:2005}.
 
-\subsection{Peer (mixin) vs hierarchical composition} % -------------
+\subsection{Peer mixin vs hierarchical composition} % -------------
 
-Suppose we have a polynomial ring with a GCD operation. As we may have several
-implementations of such operation (different polynomial remainder sequences,
-modular : Chinese remainder or Hensel), we have to declare it abstract and to
-later provide the concrete implementation. This can be done in two ways. The
-first way is through hierarchical composition, where a GCD engine is provided as
-an abstract value member of the ring:
-
+We first examine possible ways to use mixins for algebraic algorithm
+libraries.  Suppose we have a polynomial ring with a GCD operation. As
+we may have several implementations of such operation (different
+polynomial remainder sequences, modular : Chinese remainder or
+Hensel), we have to declare it abstract and to later provide the
+concrete implementation. This can be done in two ways. The first way
+is through hierarchical composition, where a GCD engine is provided as
+an abstract value member of the ring as in the following Scala
+example. Note that \code{Polynomial} denotes the polynomial ring and
+\code{Element} denotes an element of the polynomial ring, which is
+different to section \ref{sec:ring}.
+Here the first use of \code{Poly\-nomial} is as an interface / trait
+and the last use of \code{Poly\-nomial} denotes a class.
+%
 %trait GCDEngine[C: Ring] {
 %  def gcd(x: Element[C], y: Element[C]): Element[C]
 %}
 \begin{verbatim}
-trait Polynomial[C: Ring] {
-  val engine: GCDEngine[C]
-  def gcd(x: Element[C], y: Element[C]) = engine.gcd(x, y)
-}
-trait GCDSimple[C: Ring] extends GCDEngine[C] {
-  def gcd(x: Element[C], y: Element[C]) = ...
-}
-val r = new Polynomial[BigInteger] {
-  val engine = new GCDSimple[BigInteger]
-}
+  trait Polynomial[C: Ring] {
+    val engine: GCDEngine[C]
+    def gcd(x: Element[C], y: Element[C]) = engine.gcd(x, y)
+  }
+  trait GCDSimple[C: Ring] extends GCDEngine[C] {
+    def gcd(x: Element[C], y: Element[C]) = ...
+  }
+  val r = new Polynomial[BigInteger] {
+    val engine = new GCDSimple[BigInteger]
+  }
 \end{verbatim}
-
-The other way is through mixin composition, where a final ring class inherits
-both from the polynomial ring and the GCD engine (which is itself defined as a
-subtrait of the polynomial ring):
-
+%
+The other way is through peer mixin composition, where a final ring
+class (also called \code{Polynomial}) inherits both from the
+polynomial ring and the GCD engine (which is for the simplicity of the
+example itself defined as a subtrait of the polynomial ring to make
+\code{Element} accessible):
+%
 \begin{verbatim}
-trait Polynomial[C: Ring] {
-  def gcd(x: Element[C], y: Element[C]): Element[C]
-}
-trait GCDSimple[C: Ring] extends Polynomial[C] {
-  def gcd(x: Element[C], y: Element[C]) = ...
-}
-val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
+  trait Polynomial[C: Ring] {
+    def gcd(x: Element[C], y: Element[C]): Element[C]
+  }
+  trait GCDSimple[C: Ring] extends Polynomial[C] {
+    def gcd(x: Element[C], y: Element[C]) = ...
+  }
+  val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
 \end{verbatim}
 
-\subsection{Multiple inheritance and categories} % -------------
 
-Mixin composition provides a convenient way to organise different algorithm
-implementations. In addition to GCD algorithms, we can imagine algorithms for
-squarefree decomposition, factorization, groebner basis computation. Then we
-can select precisely which ones we require for given ring implementations:
+\subsection{Classes with mixin composition and categories} % -------------
 
+Mixin composition provides a convenient way to organize different
+algorithm implementations. In addition to GCD algorithms, we can
+imagine algorithms for squarefree decomposition, factorization,
+groebner basis computation. Then we can select precisely which ones we
+require for given ring implementations:
+%
 \begin{verbatim}
-trait GCDEngineX[C: Ring] extends Polynomial[C] {
-  def gcd(x: Element[C], y: Element[C]) = ...
-}
-trait SquarefreeEngineY[C: Ring] extends Polynomial[C] {
-  def squarefreePart(x: Element[C]): Element[C] = ...
-  def squarefreeFactors(x: Element[C]): List[Element[C]] = ...
-}
-trait FactorEngineZ[C: Ring] extends Polynomial[C] {
-  def factorList(x: Element[C]): List[Element[C]] = ...
-  def factors(x: Element[C]): Map[Element[C], Long] = ...
-}
-val r = new Polynomial[BigRational]
-        with GcdEngineX[BigRational] 
-        with SquarefreeEngineY[BigRational]
-        with FactorEngineZ[BigRational]
+  trait GCDEngineX[C: Ring] extends Polynomial[C] {
+    def gcd(x: Element[C], y: Element[C]) = ...
+  }
+  trait SquarefreeEngineY[C: Ring] extends Polynomial[C] {
+    def squarefreePart(x: Element[C]): Element[C] = ...
+    def squarefreeFactors(x: Element[C]): List[Element[C]] = ...
+  }
+  trait FactorEngineZ[C: Ring] extends Polynomial[C] {
+    def factorList(x: Element[C]): List[Element[C]] = ...
+    def factors(x: Element[C]): Map[Element[C], Long] = ...
+  }
+  val r = new Polynomial[BigRational]
+          with GcdEngineX[BigRational] 
+          with SquarefreeEngineY[BigRational]
+          with FactorEngineZ[BigRational]
 \end{verbatim}
+%
+Here \code{r} then represents a polynomial category as a single object
+which is instantiated using the denoted algorithm implementations,
+namely gcd algorithm \code{Gcd\-Engine\-X}, squarefree decomposition
+algorithm \code{Square\-free\-Engine\-Y} and factorization algorithm
+\code{Factor\-Engine\-Z}. In this way a category ties together a
+polynomial ring with some specific algorithm implementations and so
+solves the packaging problem from section \ref{sec:algo}. In this way
+the proposed category scheme becomes similar to a mathematical
+category as a concept to tie sets and morphisms together.
 
 In the sample code above, the coefficient ring \code{C} is kept abstract until
 the definition of the final ring \code{r}. But it is not necessarily so. For
 instance, some versions of Euclid's algorithm only work for \code{BigInteger}
-or \code{ModInteger} coefficients, namely \code{GCDModular} or
-\code{GCDHensel}:
-
+%or \code{ModInteger} 
+coefficients, namely \code{GCDModular} or \code{GCDHensel}:
+%
 \begin{verbatim}
-trait GCDModular extends Polynomial[BigInteger] {
-  def gcd(x: Element[BigInteger], y: Element[BigInteger]) = ...
-}
-val r = new Polynomial[BigInteger] with GCDModular
+  trait GCDModular extends Polynomial[BigInteger] {
+    def gcd(x: Element[BigInteger], y: Element[BigInteger]) = ...
+  }
+  val r = new Polynomial[BigInteger] with GCDModular
 \end{verbatim}
 
-Suitable implementations may be chosen automatically for the user in function
+Suitable implementations may be chosen automatically for the user as a function
 of the coefficient ring:
-
+%
 \begin{verbatim}
-val r = Polynomial(ring, pp)
-// may return a GCDModular instance if ring == ZZ and so on
+  val r = Polynomial(ring, pp)
 \end{verbatim}
+%
+The function \code{Poly\-nomial} might return a category with a
+\code{GCD\-Modular} instance if \code{ring} is \code{Big\-Integer} and
+so on.
+
 
 %\subsection{Computer representation of polynomials} % -------------
 %
@@ -650,7 +708,8 @@ the one of categories as used in Axiom, Magma and Sage. In our current,
 Java-based software, a new concept for code organization in computer algebra is
 proposed in the form of mixin composition, which allows to define and choose
 among several algebraic computation algorithms in a modular, category-like
-fashion.
+fashion. This category scheme ties together algebraic structures with 
+some specific algorithm implementations and so solves the packaging problem.
 %and data structure representations
 %It also solves some long standing code duplication
 %problems while still preserving type-safety.
