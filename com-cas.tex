@@ -196,9 +196,10 @@ polynomial ring. By this modeling the types of elements of algebraic
 structures are not simply denoted in the program text but have to be
 created as programming objects (by instantiating the respective
 classes). Type denotations show up explicitly in Java program code and
-are mostly inferred in Scala via type resolution. In the Scala we have
-experiemented with elements as inner classes of factories and vice
-versa, which will be discussed in a future publication.
+are mostly inferred in Scala via type resolution. In Scala we have
+experimented with elements as inner classes of companion objects of
+factories and vice versa, which results in a slightly different,
+albeit equivalent, naming.
 
 For example a polynomial $w^2 - 2 \in \mathbb{Q}[w]$ can be
 constructed by first constructing an object for the ring
@@ -547,7 +548,8 @@ example. Note that \code{Polynomial} denotes the polynomial ring and
 \code{Element} denotes an element of the polynomial ring, which is
 different to section \ref{sec:ring}.
 Here the first use of \code{Poly\-nomial} is as an interface / trait
-and the last use of \code{Poly\-nomial} denotes a class.
+and the last use of \code{Poly\-nomial} denotes an anonymous class
+which inherits from said interface.
 %
 %trait GCDEngine[C: Ring] {
 %  def gcd(x: Element[C], y: Element[C]): Element[C]
@@ -565,11 +567,16 @@ and the last use of \code{Poly\-nomial} denotes a class.
   }
 \end{verbatim}
 %
-The other way is through peer mixin composition, where a final ring
-class (also called \code{Polynomial}) inherits both from the
-polynomial ring and the GCD engine (which is for the simplicity of the
-example itself defined as a subtrait of the polynomial ring to make
-\code{Element} accessible):
+The other way is through mixin (peer) composition, where a final
+ring class (also called \code{Polynomial}) inherits both from the
+polynomial ring and the GCD engine (which is itself defined as a
+subtrait of the polynomial ring):
+% RJ: not just for the example, as it turns out to be mandatory in
+% the considered model, but the explanation is not yet clear to me.
+% Element is not the reason, as it is not an inner class of the
+% factory but of the companion object, which means it just has
+% an additional dot in its name as Ring.Element instead of RingElem
+% but is in any other respect independent of the factory.
 %
 \begin{verbatim}
   trait Polynomial[C: Ring] {
@@ -614,8 +621,8 @@ namely gcd algorithm \code{Gcd\-Engine\-X}, squarefree decomposition
 algorithm \code{Square\-free\-Engine\-Y} and factorization algorithm
 \code{Factor\-Engine\-Z}. In this way a category ties together a
 polynomial ring with some specific algorithm implementations and so
-solves the packaging problem from section \ref{sec:algo}. In this way
-the proposed category scheme becomes similar to a mathematical
+solves the packaging problem from section \ref{sec:algo}.
+The proposed category scheme becomes similar to a mathematical
 category as a concept to tie sets and morphisms together.
 
 In the sample code above, the coefficient ring \code{C} is kept abstract until
@@ -631,15 +638,16 @@ coefficients, namely \code{GCDModular} or \code{GCDHensel}:
   val r = new Polynomial[BigInteger] with GCDModular
 \end{verbatim}
 
-Suitable implementations may be chosen automatically for the user as a function
+Suitable implementations may be chosen automatically for the user in function
 of the coefficient ring:
+% RJ: in function is what I meant !
 %
 \begin{verbatim}
   val r = Polynomial(ring, pp)
 \end{verbatim}
 %
-The function \code{Poly\-nomial} might return a category with a
-\code{GCD\-Modular} instance if \code{ring} is \code{Big\-Integer} and
+The function \code{Poly\-nomial} might return an object (category) of
+type \code{GCD\-Modular} if \code{ring} is \code{Big\-Integer} and
 so on.
 
 
