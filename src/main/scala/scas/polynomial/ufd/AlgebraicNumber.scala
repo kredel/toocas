@@ -15,7 +15,8 @@ class AlgebraicNumber[R <: UnivariatePolynomial.Element[R, C, N], C, @specialize
   def fromRing(x: R) = new Element[R, C, N](if (mod.isZero) x else ring.remainder(x, mod))(this)
   def toRing(x: Element[R, C, N]) = x.value
   def characteristic = ring.characteristic
-  def divide(x: Element[R, C, N], y: Element[R, C, N]) = fromRing(toRing(x) * ring.modInverse(toRing(y), mod))
+  def divide(x: Element[R, C, N], y: Element[R, C, N]) = x * inverse(y)
+  override def inverse(x: Element[R, C, N]) = fromRing(ring.modInverse(toRing(x), mod))
   override def toString = ring.ring.toString + "(" + mod + ")"
 }
 
