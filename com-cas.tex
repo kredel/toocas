@@ -119,7 +119,7 @@ fashion.
 In this section we give an introduction into the object oriented
 strongly typed generic software libraries. For more details see our
 earlier articles and implementations
-\cite{JollyKredel:2009,JollyKredel:2010,Jolly:2010,Kredel:2011,Kredel:2008}. %Kredel:2000,
+\cite{Kredel:2008,Jolly:2010,JollyKredel:2010,JollyKredel:2011,JollyKredel:2009,Kredel:2011}. %Kredel:2000,
 %
 First we discuss the design of interfaces to capture the functionality
 of ring elements and so called ring factories, as examples for the
@@ -415,7 +415,7 @@ slightly different.  Without the syntax extension the example
 would be \code{R = Poly\-nomial\-Ring(QQ, "x,y");} and then \code{(x,y) = R.\-gens()}
 %  print x, y # -> x, y
 or equivalently \code{R.in\-ject\-\_variables()}.
-Both alternatives also with auto-inject of the variables are implemented in JAS.
+Both alternatives, also with auto-inject of the variables, are implemented in JAS.
 % In the jython front-end to JAS and ScAS it would be 
 % \begin{verbatim}
 %   R = PolyRing(QQ(), "x,y")
@@ -507,11 +507,11 @@ to level the different APIs of these systems.
 
 In this section we sketch a solution to the packaging problem of
 section \ref{sec:algo}.  In the previous section \ref{sec:sage} we
-have seen that categories can be implemented in Sage using classes
-with multiple inheritance. In Axiom, categories are abstract classes
-with multiple inheritance.  As in Java there is (only) single
-inheritance for classes and multiple inheritance for interfaces it
-seems that this is not directly possible.
+have seen that categories in Sage can be implemented in Python using
+(concrete) classes with multiple inheritance. In Axiom, categories are
+abstract classes with multiple inheritance.  As in Java there is
+(only) single inheritance for classes and multiple inheritance for
+interfaces it seems that is not directly possible to implement categories.
 %
 % As explained in \cite{Kredel:2008}, Subsection 7.1 ``Interfaces as
 % types'', ``With the aid of interfaces it is possible to define a
@@ -527,17 +527,17 @@ method implementations in interfaces. It turns out that such things
 are available in some recent programming languages with the concept
 of {\em mixins}. Mixins exist in the Scala programming language
 \cite{Odersky:2003}, where they are called ``traits'' and considered
-in the more general context of reusable software components and mixin
-composition \cite{Odersky:2005}. Further the concept exists in the
+in the more general context of reusable software components
+\cite{Odersky:2005}. Further, the concept exists in the
 Ruby (and JRuby) \cite{Matsumo:1995} scripting language and it will
 eventually be available in Java 8 as interface methods with default
 implementations.
 
 
-\subsection{Peer mixin vs hierarchical composition} % -------------
+\subsection{Peer (mixin) vs hierarchical composition} % -------------
 
-We first examine possible ways to use mixins for algebraic algorithm
-libraries.  Suppose we have a polynomial ring with a GCD operation. As
+We first examine possible ways to use composition for algebraic algorithm
+libraries. Suppose we have a polynomial ring with a GCD operation. As
 we may have several implementations of such operation (different
 polynomial remainder sequences, modular : Chinese remainder or
 Hensel), we have to declare it abstract and to later provide the
@@ -567,17 +567,24 @@ which inherits from said interface.
   }
 \end{verbatim}
 %
-The other way is through mixin (peer) composition, where a final
+The other way is through mixin composition, where the last
 ring class (also called \code{Polynomial}) inherits both from the
 polynomial ring and the GCD engine (which is itself defined as a
-subtrait of the polynomial ring):
+sub-trait of the polynomial ring in the considered model):
 % RJ: not just for the example, as it turns out to be mandatory in
 % the considered model, but the explanation is not yet clear to me.
 % Element is not the reason, as it is a static inner class of the
 % factory, which means it just has an additional dot in its name
 % as Ring.Element instead of RingElem but is otherwise independent
 % of the factory.
-%
+% HK: why must it be a sub-trait? Then the concepts are no more
+% orthogonal in algebraic object vs. library algorithm: also 
+% new Polynomial[BigInteger] with GCDSimple[BigInteger] looks 
+% then like nonsense to me
+% RJ: yes, true, we could just write new GCDSimple[BigInteger]
+% instead. Algorithm libraries are anyway not independant of
+% factories since e.g. for GCD computation one needs a remainder
+% operation, which is defined in the polynomial ring.
 \begin{verbatim}
   trait Polynomial[C: Ring] {
     def gcd(x: Element[C], y: Element[C]): Element[C]
@@ -587,15 +594,15 @@ subtrait of the polynomial ring):
   }
   val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
 \end{verbatim}
-
-
+% HK: can we say something about pros and cons of the approaches?
+% RJ: I have to think about it
 \subsection{Classes with mixin composition and categories} % -------------
 
 Mixin composition provides a convenient way to organize different
 algorithm implementations. In addition to GCD algorithms, we can
 imagine algorithms for squarefree decomposition, factorization,
-groebner basis computation. Then we can select precisely which ones we
-require for given ring implementations:
+Gr\"obner basis computation. Then we can select precisely the ones
+suitable for the required polynomial ring implementations:
 %
 \begin{verbatim}
   trait GCDEngineX[C: Ring] extends Polynomial[C] {
@@ -627,9 +634,9 @@ category as a concept to tie sets and morphisms together.
 
 In the sample code above, the coefficient ring \code{C} is kept abstract until
 the definition of the final ring \code{r}. But it is not necessarily so. For
-instance, some versions of Euclid's algorithm only work for \code{BigInteger}
+instance, some versions of Euclid's algorithm only work for \code{Big\-Integer}
 %or \code{ModInteger} 
-coefficients, namely \code{GCDModular} or \code{GCDHensel}:
+coefficients, namely \code{GCD\-Modular} or \code{GCD\-Hensel}:
 %
 \begin{verbatim}
   trait GCDModular extends Polynomial[BigInteger] {
@@ -638,8 +645,11 @@ coefficients, namely \code{GCDModular} or \code{GCDHensel}:
   val r = new Polynomial[BigInteger] with GCDModular
 \end{verbatim}
 
-Suitable implementations may be chosen automatically for the user in function
-of the coefficient ring:
+The desired packaging of algebraic structures and algorithms can be
+pre-setup as defaults and deployed by the system configurator for the
+most useful cases. Moreover there can also be factories which choose
+suitable implementations automatically for the user in function of
+the coefficient ring:
 % RJ: in function is what I meant !
 %
 \begin{verbatim}
@@ -649,6 +659,9 @@ of the coefficient ring:
 The function \code{Poly\-nomial} might return an object (category) of
 type \code{GCD\-Modular} if \code{ring} is \code{Big\-Integer} and
 so on.
+
+Further details of the Scala polynomial ring and algorithm libraries
+will be covered by a future paper.
 
 
 %\subsection{Computer representation of polynomials} % -------------
@@ -725,7 +738,7 @@ some specific algorithm implementations and so solves the packaging problem.
 \subsection*{Acknowledgments} %-------------------------
 
 We thank our colleagues Thomas Becker, Wolfgang K. Seiler, Thomas
-Sturm, Axel Kramer, Jaime Gutierrez, Sherm Ostrowsky, Ted Kosan and
+Sturm, Axel Kramer, Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy and
 others for various discussions on the design of and the requirements
 for JAS and ScAS. 
 %Thanks also to the referees for the insightful suggestions to improve the
