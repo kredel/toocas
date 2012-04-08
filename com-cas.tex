@@ -97,7 +97,7 @@ generic and object oriented.
 
 As we provide a detailed comparison with Magma
 \cite{BosmaCannonPlayoust:1997} and Sage \cite{Stein:2005} with
-comments on {\em axiom} \cite{JenksSutor:1992,Watt:2003} in section
+comments on {\em Axiom} \cite{JenksSutor:1992,Watt:2003} in section
 \ref{sec:compare}, we will mention related work there.
 %Further related work is mentioned in the paper as required.
 
@@ -595,8 +595,11 @@ sub-trait of the polynomial ring in the considered model):
   val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
 \end{verbatim}
 % HK: can we say something about pros and cons of the approaches?
-% RJ: I have to think about it
-
+% RJ: peer (mixin) composition is better in our case because
+% there is a reciprocal dependency between the ring and the algorithm
+% (the ring needs the algorithm and the algorithm needs the ring)
+% I have not much investigated with hierarchical composition, but
+% I think it would not be as convenient
 \subsection{Classes, mixin composition and categories} % -------------
 
 Mixin composition provides a convenient way to organize different
