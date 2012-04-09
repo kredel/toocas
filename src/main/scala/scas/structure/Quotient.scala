@@ -77,6 +77,6 @@ class Quotient[R](implicit val ring: UniqueFactorizationDomain[R]) extends Field
 }
 
 object Quotient {
-  case class Element[R](_1: R, _2: R)(override val factory: Quotient[R]) extends Product2[R, R] with UniqueFactorizationDomain.Element[Element[R]]
+  case class Element[R](_1: R, _2: R)(val factory: Quotient[R]) extends Product2[R, R] with UniqueFactorizationDomain.Element[Element[R]]
   implicit def ring2quotient[S <% R, R: Quotient](value: S) = implicitly[Quotient[R]].apply(value)
 }

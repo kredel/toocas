@@ -14,6 +14,6 @@ class PolynomialWithSubresGCD[C, @specialized(Int, Long) N](val ring: UniqueFact
 object PolynomialWithSubresGCD {
   def apply[C, @specialized(Int, Long) N](ring: UniqueFactorizationDomain[C], pp: PowerProduct[N]) = new PolynomialWithSubresGCD(ring, pp)
 
-  class Element[C, @specialized(Int, Long) N](val value: SortedMap[Array[N], C])(override val factory: PolynomialWithSubresGCD[C, N]) extends TreePolynomial.Element[Element[C, N], C, N] with PolynomialOverUFD.Element[Element[C, N], C, N]
+  class Element[C, @specialized(Int, Long) N](val value: SortedMap[Array[N], C])(val factory: PolynomialWithSubresGCD[C, N]) extends TreePolynomial.Element[Element[C, N], C, N] with PolynomialOverUFD.Element[Element[C, N], C, N]
   implicit def coef2polynomial[D, C, @specialized(Int, Long) N](value: D)(implicit f: D => C, factory: PolynomialWithSubresGCD[C, N]) = factory(value)
 }

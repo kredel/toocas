@@ -16,6 +16,6 @@ class UnivariatePolynomial[C, @specialized(Int, Long) N](val ring: Field[C], val
 object UnivariatePolynomial {
   def apply[C, @specialized(Int, Long) N](ring: Field[C], pp: PowerProduct[N]) = new UnivariatePolynomial(ring, pp)
 
-  class Element[C, @specialized(Int, Long) N](val value: SortedMap[Array[N], C], val syzygy: Module.Element[Element[C, N]])(override val factory: UnivariatePolynomial[C, N]) extends TreePolynomial.Element[Element[C, N], C, N] with scas.polynomial.ufd.UnivariatePolynomial.Element[Element[C, N], C, N]
+  class Element[C, @specialized(Int, Long) N](val value: SortedMap[Array[N], C], val syzygy: Module.Element[Element[C, N]])(val factory: UnivariatePolynomial[C, N]) extends TreePolynomial.Element[Element[C, N], C, N] with scas.polynomial.ufd.UnivariatePolynomial.Element[Element[C, N], C, N]
   implicit def coef2polynomial[D, C, @specialized(Int, Long) N](value: D)(implicit f: D => C, factory: UnivariatePolynomial[C, N]) = factory(value)
 }

@@ -23,7 +23,7 @@ object UniqueFactorizationDomain {
   object Implicits extends ExtraImplicits
 
   trait Element[T <: Element[T]] extends Ring.Element[T] { this: T =>
-    override val factory: UniqueFactorizationDomain[T]
+    val factory: UniqueFactorizationDomain[T]
     def /  (that: T) = factory.divide(this, that)
     def %  (that: T) = factory.remainder(this, that)
     def /% (that: T) = factory.divideAndRemainder(this, that)

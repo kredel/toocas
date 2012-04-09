@@ -15,7 +15,7 @@ trait Module[T <: Element[T, R], R] extends AbelianGroup[T] {
 
 object Module {
   trait Element[T <: Element[T, R], R] extends AbelianGroup.Element[T] { this: T =>
-    override val factory: Module[T, R]
+    val factory: Module[T, R]
     def *(value: R) = factory.rtimes(this, value)
   }
 }

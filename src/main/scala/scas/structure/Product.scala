@@ -54,5 +54,5 @@ class Product[R1, R2](implicit val ring1: Ring[R1], ring2: Ring[R2]) extends Rin
 object Product {
   def apply[R1: Ring, R2: Ring] = new Product[R1, R2]
 
-  case class Element[R1, R2](_1: R1, _2: R2)(override val factory: Product[R1, R2]) extends scala.Product2[R1, R2] with Ring.Element[Element[R1, R2]]
+  case class Element[R1, R2](_1: R1, _2: R2)(val factory: Product[R1, R2]) extends Product2[R1, R2] with Ring.Element[Element[R1, R2]]
 }

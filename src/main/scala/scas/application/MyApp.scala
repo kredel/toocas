@@ -11,6 +11,7 @@ object MyApp extends App {
   solvablePolynomial
   bigint
   modint
+  modPolynomial
   product
   rational
   rationalPolynomial
@@ -94,6 +95,14 @@ object MyApp extends App {
     assert (c.toString == "2")
     assert (r.toString == "ZZ(7)")
     assert (r.characteristic.intValue == 7)
+  }
+
+  def modPolynomial = {
+    implicit val r = ModInteger(2)
+    implicit val s = Polynomial(r, PowerProduct[Int]('x))
+    val Array(x) = s.generators
+    assert (1 + x + 1 >< x)
+    assert (s.toString == "ZZ(2)[x]")
   }
 
   def product = {

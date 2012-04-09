@@ -21,6 +21,6 @@ abstract class Residue[T, R](implicit val ring: UniqueFactorizationDomain[R]) ex
 }
 
 object Residue {
-  abstract class Element[T <: Element[T, R], R](val value: R)(override val factory: Residue[T, R]) extends Ring.Element[T] { this: T =>
+  abstract class Element[T <: Element[T, R], R](val value: R)(val factory: Residue[T, R]) extends Ring.Element[T] { this: T =>
   }
 }

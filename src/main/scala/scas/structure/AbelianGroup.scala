@@ -25,7 +25,7 @@ object AbelianGroup {
   object Implicits extends ExtraImplicits
 
   trait Element[T <: Element[T]] extends Structure.Element[T] { this: T =>
-    override val factory: AbelianGroup[T]
+    val factory: AbelianGroup[T]
     def isZero = factory.isZero(this)
     def +(that: T) = factory.plus(this, that)
     def -(that: T) = factory.minus(this, that)

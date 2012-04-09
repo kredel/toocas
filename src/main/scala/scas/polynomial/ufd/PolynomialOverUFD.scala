@@ -50,6 +50,6 @@ trait PolynomialOverUFD[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N]
 
 object PolynomialOverUFD {
   trait Element[T <: Element[T, C, N], C, N] extends Polynomial.Element[T, C, N] with UniqueFactorizationDomain.Element[T] { this: T =>
-    override val factory: PolynomialOverUFD[T, C, N]
+    val factory: PolynomialOverUFD[T, C, N]
   }
 }

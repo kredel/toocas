@@ -111,6 +111,6 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
 
 object Polynomial {
   trait Element[T <: Element[T, C, N], C, N] extends Ring.Element[T] { this: T =>
-    override val factory: Polynomial[T, C, N]
+    val factory: Polynomial[T, C, N]
   }
 }

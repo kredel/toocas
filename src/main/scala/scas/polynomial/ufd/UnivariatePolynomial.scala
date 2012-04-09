@@ -21,6 +21,6 @@ trait UnivariatePolynomial[T <: Element[T, C, N], C, N] extends PolynomialOverFi
 
 object UnivariatePolynomial {
   trait Element[T <: Element[T, C, N], C, N] extends PolynomialOverUFD.Element[T, C, N] with PolynomialWithSyzygy.Element[T, C, N] { this: T =>
-    override val factory: UnivariatePolynomial[T, C, N]
+    val factory: UnivariatePolynomial[T, C, N]
   }
 }

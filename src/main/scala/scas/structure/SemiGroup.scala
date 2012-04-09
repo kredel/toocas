@@ -15,7 +15,7 @@ object SemiGroup {
   object Implicits extends ExtraImplicits
 
   trait Element[T <: Element[T]] extends Structure.Element[T] { this: T =>
-    override val factory: SemiGroup[T]
+    val factory: SemiGroup[T]
     def *(that: T) = factory.times(this, that)
   }
 }

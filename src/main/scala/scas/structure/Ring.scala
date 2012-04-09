@@ -13,6 +13,6 @@ object Ring {
   object Implicits extends ExtraImplicits
 
   trait Element[T <: Element[T]] extends AbelianGroup.Element[T] with Monoid.Element[T] { this: T =>
-    override val factory: Ring[T]
+    val factory: Ring[T]
   }
 }

@@ -22,7 +22,7 @@ object Monoid {
   object Implicits extends ExtraImplicits
 
   trait Element[T <: Element[T]] extends SemiGroup.Element[T] { this: T =>
-    override val factory: Monoid[T]
+    val factory: Monoid[T]
     def isUnit = factory.isUnit(this)
     def isOne = factory.isOne(this)
   }

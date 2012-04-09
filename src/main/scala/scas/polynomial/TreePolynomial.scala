@@ -44,7 +44,7 @@ trait TreePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
 
 object TreePolynomial {
   trait Element[T <: Element[T, C, N], C, N] extends Polynomial.Element[T, C, N] { this: T =>
-    override val factory: TreePolynomial[T, C, N]
+    val factory: TreePolynomial[T, C, N]
     val value: SortedMap[Array[N], C]
   }
 }

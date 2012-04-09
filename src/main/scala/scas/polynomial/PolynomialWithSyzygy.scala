@@ -16,7 +16,7 @@ trait PolynomialWithSyzygy[T <: Element[T, C, N], C, N] extends Polynomial[T, C,
 
 object PolynomialWithSyzygy {
   trait Element[T <: Element[T, C, N], C, N] extends Polynomial.Element[T, C, N] { this: T =>
-    override val factory: PolynomialWithSyzygy[T, C, N]
+    val factory: PolynomialWithSyzygy[T, C, N]
     val syzygy: Module.Element[T]
   }
 }
