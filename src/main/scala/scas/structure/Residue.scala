@@ -2,25 +2,35 @@ package scas.structure
 
 import scas.Implicits.infixUFDOps
 
-abstract class Residue[T, R](implicit val ring: UniqueFactorizationDomain[R]) extends Ring[T] {
-  def apply(x: T) = fromRing(toRing(x))
-  def apply(l: Long) = fromRing(ring(l))
-  def fromRing(x: R): T
-  def toRing(x: T): R
-  def random(numbits: Int)(implicit rnd: java.util.Random) = fromRing(ring.random(numbits))
-  def isUnit(x: T) = toRing(x).isUnit
-  override def pow(x: T, exp: java.math.BigInteger) = fromRing(ring.pow(toRing(x), exp))
-  override def negate(x: T) = fromRing(-toRing(x))
-  override def abs(x: T) = x
-  override def signum(x: T) = ring.signum(toRing(x))
-  def plus(x: T, y: T) = fromRing(toRing(x) + toRing(y))
-  def minus(x: T, y: T) = fromRing(toRing(x) - toRing(y))
-  def times(x: T, y: T) = fromRing(toRing(x) * toRing(y))
-  def compare(x: T, y: T) = ring.compare(toRing(x), toRing(y))
-  override def toCode(x: T, precedence: Int) = toRing(x).toCode(precedence)
+trait Residue[T, R] extends UniqueFactorizationDomain[T] {
+  implicit val ring: UniqueFactorizationDomain[R]
+  def convert(x: T) = apply(ring.convert(lift(x)))
+  def apply(l: Long) = apply(ring(l))
+  def apply(value: R): T
+  def reduce(value: R): T
+  def lift(x: T): R
+  def random(numbits: Int)(implicit rnd: java.util.Random) = reduce(ring.random(numbits))
+  def isUnit(x: T) = lift(x).isUnit
+  override def pow(x: T, exp: java.math.BigInteger) = reduce(ring.pow(lift(x), exp))
+  override def negate(x: T) = reduce(-lift(x))
+  override def abs(x: T) = reduce(ring.abs(lift(x)))
+  override def signum(x: T) = ring.signum(lift(x))
+  def plus(x: T, y: T) = reduce(lift(x) + lift(y))
+  def minus(x: T, y: T) = reduce(lift(x) - lift(y))
+  def times(x: T, y: T) = reduce(lift(x) * lift(y))
+  def gcd(x: T, y: T) = apply(ring.gcd(lift(x), lift(y)))
+  def divideAndRemainder(x: T, y: T) = {
+    val (q, r) = lift(x) /% lift(y)
+    (apply(q), apply(r))
+  }
+  def compare(x: T, y: T) = ring.compare(lift(x), lift(y))
+  override def toCode(x: T, precedence: Int) = lift(x).toCode(precedence)
+  def toMathML(x: T) = lift(x).toMathML
 }
 
 object Residue {
-  abstract class Element[T <: Element[T, R], R](val value: R)(val factory: Residue[T, R]) extends Ring.Element[T] { this: T =>
+  trait Element[T <: Element[T, R], R] extends UniqueFactorizationDomain.Element[T] { this: T =>
+    val factory: Residue[T, R]
+    val value: R
   }
 }

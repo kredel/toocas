@@ -5,8 +5,8 @@ import scas.Implicits.{infixRingOps, infixPowerProductOps}
 import Polynomial.Element
 
 trait SolvablePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
-  type Key = Pair[Int, Int]
-  type Relation = Triple[Array[N], Array[N], T]
+  type Key = (Int, Int)
+  type Relation = (Array[N], Array[N], T)
   var table = SortedMap.empty[Key, List[Relation]]
   def update(e: T, f: T, p: T): Unit = update(headPowerProduct(e), headPowerProduct(f), p)
   def update(e: Array[N], f: Array[N], p: T) = {
@@ -43,7 +43,8 @@ trait SolvablePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N
     val df = pp.dependencyOnVariables(f)
     (de(0), df(0))
   }
-  override def toString = super.toString + "[" + (for ((a, b) <- table) yield "[" + (for ((e, f, p) <- b) yield e.toCode(0) + "*" + f.toCode(0) + " = " + p).mkString(", ") + "]").mkString(", ")+ "]"
+  override def toString = super.toString + "[" + (for ((a, b) <- table) yield "[" + (for ((e, f, p) <- b) yield e.toCode(0) + "*" + f.toCode(0) + " = " + p.toString).mkString(", ") + "]").mkString(", ")+ "]"
+  override def toMathML = <mrow>{super.toMathML}<list>{for ((a, b) <- table) yield {<list>{for ((e, f, p) <- b) yield <apply><eq/><apply><times/>{e.toMathML}{f.toMathML}</apply>{p.toMathML}</apply>}</list>}}</list></mrow>
 
   override def multiply(w: T, x: Array[N], y: C) = (zero /: iterator(w)) { (l, r) =>
     val (a, b) = r

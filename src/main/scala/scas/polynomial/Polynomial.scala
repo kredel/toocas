@@ -9,12 +9,9 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
   implicit val ring: Ring[C]
   implicit val pp: PowerProduct[N]
   implicit val cm: ClassManifest[T]
-  def generator(n: Int) = fromPowerProduct(pp.generator(n))
-  def generators = (for (i <- 0 until length) yield generator(i)).toArray
-  def generatorsBy(n: Int) = {
-    val m = length/n
-    (for (i <- 0 until m) yield (for (j <- 0 until n) yield generator(i * n + j)).toArray).toArray
-  }
+  def generators = pp.generators.map(fromPowerProduct)
+  def generatorsBy(n: Int) = pp.generatorsBy(n).map(_.map(fromPowerProduct))
+  override def signum(x: T) = if (x.isZero) 0 else { val (a, b) = last(x) ; ring.signum(b) }
   def characteristic = ring.characteristic
   def apply(l: Long) = apply(ring(l))
   def random(numbits: Int)(implicit rnd: java.util.Random) = zero
@@ -34,7 +31,7 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
     }
     if (!it.hasNext) 0 else -1
   }
-  def isUnit(x: T) = if (x.isZero) false else headCoefficient(x).isUnit
+  def isUnit(x: T) = if (degree(x) > 0 || x.isZero) false else headCoefficient(x).isUnit
   def times(x: T, y: T) = (zero /: iterator(y)) { (l, r) =>
     val (a, b) = r
     l + multiply(x, a, b)
@@ -43,15 +40,22 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
     var s = ""
     var n = 0
     var m = 0
-    for ((a, b) <- iterator(x)) {
+    for ((a, b) <- reverseIterator(x)) {
       val c = ring.abs(b)
+      val g = ring.signum(b) < 0
       val (t, u) = {
         if (a.isOne) (c.toCode(0), 1)
         else if (c.isOne) (a.toCode(0), pp.size(a))
         else (c.toCode(1) + "*" + a.toCode(1), 1 + pp.size(a))
       }
-      s = s + (if (ring.signum(b) < 0) "-" else (if (n == 0) "" else "+")) + t
-      m = u + (if (ring.signum(b) < 0) 1 else 0)
+      s = {
+        if (n == 0) {
+          if (g) "-" + t else t
+        } else {
+          if (g) s + "-" + t else s + "+" + t
+        }
+      }
+      m = if (g) u + 1 else u
       n += 1
     }
     if (n == 0) ring.zero.toCode(0) else {
@@ -65,26 +69,49 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
     }
   }
   override def toString = ring.toString + pp.toString
+  def toMathML(x: T) = {
+    var s = <sep/>
+    var n = 0
+    for ((a, b) <- reverseIterator(x)) {
+      val c = ring.abs(b)
+      val g = ring.signum(b) < 0
+      val t = {
+        if (a.isOne) c.toMathML
+        else if (c.isOne) a.toMathML
+        else <apply><times/>{c.toMathML}{a.toMathML}</apply>
+      }
+      s = {
+        if (n == 0) {
+          if (g) <apply><minus/>{t}</apply> else t
+        } else {
+          if (g) <apply><minus/>{s}{t}</apply> else <apply><plus/>{s}{t}</apply>
+        }
+      }
+      n += 1
+    }
+    if (n == 0) ring.zero.toMathML else s
+  }
+  def toMathML = <mrow>{ring.toMathML}{pp.toMathML}</mrow>
   def apply(value: C): T
   def fromPowerProduct(value: Array[N]): T
 
-  def iterator(x: T): Iterator[Pair[Array[N], C]]
+  def iterator(x: T): Iterator[(Array[N], C)]
+
+  def reverseIterator(x: T): Iterator[(Array[N], C)]
 
   def variables = pp.variables
 
   def length = variables.length
 
-  def headPowerProduct(x: T) = {
-    val (a, b) = headTerm(x)
-    a
-  }
+  def head(x: T): (Array[N], C)
 
-  def headCoefficient(x: T) = {
-    val (a, b) = headTerm(x)
-    b
-  }
+  def headPowerProduct(x: T) = { val (a, b) = head(x) ; a }
 
-  def headTerm(x: T) = iterator(x).next
+  def headCoefficient(x: T) = { val (a, b) = head(x) ; b }
+
+  def last(x: T): (Array[N], C)
+
+  def lastCoefficient(x: T) = { val (a, b) = last(x) ; b }
 
   def degree(x: T) = (0l /: iterator(x)) { (l, r) =>
     val (a, b) = r
@@ -94,8 +121,8 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
   def reduce(x: T, y: T): T = {
     if (x.isZero) zero
     else {
-      val (s, a) = headTerm(x)
-      val (t, b) = headTerm(y)
+      val (s, a) = head(x)
+      val (t, b) = head(y)
       if (!(t | s)) x else {
         reduce(multiply(x, b) - multiply(y, s / t, a), y)
       }

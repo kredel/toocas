@@ -1,10 +1,8 @@
 package scas.application
 
 import scas._
-import Predef.{any2stringadd => _, _}
 
 object MyApp extends App {
-
   pp1
   pp2
   polynomial
@@ -20,48 +18,47 @@ object MyApp extends App {
   complex
   an
   module
-  syzygy
-  gcdSimple
-  gcdPrimitive
   gcdSubres
   gcdMultivariate
 
   def pp1 = {
     import Implicits.{infixOrderingOps, infixPowerProductOps}
-    implicit val m = PowerProduct[Int]('x)
+    implicit val m = PowerProduct('x)
     val Array(x) = m.generators
-    assert (x > 1)
-    assert (1 < x)
-    assert (1 | x)
-    assert (x * 1 >< x)
+    assert (x > m(1))
+    assert (m(1) < x)
+    assert (m(1) | x)
+    assert (x * m(1) >< x)
     assert (x * x >< pow(x, 2))
   }
 
   def pp2 = {
     import Implicits.infixPowerProductOps
-    implicit val m = PowerProduct[Int]((for (i <- 0 until 4) yield (for (j <- 0 until 2) yield Variable("a", i, j)).toArray).toArray)
+    implicit val m = PowerProduct((for (i <- 0 until 4) yield (for (j <- 0 until 2) yield Variable("a", i, j)).toArray).toArray, Lexicographic[Int])
     val a = m.generatorsBy(2)
     val s = (for (i <- 0 until 4) yield (for (j <- 0 until 2) yield a(i)(j).toCode(0)).toArray).toArray
     assert (s.deep.toString == "Array(Array(a(0)(0), a(0)(1)), Array(a(1)(0), a(1)(1)), Array(a(2)(0), a(2)(1)), Array(a(3)(0), a(3)(1)))");
   }
 
   def polynomial = {
-    import Implicits.ZZ
-    implicit val r = Polynomial(ZZ, PowerProduct[Int]('x))
-    implicit val s = Polynomial(r, PowerProduct[Int]('y))
+    import Implicits.{ZZ, coef2polynomial}
+    implicit val r = Polynomial(ZZ, 'x)
+    implicit val s = Polynomial(r, 'y)
     val Array(x) = r.generators
     val Array(y) = s.generators
     assert (x + 1 >< 1 + x)
+    assert (x + BigInteger(1) >< BigInteger(1) + x)
     assert (y + x >< x + y)
     assert (y + 1 >< 1 + y)
+    assert (y + BigInteger(1) >< BigInteger(1) + y)
   }
 
   def solvablePolynomial = {
     import Implicits.ZZ
-    implicit val r = WeylAlgebra(ZZ, PowerProduct[Int]('a, 'x, 'b, 'y))
+    implicit val r = Polynomial.weylAlgebra(ZZ, PowerProduct('a, 'x, 'b, 'y))
     val Array(a, x, b, y) = r.generators
     assert (b*a+y*x >< 2+a*b+x*y)
-    assert (r.toString == "ZZ[a, x, b, y][[b*a = a*b+1], [y*x = x*y+1]]")
+    assert (r.toString == "ZZ[a, x, b, y][[b*a = 1+a*b], [y*x = 1+x*y]]")
   }
 
   def bigint = {
@@ -71,12 +68,12 @@ object MyApp extends App {
     val c = pow(b, 32)
     val d = pow(c, 2)
     val e = BigInteger("18446744073709551616")
-    assert (b >< 2)
-    assert (2 >< b)
-    assert (a + 1 >< b)
-    assert (1 + a >< b)
-    assert (b > 1)
-    assert (1 < b)
+    assert (b >< BigInteger(2))
+    assert (BigInteger(2) >< b)
+    assert (a + BigInteger(1) >< b)
+    assert (BigInteger(1) + a >< b)
+    assert (b > BigInteger(1))
+    assert (BigInteger(1) < b)
     assert (b.toCode(0) == "2")
     assert (c.toCode(0) == "4294967296l")
     assert (d.toCode(0) == "BigInteger(\"18446744073709551616\")")
@@ -89,8 +86,8 @@ object MyApp extends App {
     val a = r(4)
     val b = a + a
     val c = pow(a, 2)
-    assert (b >< 1)
-    assert (1 >< b)
+    assert (b >< r(1))
+    assert (r(1) >< b)
     assert (b.toString == "1")
     assert (c.toString == "2")
     assert (r.toString == "ZZ(7)")
@@ -99,97 +96,92 @@ object MyApp extends App {
 
   def modPolynomial = {
     implicit val r = ModInteger(2)
-    implicit val s = Polynomial(r, PowerProduct[Int]('x))
+    implicit val s = Polynomial(r, 'x)
     val Array(x) = s.generators
     assert (1 + x + 1 >< x)
     assert (s.toString == "ZZ(2)[x]")
   }
 
   def product = {
-    implicit val r = Product(ModInteger(3), ModInteger(5))
-    val a = r(1,3)
+    implicit val r = Product("r", ModInteger(3), ModInteger(5))
+    val a = r(1, 3)
     val b = a + a
-    assert (b >< r(2,1))
+    assert (b >< r(2, 1))
     assert (r.toString == "ZZ(3)*ZZ(5)")
     assert (r.characteristic.intValue == 15)
   }
 
   def rational = {
-    import Implicits.QQ
-    assert (1 + frac(1, 2) >< frac(1, 2) + 1)
+    import Implicits.{QQ, infixUFDOps}
+    assert (Rational(1) + frac(1, 2) >< frac(1, 2) + Rational(1))
     assert (frac(1, 2) + frac(3, 4) >< frac(5, 4))
+    assert (pow(frac(3, 2), 2) >< frac(9, 4))
   }
 
   def rationalPolynomial = {
-    import Implicits.QQ
-    implicit val r = Polynomial(QQ, PowerProduct[Int]('x))
+    import Implicits.{QQ, coef2polynomial}
+    implicit val r = Polynomial(QQ, 'x)
     val Array(x) = r.generators
     assert (x + frac(1, 2) >< frac(1, 2) + x)
     assert (x + 1 >< 1 + x)
   }
 
   def univariatePolynomial = {
-    import Implicits.QQ
+    import Implicits.{QQ, coef2univariatePolynomial}
     implicit val r = UnivariatePolynomial(QQ, "x")
-    import r.{generator, gcd, monic, modInverse}
-    val x = generator(0)
-    assert (monic(gcd((1+x)*(1+frac(1, 2)*x), (1+frac(1, 2)*x)*(1-x))) >< 2+x)
-    assert (modInverse(1-x, pow(1+x, 2)) >< frac(1, 4)*x+frac(3, 4))
+    import r.{generators, gcd, primitivePart, modInverse}
+    val Array(x) = generators
+    assert (primitivePart(gcd((1+x)*(1+frac(1, 2)*x), (1+frac(1, 2)*x)*(1-x))) >< 2+x)
+    assert (modInverse(1-x, pow(1+x, 2)) >< frac(3, 4)+frac(1, 4)*x)
   }
 
   def rf = {
-    import Implicits.QQ
-    implicit val r = UnivariatePolynomial(QQ, "x")
-    implicit val q = RationalFunction(r)
+    import Implicits.{QQ, coef2rationalFunction}
+    implicit val q = RationalFunction(QQ, "x")
     val Array(x) = q.generators
     assert (x + frac(1, 2) >< frac(1, 2) + x)
     assert (x + 1 >< 1 + x)
     assert ((pow(x, 2) - 1)/(x - 1) >< x + 1)
+    assert ((1 - pow(x, 2))/(1 - x) >< 1 + x)
     assert ((x/(2 * x)).toString == "frac(1, 2)")
     assert (q.toString == "QQ(x)")
   }
 
   def complex = {
-    import Implicits.{QQ, CC}
-    assert ((I+1)/(I-1) >< -I)
+    import Implicits.CC
+    assert ((1+I)/(1-I) >< I)
   }
 
   def an = {
-    import Implicits.QQ
+    import Implicits.{QQ, coef2residue}
     implicit val r = AlgebraicNumber(QQ, "x")
-    val x = r.generator
-    r.update(pow(x, 2) - 2)
-    assert (pow(x, 2) >< 2)
-    assert (r.toString == "QQ(pow(x, 2)-2)")
+    val Array(x) = r.generators
+    r.update(2 - pow(x, 2))
+    assert (2 >< pow(x, 2))
+    assert (Rational(2) - pow(x, 2) >< 0)
+    assert (r.toString == "QQ(2-pow(x, 2))")
   }
 
   def module = {
-    import Implicits.ZZ
-    implicit val m = Module("e", 2, ZZ)
-    val e = m.generators
-    assert (2 * e(0) >< e(0) * 2)
-    assert (e(0) + e(1) >< e(0) + e(1))
-    assert ((2 * e(0) + e(1)).value.deep.toString == "Array(2, 1)")
-    assert (m.toString == "ZZ^2")
-  }
-
-  def syzygy = {
-    import Implicits.ZZ
-    implicit val r = Polynomial(ZZ, PowerProduct[Int]('x))
-    val Array(x) = r.generators
+    import Implicits.{QQ, coef2polynomial, ring2scalar}
+    implicit val r = Polynomial(QQ, 'x)
     implicit val m = Module("e", 2, r)
+    val Array(x) = r.generators
     val e = m.generators
     assert (2 * e(0) >< e(0) * 2)
+    assert (frac(1, 2) * e(0) >< e(0) * frac(1, 2))
     assert (x * e(0) >< e(0) * x)
     assert (2 * x * e(0) >< e(0) * 2 * x)
+    assert (frac(1, 2) * x * e(0) >< e(0) * frac(1, 2) * x)
     assert (e(0) + e(1) >< e(0) + e(1))
     assert ((2 * e(0) + e(1)).toCode(0) == "2*e(0)+e(1)")
-    assert (m.toString == "ZZ[x]^2")
+    assert ((frac(1, 2) * e(0) + e(1)).value.deep.toString == "Array(frac(1, 2), 1)")
+    assert (m.toString == "QQ[x]^2")
   }
 
-  def gcdSimple = {
+  def gcdSubres = {
     import Implicits.ZZ
-    implicit val r = PolynomialWithSimpleGCD(ZZ, PowerProduct[Int]('x))
+    implicit val r = MultivariatePolynomial.withSubresGCD(ZZ, PowerProduct('x))
     import r.{generators, gcd}
     val Array(x) = generators
     assert (gcd(0, 0) >< 0)
@@ -198,25 +190,9 @@ object MyApp extends App {
     assert (gcd((1+x)*(1+x), (1+x)*(1-x)) >< 1+x)
   }
 
-  def gcdPrimitive = {
-    import Implicits.ZZ
-    implicit val r = PolynomialWithPrimitiveGCD(ZZ, PowerProduct[Int]('x))
-    import r.{generators, gcd}
-    val Array(x) = generators
-    assert (gcd((1+x)*(1+x), (1+x)*(1-x)) >< 1+x)
-  }
-
-  def gcdSubres = {
-    import Implicits.ZZ
-    implicit val r = PolynomialWithSubresGCD(ZZ, PowerProduct[Int]('x))
-    import r.{generators, gcd}
-    val Array(x) = generators
-    assert (gcd((1+x)*(1+x), (1+x)*(1-x)) >< 1+x)
-  }
-
   def gcdMultivariate = {
     import Implicits.ZZ
-    implicit val r = MultivariatePolynomial(ZZ, PowerProduct[Int]('x, 'y, 'z))
+    implicit val r = MultivariatePolynomial(ZZ, PowerProduct('x, 'y, 'z))
     import r.{generators, gcd}
     val Array(x, y, z) = generators
     assert (gcd(x*y, x*z) >< x)

@@ -1,6 +1,5 @@
-package scas.polynomial.ufd
+package scas.polynomial
 
-import scas.Implicits.infixUFDOps
 import PolynomialOverUFD.Element
 
 trait PolynomialWithPrimitiveGCD[T[C, N] <: Element[T[C, N], C, N], C, N] extends MultivariatePolynomial[T, C, N] {

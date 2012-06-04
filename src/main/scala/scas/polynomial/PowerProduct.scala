@@ -1,17 +1,17 @@
 package scas.polynomial
 
-import scas.{Variable, int2powerProduct}
-import scas.polynomial.ordering.Ordering
+import scas.Variable
+import scas.polynomial.ordering.{Ordering, Lexicographic}
 import scas.structure.Monoid
 
-class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], val ordering: Ordering[N]) extends Monoid[Array[N]] {
+class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable], val ordering: Ordering[N])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]]) extends Monoid[Array[N]] {
   import scala.math.Ordering.Implicits.infixOrderingOps
   import Numeric.Implicits.infixNumericOps
   import nm.{fromInt, toLong}
-  def take(n: Int) = new PowerProduct[N](variables.take(n))
-  def drop(n: Int) = new PowerProduct[N](variables.drop(n))
+  def take(n: Int) = new PowerProduct[N](variables.take(n), ordering)
+  def drop(n: Int) = new PowerProduct[N](variables.drop(n), ordering)
   override def one = new Array[N](length + 1)
-  def generator(n: Int) = (for (i <- 0 until length + 1) yield fromInt(if (i == n || i == length) 1 else 0)).toArray
+  protected def generator(n: Int) = (for (i <- 0 until length + 1) yield fromInt(if (i == n || i == length) 1 else 0)).toArray
   def generators = (for (i <- 0 until length) yield generator(i)).toArray
   def generatorsBy(n: Int) = {
     val m = length/n
@@ -30,7 +30,7 @@ class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(im
     assert (l == 1)
     one
   }
-  def apply(x: Array[N]) = x
+  def convert(x: Array[N]) = x
   def random(numbits: Int)(implicit rnd: java.util.Random) = one
   def gcd(x: Array[N], y: Array[N]): Array[N] = {
     val r = new Array[N](length + 1)
@@ -64,14 +64,28 @@ class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(im
     for (i <- 0 until length) if (x(i) > fromInt(0)) {
       val t = {
         if (x(i) equiv fromInt(1)) variables(i).toString
-        else "pow(" + variables(i) + ", " + x(i) + ")"
+        else "pow(" + variables(i).toString + ", " + x(i) + ")"
       }
-      s = s + (if (m == 0) "" else "*") + t
+      s = if (m == 0) t else s + "*" + t
       m += 1
     }
     if (m == 0) "1" else s
   }
   override def toString = "["+variables.mkString(", ")+"]"
+  def toMathML(x: Array[N]) = {
+    var s = <sep/>
+    var m = 0
+    for (i <- 0 until length) if (x(i) > fromInt(0)) {
+      val t = {
+        if (x(i) equiv fromInt(1)) variables(i).toMathML
+        else <apply><power/>{variables(i).toMathML}<cn>{x(i)}</cn></apply>
+      }
+      s = if (m == 0) t else <apply><times/>{s}{t}</apply>
+      m += 1
+    }
+    if (m == 0) <cn>1</cn> else s
+  }
+  def toMathML = <list>{variables.map(_.toMathML)}</list>
 
   def converter(from: Array[Variable]): Array[N] => Array[N] = { x =>
     val r = new Array[N](length + 1)
@@ -95,11 +109,7 @@ class PowerProduct[@specialized(Int, Long) N](val variables: Array[Variable])(im
     m
   }
 
-  class Ops(val lhs: Array[N]) extends super[Monoid].Ops {
-    def /(rhs: Array[N]) = divide(lhs, rhs)
-    def |(rhs: Array[N]) = factorOf(lhs, rhs)
-  }
-  override implicit def mkOps(lhs: Array[N]): Ops = new Ops(lhs)
+  override implicit def mkOps(value: Array[N]) = new PowerProduct.Ops(value)(this)
 }
 
 object PowerProduct {
@@ -108,8 +118,13 @@ object PowerProduct {
   }
   object Implicits extends ExtraImplicits
 
-  def apply[@specialized(Int, Long) N](variables: Array[Variable])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) = new PowerProduct[N](variables)
-  def apply[@specialized(Int, Long) N](s: Variable)(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) = new PowerProduct[N](Array(s))
-  def apply[@specialized(Int, Long) N](s: Variable, ss: Variable*)(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) = new PowerProduct[N](Array(s) ++ ss)
-  def apply[@specialized(Int, Long) N](sss: Array[Array[Variable]])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]], ordering: Ordering[N]) = new PowerProduct[N](for (ss <- sss ; s <- ss) yield s)
+  def apply(s: Variable): PowerProduct[Int] = apply(Array(s), Lexicographic[Int])
+  def apply(s: Variable, ss: Variable*): PowerProduct[Int] = apply(Array(s) ++ ss, Lexicographic[Int])
+  def apply[@specialized(Int, Long) N](variables: Array[Variable], ordering: Ordering[N])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]]) = new PowerProduct[N](variables, ordering)
+  def apply[@specialized(Int, Long) N](sss: Array[Array[Variable]], ordering: Ordering[N])(implicit nm: Numeric[N], m: Manifest[N], cm: ClassManifest[Array[N]]): PowerProduct[N] = apply(for (ss <- sss ; s <- ss) yield s, ordering)
+
+  class Ops[@specialized(Int, Long) N](val lhs: Array[N])(val factory: PowerProduct[N]) extends Monoid.Ops[Array[N]] {
+    def /(rhs: Array[N]) = factory.divide(lhs, rhs)
+    def |(rhs: Array[N]) = factory.factorOf(lhs, rhs)
+  }
 }
