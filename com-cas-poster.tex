@@ -15,6 +15,8 @@
 
 \usepackage[english]{babel}
 %hk% \usepackage[latin1]{inputenc}
+\usepackage{relsize}
+\usepackage{listings}
 
 \usepackage{epsfig}
 
@@ -43,7 +45,8 @@
 
   %hk: makes new page% \maketitle
 
-\begin{frame}{} 
+\begin{frame}[fragile] 
+\frametitle{Categories as classes and mixin composition}
 \vfill
 
 \begin{columns}[t]
@@ -79,8 +82,8 @@ computation in separate packages.
   \hfill
   \begin{block}{\large Related Work}
 {\normalsize 
-Magma [BosmaCannonPlayoust:1997] and Sage [Stein:2005], 
-comments on Axiom [JenksSutor:1992,Watt:2003]\par
+Magma [BosmaCannonPlayoust:1997], Sage [Stein:2005], 
+Axiom [JenksSutor:1992,Watt:2003]\par
 }\par
 {\footnotesize\bf Acknowledgments}\par
 {\footnotesize Thomas Becker, Wolfgang K. Seiler, Thomas Sturm, Axel Kramer, 
@@ -105,18 +108,23 @@ Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy\par}
  
   \begin{block}{\large Generic, strongly typed, object oriented computer algebra software}
       \centering
-      \epsfig{file=BasicTypes,clip=,width=0.55\linewidth}
-\par
-% want left
-%{\small %/ here element = factory
-%hk: does not work:
+      \epsfig{file=BasicTypes,clip=,width=0.85\linewidth}
+%\par
+  \end{block}
+  \hfill
+  \begin{block}{\large Example}
+%hk: does not work: works with [fragile]
+%\footnotesize 
+\scriptsize %\tiny 
+%// here element = factory
 %\begin{verbatim} 
-%  BigRational rf = new BigRational(1); 
-%  GenPolynomialRing<BigRational> pf 
-%   = new GenPolynomialRing<BigRational>(rf,new String[]{ "w" });
-%  GenPolynomial<BigRational> a = pf.parse("w^2 - 2");
+\begin{lstlisting} 
+BigRational rf = new BigRational(1); 
+GenPolynomialRing<BigRational> pf 
+ = new GenPolynomialRing<BigRational>(rf,new String[]{"w"});
+GenPolynomial<BigRational> a = pf.parse("w^2 - 2");
+\end{lstlisting} 
 %\end{verbatim}
-%}
   \end{block}
   \hfill
   \begin{block}{\large Algorithm libraries}
