@@ -118,12 +118,18 @@ Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy\par}
 \scriptsize %\tiny 
 %// here element = factory
 %\begin{verbatim} 
+%code example in ScAS syntax - maybe we need to translate
+%the uml diagram as well ?
 \begin{lstlisting} 
-BigRational rf = new BigRational(1); 
-GenPolynomialRing<BigRational> pf 
- = new GenPolynomialRing<BigRational>(rf,new String[]{"w"});
-GenPolynomial<BigRational> a = pf.parse("w^2 - 2");
+import Implicits.QQ
+implicit val r = Polynomial(QQ, "w")
+val Array(w) = r.generators
+val a = pow(w, 2) - 2 
 \end{lstlisting} 
+%BigRational rf = new BigRational(1); 
+%GenPolynomialRing<BigRational> pf 
+% = new GenPolynomialRing<BigRational>(rf,new String[]{"w"});
+%GenPolynomial<BigRational> a = pf.parse("w^2 - 2");
 %\end{verbatim}
   \end{block}
   \hfill
@@ -143,50 +149,129 @@ GenPolynomial<BigRational> a = pf.parse("w^2 - 2");
 \begin{column}{.3\linewidth}
  
   \begin{block}{\large Mixins for category-like software organization}
-      \centering
-      {\tiny tiny}\par
-      {\scriptsize scriptsize}\par
-      {\footnotesize footnotesize}\par
-      {\normalsize normalsize}\par
-      {\large large}\par
-      {\Large Large}\par
-      {\LARGE LARGE}\par
+{\footnotesize 
+We seek to apply modern computer language ability for reusable
+component design and implementation to the case of computer algebra
+software. We need to create components for each algorithm flavor
+(for GCD computation : different polynomial remainder sequences,
+modular : Chinese remainder or Hensel) and to tie them together
+in a single object. This requires some kind of multiple inheritance,
+which is not available in Java, but is in recent programming
+languages like Scala, in the form of {\em mixins}, or traits.
+\par}\par
   \end{block}
   \hfill
-  \begin{block}{\large Mixins, Traits and interfaces}
-      \centering
-      {\tiny tiny}\par
-      {\scriptsize scriptsize}\par
-      {\footnotesize footnotesize}\par
-      {\normalsize normalsize}\par
-      {\large large}\par
-      {\Large Large}\par
-      {\LARGE LARGE}\par
+  \begin{block}{\large Preliminary definitions}
+\scriptsize
+\begin{lstlisting}
+trait Ring[T] {
+  def plus(x: T, y: T): T
+}
+import Polynomial.Element
+trait Polynomial[C: Ring] extends Ring[Element[C]] {
+  def plus(x: Element[C], y: Element[C]) = ...
+}
+object Polynomial {
+  trait Element[C: Ring]
+}
+\end{lstlisting}
   \end{block}
   \hfill
   \begin{block}{\large Peer (mixin) vs hierarchical composition}
-      \centering
-      {\tiny tiny}\par
-      {\scriptsize scriptsize}\par
-      {\footnotesize footnotesize}\par
-      {\normalsize normalsize}\par
-      {\large large}\par
-      {\Large Large}\par
-      {\LARGE LARGE}\par
-  \end{block}
-  \hfill
-  \begin{block}{\large Classes, mixin composition and categories}
-      \centering
-      {\tiny tiny}\par
-      {\scriptsize scriptsize}\par
-      {\footnotesize footnotesize}\par
-      {\normalsize normalsize}\par
-      {\large large}\par
-      {\Large Large}\par
-      {\LARGE LARGE}\par
+\scriptsize
+{\footnotesize In hierarchical composition, work is delegated to
+a member ring:}\par
+\begin{lstlisting}
+trait GCDEngine[C: Ring] {
+  val ring: Polynomial[C]
+  def gcd(x: Element[C], y: Element[C]): Element[C]
+}
+trait GCDSimple[C: Ring] extends GCDEngine[C] {
+  def gcd(x: Element[C], y: Element[C])=// use ring.plus etc.
+}
+val e = new GCDSimple[BigInteger] {
+  val ring = new Polynomial[BigInteger]
+}
+\end{lstlisting}
+{\footnotesize The same effect can be obtained through a mixin:}\par
+\begin{lstlisting}
+trait GCDSimple[C: Ring] extends Polynomial[C] {
+  def gcd(x: Element[C], y: Element[C])=// use this.plus etc.
+}
+val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
+\end{lstlisting}
   \end{block}
 
 \end{column}
+
+\end{columns}
+
+\vfill
+\end{frame}
+
+\begin{frame}[fragile] 
+\frametitle{Next page}
+\vfill
+
+\begin{columns}[t]
+
+\begin{column}{.3\linewidth}
+
+  \begin{block}{\large Classes, mixin composition and categories}
+\scriptsize
+{\footnotesize We can combine several algorithms:}\par
+\begin{lstlisting}
+trait GCDEngineX[C: Ring] extends Polynomial[C] {
+  def gcd(x: Element[C], y: Element[C]) = ...
+}
+trait SquarefreeEngineY[C: Ring] extends Polynomial[C] {
+  def squarefreePart(x: Element[C]): Element[C] = ...
+  def squarefreeFactors(x: Element[C]): List[Element[C]]=...
+}
+trait FactorEngineZ[C: Ring] extends Polynomial[C] {
+  def factorList(x: Element[C]): List[Element[C]] = ...
+  def factors(x: Element[C]): Map[Element[C], Long] = ...
+}
+val r = new Polynomial[BigRational]
+        with GcdEngineX[BigRational] 
+        with SquarefreeEngineY[BigRational]
+        with FactorEngineZ[BigRational]
+\end{lstlisting}
+{\footnotesize Some algorithms may need further specialization
+of the coefficient type:}\par
+\begin{lstlisting}
+trait GCDModular extends Polynomial[BigInteger] {
+  def gcd(x: Element[BigInteger], y: Element[BigInteger])=...
+}
+val r = new Polynomial[BigInteger] with GCDModular
+\end{lstlisting}
+{\footnotesize The desired packaging can be pre-setup or chosen
+automatically according to the coefficient type:}\par
+\begin{lstlisting}
+val r = Polynomial(ring, pp) // might return an object
+(category) of type GCDModular if ring is BigInteger and so on
+\end{lstlisting}
+  \end{block}
+  \hfill
+  \begin{block}{\large Next block}
+      \centering
+      {\tiny tiny}\par
+      {\scriptsize scriptsize}\par
+      {\footnotesize footnotesize}\par
+      {\normalsize normalsize}\par
+      {\large large}\par
+      {\Large Large}\par
+      {\LARGE LARGE}\par
+  \end{block}
+\end{column}
+
+%\begin{column}{.3\linewidth}
+%  \begin{block}{\large References}
+%\footnotesize
+%\bibliographystyle{splncs}
+%\bibliography{com-cas}
+%  \end{block}
+%\end{column}
 
 \end{columns}
 

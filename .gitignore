@@ -4,11 +4,12 @@ target/
 *.blg
 *.dvi
 *.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
 llncs.cls
 splncs.bst
 com-cas.pdf
-poster.nav
-poster.out
-poster.snm
-poster.toc
-poster.pdf
+com-cas-poster.pdf
