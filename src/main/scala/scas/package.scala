@@ -6,17 +6,14 @@ package object scas {
     implicit val QQ = base.Rational
     implicit val CC = base.Complex
   }
-  object Implicits extends ExtraImplicits with Ordering.ExtraImplicits with Ring.ExtraImplicits with UniqueFactorizationDomain.ExtraImplicits with PowerProduct.ExtraImplicits with Polynomial.ExtraImplicits with UnivariatePolynomial.ExtraImplicits with MultivariatePolynomial.ExtraImplicits with Residue.ExtraImplicits with RationalFunction.ExtraImplicits with Module.ExtraImplicits
+  object Implicits extends ExtraImplicits with scala.math.Ordering.ExtraImplicits with Ring.ExtraImplicits with UniqueFactorizationDomain.ExtraImplicits with PowerProduct.ExtraImplicits with Polynomial.ExtraImplicits with UnivariatePolynomial.ExtraImplicits with MultivariatePolynomial.ExtraImplicits with Residue.ExtraImplicits with RationalFunction.ExtraImplicits with Module.ExtraImplicits
 
   val BigInteger = base.BigInteger
   val ModInteger = base.ModInteger
   lazy val Rational = base.Rational
   lazy val frac = base.Rational
   lazy val I = base.Complex.I
-  val Lexicographic = polynomial.ordering.Lexicographic
-  val DegreeLexicographic = polynomial.ordering.DegreeLexicographic
-  val DegreeReverseLexicographic = polynomial.ordering.DegreeReverseLexicographic
-  val KthElimination = polynomial.ordering.KthElimination
+  val Ordering = polynomial.ordering.Ordering
   val PowerProduct = polynomial.PowerProduct
   val Polynomial = polynomial.tree.Polynomial
   val MultivariatePolynomial = polynomial.tree.MultivariatePolynomial

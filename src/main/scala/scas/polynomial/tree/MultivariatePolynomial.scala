@@ -13,7 +13,7 @@ object MultivariatePolynomial {
   def apply[C, @specialized(Int, Long) N](ring: UniqueFactorizationDomain[C], pp: PowerProduct[N]) = new PolynomialWithSimpleGCD(ring, pp)
   def withPrimitiveGCD[C, @specialized(Int, Long) N](ring: UniqueFactorizationDomain[C], pp: PowerProduct[N]) = new PolynomialWithPrimitiveGCD(ring, pp)
   def withSubresGCD[C, @specialized(Int, Long) N](ring: UniqueFactorizationDomain[C], pp: PowerProduct[N]) = new PolynomialWithSubresGCD(ring, pp)
-  def overField[C, @specialized(Int, Long) N](ring: Field[C], pp: PowerProduct[N]) = new MultivariatePolynomialOverField(ring, pp)
+  def withMonicGCD[C, @specialized(Int, Long) N](ring: Field[C], pp: PowerProduct[N]) = new PolynomialWithMonicGCD(ring, pp)
 
   class Element[C, @specialized(Int, Long) N](val value: SortedMap[Array[N], C])(val factory: MultivariatePolynomial[C, N]) extends TreePolynomial.Element[Element[C, N], C, N] with PolynomialOverUFD.Element[Element[C, N], C, N]
   object Element extends ExtraImplicits

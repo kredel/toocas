@@ -11,7 +11,7 @@ class AlgebraicNumber[S[C, N] <: Polynomial.Element[S[C, N], C, N], R <: Univari
     list = List(mod)
   }
   def mod = list(0)
-  override def reduce(value: R) = apply(if (list.isEmpty) value else ring.remainder(value, mod))
+  override def reduce(value: R) = apply(if (list.isEmpty) value else ring.reduce(value, mod))
   def inverse(x: Element[R, C, N]) = apply(ring.modInverse(lift(x), mod))
 }
 
