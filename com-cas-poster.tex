@@ -27,6 +27,8 @@
 
 \usepackage[orientation=landscape,size=a1,scale=1.4]{beamerposter}
 
+\newcommand{\code}[1]{\texttt{#1}}
+
 
 \title[Categories and Mixins]{Categories as classes and mixin composition}
 
@@ -46,26 +48,24 @@
   %hk: makes new page% \maketitle
 
 \begin{frame}[fragile] 
-\frametitle{Categories as classes and mixin composition}
-\vfill
-
+\frametitle{\hspace{13cm}Categories as classes and mixin composition, Heinz Kredel and Raphael Jolly}
+%\hfill
 \begin{columns}[t]
 
 \begin{column}{.3\linewidth}
- 
+
   \begin{block}{\large Contents}
-{\normalsize 
+  \normalsize 
   \begin{enumerate}
   \item generic, strongly typed, object oriented computer algebra software
   \item concept of categories 
   \item software, algorithm implementations can be packaged and
     re-combined using traits in a category-like fashion
   \end{enumerate}
-\par}\par
   \end{block}
   \hfill
   \begin{block}{\large Introduction}
-{\footnotesize 
+{\scriptsize
 The modeling of algebraic structures in a strongly typed, generic,
 object oriented computer algebra software has been presented with the
 systems JAS and ScAS.
@@ -81,51 +81,45 @@ computation in separate packages.
   \end{block}
   \hfill
   \begin{block}{\large Related Work}
-{\normalsize 
+\scriptsize
 Magma [BosmaCannonPlayoust:1997], Sage [Stein:2005], 
-Axiom [JenksSutor:1992,Watt:2003]\par
-}\par
-{\footnotesize\bf Acknowledgments}\par
-{\footnotesize Thomas Becker, Wolfgang K. Seiler, Thomas Sturm, Axel Kramer, 
-Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy\par}
+Axiom [JenksSutor:1992,Watt:2003]
 \par
+{\scriptsize Acknowledgments}\par
+{\tiny Thomas Becker, Wolfgang K. Seiler, Thomas Sturm, Axel Kramer, 
+Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy\par}
   \end{block}
   \hfill
-  \begin{block}{\large Comparison with Magma and Sage}
-      \centering
-      {\tiny tiny}\par
-      {\scriptsize scriptsize}\par
-      {\footnotesize footnotesize}\par
-      {\normalsize normalsize}\par
-      {\large large}\par
-      {\Large Large}\par
-      {\LARGE LARGE}\par
+  \begin{block}{\large Categories in CAS}
+  \scriptsize
+  \begin{enumerate}
+  \item Axiom, Aldor: abstract classes
+  \item Magma, Sage: classes with same representation
+  \end{enumerate}
   \end{block}
-
-\end{column}
-
-\begin{column}{.3\linewidth}
- 
+  \hfill
   \begin{block}{\large Generic, strongly typed, object oriented computer algebra software}
       \centering
       \epsfig{file=BasicTypes,clip=,width=0.85\linewidth}
-%\par
   \end{block}
   \hfill
+\end{column}
+
+
+\begin{column}{.3\linewidth}
+ 
   \begin{block}{\large Example}
-%hk: does not work: works with [fragile]
-%\footnotesize 
-\scriptsize %\tiny 
-%// here element = factory
-%\begin{verbatim} 
+%\footnotesize \scriptsize %
+\tiny 
 %code example in ScAS syntax - maybe we need to translate
 %the uml diagram as well ?
 \begin{lstlisting} 
-import Implicits.QQ
-implicit val r = Polynomial(QQ, "w")
-val Array(w) = r.generators
-val a = pow(w, 2) - 2 
+ import Implicits.QQ
+ implicit val r = Polynomial(QQ, "w")
+ val Array(w) = r.generators
+ val a = pow(w, 2) - 2 
 \end{lstlisting} 
+%\begin{verbatim} 
 %BigRational rf = new BigRational(1); 
 %GenPolynomialRing<BigRational> pf 
 % = new GenPolynomialRing<BigRational>(rf,new String[]{"w"});
@@ -134,22 +128,26 @@ val a = pow(w, 2) - 2
   \end{block}
   \hfill
   \begin{block}{\large Algorithm libraries}
-      \centering
-      {\tiny tiny}\par
-      {\scriptsize scriptsize}\par
-      {\footnotesize footnotesize}\par
-      {\normalsize normalsize}\par
-      {\large large}\par
-      {\Large Large}\par
-      {\LARGE LARGE}\par
+  \scriptsize 
+  \begin{itemize}
+  \item focus on multivariate polynomials
+  \item greatest common divisor: \code{gcd()}, \code{content()}
+  \item squarefree decomposition: finite or infinite fields of characteristic 0 or $p$
+  \item factorization: depends on the explicit coefficient ring
+  \end{itemize}
   \end{block}
-
-\end{column}
-
-\begin{column}{.3\linewidth}
- 
+  \hfill
+  \begin{block}{\large Code Organization Problem}
+  \scriptsize 
+The algebraic structures and elements of them together
+with the algorithm libraries provide a precise way to use a suitable
+combination for a given situation. It is, however, elaborate and one
+would like to combine or package together certain configurations to be
+able to deploy and use them as a single object or thing. 
+  \end{block}
+  \hfill
   \begin{block}{\large Mixins for category-like software organization}
-{\footnotesize 
+{\scriptsize %\footnotesize 
 We seek to apply modern computer language ability for reusable
 component design and implementation to the case of computer algebra
 software. We need to create components for each algorithm flavor
@@ -160,65 +158,55 @@ which is not available in Java, but is in recent programming
 languages like Scala, in the form of {\em mixins}, or traits.
 \par}\par
   \end{block}
-  \hfill
+\hfill
+\end{column}
+
+
+\begin{column}{.3\linewidth}
+
   \begin{block}{\large Preliminary definitions}
-\scriptsize
+\tiny %\scriptsize
 \begin{lstlisting}
-trait Ring[T] {
-  def plus(x: T, y: T): T
-}
-import Polynomial.Element
-trait Polynomial[C: Ring] extends Ring[Element[C]] {
-  def plus(x: Element[C], y: Element[C]) = ...
-}
-object Polynomial {
-  trait Element[C: Ring]
-}
+ trait Ring[T] {
+   def plus(x: T, y: T): T
+ }
+ import Polynomial.Element
+ trait Polynomial[C: Ring] extends Ring[Element[C]] {
+   def plus(x: Element[C], y: Element[C]) = ...
+ }
+ object Polynomial {
+   trait Element[C: Ring]
+ }
 \end{lstlisting}
   \end{block}
   \hfill
   \begin{block}{\large Peer (mixin) vs hierarchical composition}
-\scriptsize
+\tiny %\scriptsize
 {\footnotesize In hierarchical composition, work is delegated to
 a member ring:}\par
 \begin{lstlisting}
-trait GCDEngine[C: Ring] {
-  val ring: Polynomial[C]
-  def gcd(x: Element[C], y: Element[C]): Element[C]
-}
-trait GCDSimple[C: Ring] extends GCDEngine[C] {
-  def gcd(x: Element[C], y: Element[C])=// use ring.plus etc.
-}
-val e = new GCDSimple[BigInteger] {
-  val ring = new Polynomial[BigInteger]
-}
+ trait GCDEngine[C: Ring] {
+   val ring: Polynomial[C]
+   def gcd(x: Element[C], y: Element[C]): Element[C]
+ }
+ trait GCDSimple[C: Ring] extends GCDEngine[C] {
+   def gcd(x: Element[C], y: Element[C])=// use ring.plus etc.
+ }
+ val e = new GCDSimple[BigInteger] {
+   val ring = new Polynomial[BigInteger]
+ }
 \end{lstlisting}
 {\footnotesize The same effect can be obtained through a mixin:}\par
 \begin{lstlisting}
-trait GCDSimple[C: Ring] extends Polynomial[C] {
-  def gcd(x: Element[C], y: Element[C])=// use this.plus etc.
-}
-val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
+ trait GCDSimple[C: Ring] extends Polynomial[C] {
+   def gcd(x: Element[C], y: Element[C])=// use this.plus etc.
+ }
+ val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
 \end{lstlisting}
   \end{block}
-
-\end{column}
-
-\end{columns}
-
-\vfill
-\end{frame}
-
-\begin{frame}[fragile] 
-\frametitle{Next page}
-\vfill
-
-\begin{columns}[t]
-
-\begin{column}{.3\linewidth}
-
+  \hfill
   \begin{block}{\large Classes, mixin composition and categories}
-\scriptsize
+\tiny %\scriptsize
 {\footnotesize We can combine several algorithms:}\par
 \begin{lstlisting}
 trait GCDEngineX[C: Ring] extends Polynomial[C] {
@@ -253,18 +241,21 @@ val r = Polynomial(ring, pp) // might return an object
 \end{lstlisting}
   \end{block}
   \hfill
-  \begin{block}{\large Next block}
-      \centering
-      {\tiny tiny}\par
-      {\scriptsize scriptsize}\par
-      {\footnotesize footnotesize}\par
-      {\normalsize normalsize}\par
-      {\large large}\par
-      {\Large Large}\par
-      {\LARGE LARGE}\par
-  \end{block}
 \end{column}
 
+\end{columns}
+
+%\vfill
+\end{frame}
+
+%\begin{frame}[fragile] 
+%\frametitle{Next page}
+%\vfill
+%\begin{columns}[t]
+%\begin{column}{.3\linewidth}
+%  \hfill
+%\end{column}
+%
 %\begin{column}{.3\linewidth}
 %  \begin{block}{\large References}
 %\footnotesize
@@ -272,10 +263,10 @@ val r = Polynomial(ring, pp) // might return an object
 %\bibliography{com-cas}
 %  \end{block}
 %\end{column}
-
-\end{columns}
-
-\vfill
-\end{frame}
+%
+%\end{columns}
+%
+%\vfill
+%\end{frame}
 
 \end{document}
