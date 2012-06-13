@@ -102,7 +102,6 @@ Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy\par}
       \centering
       \epsfig{file=BasicTypes,clip=,width=0.85\linewidth}
   \end{block}
-  \hfill
 \end{column}
 
 
@@ -115,7 +114,7 @@ Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy\par}
 %the uml diagram as well ?
 \begin{lstlisting} 
  import Implicits.QQ
- implicit val r = Polynomial(QQ, "w")
+ implicit val r = Polynomial.factory(QQ, "w")
  val Array(w) = r.generators
  val a = pow(w, 2) - 2 
 \end{lstlisting} 
@@ -138,33 +137,34 @@ Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy\par}
   \end{block}
   \hfill
   \begin{block}{\large Code Organization Problem}
-  \scriptsize 
-The algebraic structures and elements of them together
-with the algorithm libraries provide a precise way to use a suitable
-combination for a given situation. It is, however, elaborate and one
-would like to combine or package together certain configurations to be
-able to deploy and use them as a single object or thing. 
+  \scriptsize
+The algebraic structures and elements together with the algorithm
+libraries provide a way to define precisely suitable combinations
+for given situations. Depending on algorithm variations however,
+the number of such combinations can become quickly huge and make
+some organizing principle be welcome. We look into reusable
+software component techniques for such guidance.
+%It is, however, elaborate and one would like to combine or
+%package together certain configurations to be able to
+%deploy and use them as a single object or thing.
   \end{block}
   \hfill
   \begin{block}{\large Mixins for category-like software organization}
-{\scriptsize %\footnotesize 
-We seek to apply modern computer language ability for reusable
-component design and implementation to the case of computer algebra
-software. We need to create components for each algorithm flavor
-(for GCD computation : different polynomial remainder sequences,
-modular : Chinese remainder or Hensel) and to tie them together
-in a single object. This requires some kind of multiple inheritance,
-which is not available in Java, but is in recent programming
-languages like Scala, in the form of {\em mixins}, or traits.
+{\scriptsize %\footnotesize
+Reusable components consist in splitting software in as many fragements
+as needed or possible, and to re-assemble these according to the
+principle of composition. Hierarchical composition and peer composition
+are two variations of this principle. Peer composition is also called
+mixin composition. In the sequel we show in both cases what it translates
+into in terms of code, with the example of GCD computation. We consider
+components for each algorithm flavor (different polynomial remainder
+sequences, modular : Chinese remainder or Hensel) and combine them
+together using either hierarchical or mixin composition. The latter
+is available in the computer language Scala as so called {\em traits}.
 \par}\par
   \end{block}
 \hfill
-\end{column}
-
-
-\begin{column}{.3\linewidth}
-
-  \begin{block}{\large Preliminary definitions}
+  \begin{block}{\large Preliminary settings}
 \tiny %\scriptsize
 \begin{lstlisting}
  trait Ring[T] {
@@ -175,11 +175,15 @@ languages like Scala, in the form of {\em mixins}, or traits.
    def plus(x: Element[C], y: Element[C]) = ...
  }
  object Polynomial {
-   trait Element[C: Ring]
+   trait Element[C]
  }
 \end{lstlisting}
   \end{block}
-  \hfill
+\end{column}
+
+
+\begin{column}{.3\linewidth}
+
   \begin{block}{\large Peer (mixin) vs hierarchical composition}
 \tiny %\scriptsize
 {\footnotesize In hierarchical composition, work is delegated to
@@ -190,7 +194,7 @@ a member ring:}\par
    def gcd(x: Element[C], y: Element[C]): Element[C]
  }
  trait GCDSimple[C: Ring] extends GCDEngine[C] {
-   def gcd(x: Element[C], y: Element[C])=// use ring.plus etc.
+   def gcd(x: Element[C], y: Element[C])= // use ring.plus etc.
  }
  val e = new GCDSimple[BigInteger] {
    val ring = new Polynomial[BigInteger]
@@ -199,7 +203,7 @@ a member ring:}\par
 {\footnotesize The same effect can be obtained through a mixin:}\par
 \begin{lstlisting}
  trait GCDSimple[C: Ring] extends Polynomial[C] {
-   def gcd(x: Element[C], y: Element[C])=// use this.plus etc.
+   def gcd(x: Element[C], y: Element[C])= // use this.plus etc.
  }
  val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
 \end{lstlisting}
@@ -214,7 +218,7 @@ trait GCDEngineX[C: Ring] extends Polynomial[C] {
 }
 trait SquarefreeEngineY[C: Ring] extends Polynomial[C] {
   def squarefreePart(x: Element[C]): Element[C] = ...
-  def squarefreeFactors(x: Element[C]): List[Element[C]]=...
+  def squarefreeFactors(x: Element[C]): List[Element[C]] = ...
 }
 trait FactorEngineZ[C: Ring] extends Polynomial[C] {
   def factorList(x: Element[C]): List[Element[C]] = ...
@@ -229,18 +233,31 @@ val r = new Polynomial[BigRational]
 of the coefficient type:}\par
 \begin{lstlisting}
 trait GCDModular extends Polynomial[BigInteger] {
-  def gcd(x: Element[BigInteger], y: Element[BigInteger])=...
+  def gcd(x: Element[BigInteger], y: Element[BigInteger]) = ...
 }
 val r = new Polynomial[BigInteger] with GCDModular
 \end{lstlisting}
 {\footnotesize The desired packaging can be pre-setup or chosen
 automatically according to the coefficient type:}\par
 \begin{lstlisting}
-val r = Polynomial(ring, pp) // might return an object
+val r = Polynomial.factory(ring, pp) // might return an object
 (category) of type GCDModular if ring is BigInteger and so on
 \end{lstlisting}
   \end{block}
   \hfill
+  \begin{block}{\large Discussion}
+{\scriptsize
+Mixin composition (available only in most recent languages like Scala
+but not in Java) is interesting when there is a bidirectional dependency
+between two components. For instance in our example, the GCD algorithm
+needs a Polynomial ring, and the Polynomial ring needs a GCD algorithm,
+because its signature declares a gcd method. In all other cases,
+hierarchical composition may fulfill the need. There is a question
+whether e.g. factors or squarefreePart methods must be included in the
+signature of a UniqueFactorizationDomain, in which case mixin
+composition would be prefered.
+\par}\par
+  \end{block}
 \end{column}
 
 \end{columns}
