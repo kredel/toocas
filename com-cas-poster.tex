@@ -142,8 +142,8 @@ The algebraic structures and elements together with the algorithm
 libraries provide a way to define precisely suitable combinations
 for given situations. Depending on algorithm variations however,
 the number of such combinations can become quickly huge and make
-some organizing principle be welcome. We look into reusable
-software component techniques for such guidance.
+some structuring principles be welcome. We look into reusable
+software component techniques for such principles.
 %It is, however, elaborate and one would like to combine or
 %package together certain configurations to be able to
 %deploy and use them as a single object or thing.
@@ -151,7 +151,7 @@ software component techniques for such guidance.
   \hfill
   \begin{block}{\large Mixins for category-like software organization}
 {\scriptsize %\footnotesize
-Reusable components consist in splitting software in as many fragements
+Reusable components consist in splitting software in as many pieces
 as needed or possible, and to re-assemble these according to the
 principle of composition. Hierarchical composition and peer composition
 are two variations of this principle. Peer composition is also called
@@ -184,7 +184,7 @@ is available in the computer language Scala as so called {\em traits}.
 
 \begin{column}{.3\linewidth}
 
-  \begin{block}{\large Peer (mixin) vs hierarchical composition}
+  \begin{block}{\large Peer vs hierarchical composition}
 \tiny %\scriptsize
 {\footnotesize In hierarchical composition, work is delegated to
 a member ring:}\par
@@ -200,18 +200,20 @@ a member ring:}\par
    val ring = new Polynomial[BigInteger]
  }
 \end{lstlisting}
-{\footnotesize The same effect can be obtained through a mixin:}\par
+{\footnotesize The same effect can be obtained through inheritance
+(peer composition):}\par
 \begin{lstlisting}
  trait GCDSimple[C: Ring] extends Polynomial[C] {
    def gcd(x: Element[C], y: Element[C])= // use this.plus etc.
  }
- val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
+ val r = new GCDSimple[BigInteger]
 \end{lstlisting}
   \end{block}
   \hfill
-  \begin{block}{\large Classes, mixin composition and categories}
+  \begin{block}{\large Multiple inheritance and categories}
 \tiny %\scriptsize
-{\footnotesize We can combine several algorithms:}\par
+{\footnotesize In the mixin case, we can combine several
+algorithms through multiple inheritance:}\par
 \begin{lstlisting}
 trait GCDEngineX[C: Ring] extends Polynomial[C] {
   def gcd(x: Element[C], y: Element[C]) = ...
@@ -224,8 +226,7 @@ trait FactorEngineZ[C: Ring] extends Polynomial[C] {
   def factorList(x: Element[C]): List[Element[C]] = ...
   def factors(x: Element[C]): Map[Element[C], Long] = ...
 }
-val r = new Polynomial[BigRational]
-        with GcdEngineX[BigRational] 
+val r = new GcdEngineX[BigRational] 
         with SquarefreeEngineY[BigRational]
         with FactorEngineZ[BigRational]
 \end{lstlisting}
@@ -235,7 +236,7 @@ of the coefficient type:}\par
 trait GCDModular extends Polynomial[BigInteger] {
   def gcd(x: Element[BigInteger], y: Element[BigInteger]) = ...
 }
-val r = new Polynomial[BigInteger] with GCDModular
+val r = new GCDModular
 \end{lstlisting}
 {\footnotesize The desired packaging can be pre-setup or chosen
 automatically according to the coefficient type:}\par
@@ -245,17 +246,18 @@ val r = Polynomial.factory(ring, pp) // might return an object
 \end{lstlisting}
   \end{block}
   \hfill
-  \begin{block}{\large Discussion}
+  \begin{block}{\large Discussion and future work}
 {\scriptsize
-Mixin composition (available only in most recent languages like Scala
-but not in Java) is interesting when there is a bidirectional dependency
-between two components. For instance in our example, the GCD algorithm
-needs a Polynomial ring, and the Polynomial ring needs a GCD algorithm,
-because its signature declares a gcd method. In all other cases,
-hierarchical composition may fulfill the need. There is a question
-whether e.g. factors or squarefreePart methods must be included in the
-signature of a UniqueFactorizationDomain, in which case mixin
-composition would be prefered.
+Mixin composition, available only in most recent languages like Scala
+but not in Java, that is to say in all the cases where more than single
+inheritance is necessary, is interesting when there is a bidirectional
+dependency between two components. For instance in our example, the GCD
+algorithm needs a Polynomial ring, and the Polynomial ring needs a GCD algorithm, because its signature declares a gcd method. In all other
+cases, hierarchical composition may fulfill the need. There is a
+question whether e.g. factors or squarefreePart methods must be
+included in the signature of a UniqueFactorizationDomain, in which
+case mixin composition would be prefered. This will be the subject
+of future work.
 \par}\par
   \end{block}
 \end{column}
