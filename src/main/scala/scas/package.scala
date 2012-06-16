@@ -19,7 +19,6 @@ package object scas {
   val MultivariatePolynomial = polynomial.tree.MultivariatePolynomial
   val UnivariatePolynomial = polynomial.tree.UnivariatePolynomial
   val RationalFunction = polynomial.RationalFunction
-  val AlgebraicNumber = polynomial.AlgebraicNumber
   val Residue = polynomial.Residue
   val Module = module.Module
   val Product = structure.Product

@@ -4,7 +4,7 @@ import scala.collection.SortedMap
 import scas.Implicits.infixRingOps
 import TreePolynomial.Element
 
-trait TreePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
+trait TreePolynomial[T <: Element[T, C, N], C, @specialized(Int, Long) N] extends Polynomial[T, C, N] {
   override def zero = apply(SortedMap.empty[Array[N], C](pp.ordering.reverse))
   def convert(x: T) = apply((zero.value /: x.value.iterator) { (l, r) =>
     val (a, b) = r
@@ -28,6 +28,8 @@ trait TreePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
 
   def iterator(x: T) = x.value.iterator
 
+  def iterator(x: T, m: Array[N]) = x.value.from(m).iterator
+
   def reverseIterator(x: T) = x.value.toSeq.reverseIterator
 
   def head(x: T) = x.value.head
@@ -42,7 +44,7 @@ trait TreePolynomial[T <: Element[T, C, N], C, N] extends Polynomial[T, C, N] {
 }
 
 object TreePolynomial {
-  trait Element[T <: Element[T, C, N], C, N] extends Polynomial.Element[T, C, N] { this: T =>
+  trait Element[T <: Element[T, C, N], C, @specialized(Int, Long) N] extends Polynomial.Element[T, C, N] { this: T =>
     val factory: TreePolynomial[T, C, N]
     val value: SortedMap[Array[N], C]
   }

@@ -5,7 +5,7 @@ import scas.polynomial.ordering.Ordering
 import scas.Implicits.{infixRingOps, infixPowerProductOps}
 import Polynomial.Element
 
-trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
+trait Polynomial[T <: Element[T, C, N], C, @specialized(Int, Long) N] extends Ring[T] {
   implicit val ring: Ring[C]
   implicit val pp: PowerProduct[N]
   implicit val cm: ClassManifest[T]
@@ -97,6 +97,8 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
 
   def iterator(x: T): Iterator[(Array[N], C)]
 
+  def iterator(x: T, m: Array[N]): Iterator[(Array[N], C)]
+
   def reverseIterator(x: T): Iterator[(Array[N], C)]
 
   def variables = pp.variables
@@ -137,7 +139,7 @@ trait Polynomial[T <: Element[T, C, N], C, N] extends Ring[T] {
 }
 
 object Polynomial {
-  trait Element[T <: Element[T, C, N], C, N] extends Ring.Element[T] { this: T =>
+  trait Element[T <: Element[T, C, N], C, @specialized(Int, Long) N] extends Ring.Element[T] { this: T =>
     val factory: Polynomial[T, C, N]
   }
 }

@@ -40,15 +40,12 @@
 %\email{raphael.jolly@free.fr}
 }
 
-%\date{Jun. 7th, 2012}
-
-
 \begin{document}
 
   %hk: makes new page% \maketitle
 
 \begin{frame}[fragile] 
-\frametitle{\hspace{13cm}Categories as classes and mixin composition, Heinz Kredel and Raphael Jolly}
+\frametitle{\mbox{ }\\ \hspace{13cm}Categories as classes and mixin composition, Heinz Kredel and Raphael Jolly}
 %\hfill
 \begin{columns}[t]
 
@@ -58,66 +55,64 @@
   \normalsize 
   \begin{enumerate}
   \item generic, strongly typed, object oriented computer algebra software
-  \item concept of categories 
+  %\item concept of categories 
   \item software, algorithm implementations can be packaged and
     re-combined using traits in a category-like fashion
   \end{enumerate}
-  \end{block}
-  \hfill
-  \begin{block}{\large Introduction}
-{\scriptsize
-The modeling of algebraic structures in a strongly typed, generic,
-object oriented computer algebra software has been presented with the
-systems JAS and ScAS.
-The design and implementation of these strongly typed, generic and
-object oriented polynomial algorithm libraries in Java and Scala is
-presented in papers.  
-The libraries are enhanced for interactive usage with the help of the Jython and
-JRuby scripting languages. The libraries now
-provide several algorithm versions for greatest common divisor,
-squarefree decomposition, factorization and Gr\"obner bases
-computation in separate packages.
-\par}\par
-  \end{block}
-  \hfill
-  \begin{block}{\large Related Work}
-\scriptsize
-Magma [BosmaCannonPlayoust:1997], Sage [Stein:2005], 
-Axiom [JenksSutor:1992,Watt:2003]
-\par
 {\scriptsize Acknowledgments}\par
 {\tiny Thomas Becker, Wolfgang K. Seiler, Thomas Sturm, Axel Kramer, 
 Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy\par}
   \end{block}
   \hfill
-  \begin{block}{\large Categories in CAS}
-  \scriptsize
-  \begin{enumerate}
-  \item Axiom, Aldor: abstract classes
-  \item Magma, Sage: classes with same representation
-  \end{enumerate}
+  \begin{block}{\large Introduction}
+\scriptsize
+The modeling of algebraic structures in a strongly typed, generic,
+object oriented computer algebra software has been presented with the
+systems JAS [Kredel:2008] and ScAS [Jolly:2010].
+The design and implementation of these strongly typed, generic and
+object oriented polynomial algorithm libraries in Java and Scala is
+presented in [JollyKredel:2010, JollyKredel:2011].
+The libraries are enhanced for interactive usage with the help of the Jython and
+JRuby scripting languages. The libraries now
+provide several algorithm versions for greatest common divisor,
+squarefree decomposition, factorization and Gr\"obner bases
+computation in separate packages.
+
+In this poster we discuss the problem of code organization and
+algebraic structure configuration and deployment. Elements of algebraic
+structures are implemented by classes and instantiated as objects with
+methods implementing the `inner' algorithms of the structure in the
+programming language. The algorithm libraries, for example the
+construction of Gr\"obner bases, are kept in separate source code trees
+and packages. This code organization helps in the separation of the
+various possibilities for algorithm implementation and helps in the
+transparent selection of appropriate algorithms for a given problem.
+However, it is not always clear where to draw the line between `inner'
+structure algorithms and `external' library algorithms.
   \end{block}
   \hfill
   \begin{block}{\large Generic, strongly typed, object oriented computer algebra software}
       \centering
       \epsfig{file=BasicTypes,clip=,width=0.85\linewidth}
   \end{block}
-\end{column}
-
-
-\begin{column}{.3\linewidth}
- 
+  \hfill
   \begin{block}{\large Example}
-%\footnotesize \scriptsize %
 \tiny 
 %code example in ScAS syntax - maybe we need to translate
 %the uml diagram as well ?
 \begin{lstlisting} 
+ import scas._
  import Implicits.QQ
  implicit val r = Polynomial.factory(QQ, "w")
+ // r: Polynomial[(BigInteger, BigInteger)]
  val Array(w) = r.generators
  val a = pow(w, 2) - 2 
+ // a: Polynomial.Element[(BigInteger, BigInteger)]
 \end{lstlisting} 
+%
+% val a = w**2 - 2 is this possible ?
+% can we show the type of r, w and a ?
+%
 %\begin{verbatim} 
 %BigRational rf = new BigRational(1); 
 %GenPolynomialRing<BigRational> pf 
@@ -125,47 +120,85 @@ Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy\par}
 %GenPolynomial<BigRational> a = pf.parse("w^2 - 2");
 %\end{verbatim}
   \end{block}
-  \hfill
+\end{column}
+
+
+\begin{column}{.3\linewidth}
+ 
   \begin{block}{\large Algorithm libraries}
   \scriptsize 
   \begin{itemize}
-  \item focus on multivariate polynomials
-  \item greatest common divisor: \code{gcd()}, \code{content()}
-  \item squarefree decomposition: finite or infinite fields of characteristic 0 or $p$
-  \item factorization: depends on the explicit coefficient ring
+  \item focus on multivariate polynomials over UFDs
+  \item greatest common divisor: \\
+        interface \code{Greatest\-Common\-Divisor} with \code{gcd()}, \code{content()}, 
+        implementations for various polynomial remainder sequence (PRS) algorithms: 
+        simple, monic, primitive and the sub-resultant algorithm 
+        generic for any (UFD) coefficient ring \\
+        other implementations use Chinese remainder algorithms or Hensel lifting
+  \item squarefree decomposition: \\
+        interface \code{Square\-free}, 
+        generic implementations for finite or infinite coefficient fields 
+        or rings of characteristic $0$ or $p$
+  \item factorization: \\
+        interface \code{Factorization}, 
+        implementation depends on the explicit coefficient ring 
+        but is generic in the sense that it can factor
+        over arbitrary stacked coefficient field extensions, like mixed
+        transcendental and algebraic extensions
+  \item factories select appropriate algorithms for given coefficients
+        %\code{GCD\-Factory}, \code{Squarefree\-Factory} and two \code{Factor\-Factory} classes. 
+        %with methods \code{get\-Implemen\-tation(cofac)}
   \end{itemize}
   \end{block}
   \hfill
-  \begin{block}{\large Code Organization Problem}
+  \begin{block}{\large Code organization problem}
   \scriptsize
 The algebraic structures and elements together with the algorithm
 libraries provide a way to define precisely suitable combinations
 for given situations. Depending on algorithm variations however,
-the number of such combinations can become quickly huge and make
-some structuring principles be welcome. We look into reusable
-software component techniques for such principles.
+the number of such combinations can become quickly huge and makes
+some structuring principle be welcome.
 %It is, however, elaborate and one would like to combine or
 %package together certain configurations to be able to
 %deploy and use them as a single object or thing.
   \end{block}
   \hfill
+  \begin{block}{\large Categories in computer algebra systems}
+  \scriptsize
+  \begin{enumerate}
+  \item Axiom, Aldor: abstract classes in OOP
+        \cite{JenksSutor:1992, Watt:2003}
+  \item Magma, Sage: classes with same representation
+        \cite{BosmaCannonPlayoust:1997, Stein:2005}
+  \end{enumerate}
+  \end{block}
+  \hfill
   \begin{block}{\large Mixins for category-like software organization}
-{\scriptsize %\footnotesize
-Reusable components consist in splitting software in as many pieces
-as needed or possible, and to re-assemble these according to the
-principle of composition. Hierarchical composition and peer composition
-are two variations of this principle. Peer composition is also called
-mixin composition. In the sequel we show in both cases what it translates
-into in terms of code, with the example of GCD computation. We consider
-components for each algorithm flavor (different polynomial remainder
-sequences, modular : Chinese remainder or Hensel) and combine them
-together using either hierarchical or mixin composition. The latter
-is available in the computer language Scala as so called {\em traits}.
+{\scriptsize
+Reusable components \cite{Odersky:2005} consist in splitting software in
+as many pieces as needed or possible, and to re-assemble these according
+to the principle of composition. Hierarchical composition and peer
+composition (also called mixin composition) are two variations of this
+principle. We illustrate their respective usage with the example of GCD
+computation. We consider components for each algorithm flavor and combine
+them using either hierarchical or mixin composition. The code samples are
+given in the computer language Scala using its concept of
+{\em traits}.
 \par}\par
   \end{block}
 \hfill
+  \begin{block}{\large References}
+\scriptsize
+\bibliographystyle{splncs}
+\bibliography{com-cas}
+  \end{block}
+\end{column}
+
+
+\begin{column}{.3\linewidth}
+
   \begin{block}{\large Preliminary settings}
-\tiny %\scriptsize
+\tiny
 \begin{lstlisting}
  trait Ring[T] {
    def plus(x: T, y: T): T
@@ -179,13 +212,9 @@ is available in the computer language Scala as so called {\em traits}.
  }
 \end{lstlisting}
   \end{block}
-\end{column}
-
-
-\begin{column}{.3\linewidth}
-
+  \hfill
   \begin{block}{\large Peer vs hierarchical composition}
-\tiny %\scriptsize
+\tiny
 {\footnotesize In hierarchical composition, work is delegated to
 a member ring:}\par
 \begin{lstlisting}
@@ -210,55 +239,45 @@ a member ring:}\par
 \end{lstlisting}
   \end{block}
   \hfill
-  \begin{block}{\large Multiple inheritance and categories}
-\tiny %\scriptsize
+  \begin{block}{\large Multiple inheritance ; categories}
+\tiny
 {\footnotesize In the mixin case, we can combine several
 algorithms through multiple inheritance:}\par
 \begin{lstlisting}
-trait GCDEngineX[C: Ring] extends Polynomial[C] {
-  def gcd(x: Element[C], y: Element[C]) = ...
-}
-trait SquarefreeEngineY[C: Ring] extends Polynomial[C] {
-  def squarefreePart(x: Element[C]): Element[C] = ...
-  def squarefreeFactors(x: Element[C]): List[Element[C]] = ...
-}
-trait FactorEngineZ[C: Ring] extends Polynomial[C] {
-  def factorList(x: Element[C]): List[Element[C]] = ...
-  def factors(x: Element[C]): Map[Element[C], Long] = ...
-}
-val r = new GcdEngineX[BigRational] 
-        with SquarefreeEngineY[BigRational]
-        with FactorEngineZ[BigRational]
+ trait GCDEngineX[C: Ring] extends Polynomial[C] {
+   def gcd(x: Element[C], y: Element[C]) = ...
+ }
+ trait SquarefreeEngineY[C: Ring] extends Polynomial[C] {
+   def squarefreePart(x: Element[C]): Element[C] = ...
+   def squarefreeFactors(x: Element[C]): List[Element[C]] = ...
+ }
+ trait FactorEngineZ[C: Ring] extends Polynomial[C] {
+   def factorList(x: Element[C]): List[Element[C]] = ...
+   def factors(x: Element[C]): Map[Element[C], Long] = ...
+ }
+ val r = new GcdEngineX[BigRational] 
+         with SquarefreeEngineY[BigRational]
+         with FactorEngineZ[BigRational]
 \end{lstlisting}
-{\footnotesize Some algorithms may need further specialization
-of the coefficient type:}\par
+{\footnotesize Then \code{r} represents a polynomial category.
+Some algorithms may need further specialization of the coefficient
+type:}\par
 \begin{lstlisting}
-trait GCDModular extends Polynomial[BigInteger] {
-  def gcd(x: Element[BigInteger], y: Element[BigInteger]) = ...
-}
-val r = new GCDModular
+ trait GCDModular extends Polynomial[BigInteger] {
+   def gcd(x: Element[BigInteger], y: Element[BigInteger]) = ...
+ }
+ val r = new GCDModular
 \end{lstlisting}
 {\footnotesize The desired packaging can be pre-setup or chosen
 automatically according to the coefficient type:}\par
 \begin{lstlisting}
-val r = Polynomial.factory(ring, pp) // might return an object
-(category) of type GCDModular if ring is BigInteger and so on
+ val r = Polynomial.factory(ring, pp)
 \end{lstlisting}
-  \end{block}
-  \hfill
-  \begin{block}{\large Discussion and future work}
-{\scriptsize
-Mixin composition, available only in most recent languages like Scala
-but not in Java, that is to say in all the cases where more than single
-inheritance is necessary, is interesting when there is a bidirectional
-dependency between two components. For instance in our example, the GCD
-algorithm needs a Polynomial ring, and the Polynomial ring needs a GCD algorithm, because its signature declares a gcd method. In all other
-cases, hierarchical composition may fulfill the need. There is a
-question whether e.g. factors or squarefreePart methods must be
-included in the signature of a UniqueFactorizationDomain, in which
-case mixin composition would be prefered. This will be the subject
-of future work.
-\par}\par
+{\footnotesize The \code{factory} method might return an object of type
+\code{GCDModular} if ring is \code{BigInteger} and so on.
+This category scheme using mixins ties together algebraic structures
+with some specific algorithm implementations and so solves the packaging
+problem.}
   \end{block}
 \end{column}
 
@@ -277,10 +296,16 @@ of future work.
 %\end{column}
 %
 %\begin{column}{.3\linewidth}
-%  \begin{block}{\large References}
-%\footnotesize
-%\bibliographystyle{splncs}
-%\bibliography{com-cas}
+%  \begin{block}{\large Discussion}
+%\scriptsize
+%Mixin composition is interesting when there is a bidirectional dependency
+%between two components. For instance in our example, the GCD algorithm
+%needs a Polynomial ring, and the Polynomial ring needs a GCD algorithm,
+%because its signature declares a gcd method. In all other cases,
+%hierarchical composition may fulfill the need. There is a question
+%whether e.g. factors or squarefreePart methods must be included in the
+%signature of a UniqueFactorizationDomain, in which case mixin composition
+%would be prefered.
 %  \end{block}
 %\end{column}
 %

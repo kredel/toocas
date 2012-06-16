@@ -11,7 +11,7 @@ trait UnivariatePolynomialWithSyzygy[S[C, N] <: Polynomial.Element[S[C, N], C, N
 }
 
 object UnivariatePolynomialWithSyzygy {
-  trait Element[S[C, N] <: Polynomial.Element[S[C, N], C, N], T <: Element[S, T, C, N], C, N] extends PolynomialOverUFD.Element[T, C, N] with PolynomialWithSyzygy.Element[S, T, C, N] { this: T =>
+  trait Element[S[C, N] <: Polynomial.Element[S[C, N], C, N], T <: Element[S, T, C, N], C, @specialized(Int, Long) N] extends PolynomialOverUFD.Element[T, C, N] with PolynomialWithSyzygy.Element[S, T, C, N] { this: T =>
     val factory: UnivariatePolynomialWithSyzygy[S, T, C, N]
   }
 }
