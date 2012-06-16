@@ -5,7 +5,7 @@ import scas.polynomial.{TreePolynomial, PowerProduct, PolynomialOverUFD}
 import scas.structure.{UniqueFactorizationDomain, Field}
 import MultivariatePolynomial.Element
 
-abstract class MultivariatePolynomial[C, @specialized(Int, Long) N](val ring: UniqueFactorizationDomain[C], val pp: PowerProduct[N])(implicit val cm: ClassManifest[Element[C, N]]) extends TreePolynomial[Element[C, N], C, N] with scas.polynomial.MultivariatePolynomial[Element, C, N] {
+trait MultivariatePolynomial[C, @specialized(Int, Long) N] extends TreePolynomial[Element[C, N], C, N] with scas.polynomial.MultivariatePolynomial[Element, C, N] {
   def apply(value: SortedMap[Array[N], C]) = new Element(value)(this)
 }
 

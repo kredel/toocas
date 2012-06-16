@@ -1,13 +1,15 @@
 package scas.polynomial
 
+import scas.Variable
+import scas.structure.Field
 import Residue.Element
 
-class Residue[R <: PolynomialOverUFD.Element[R, C, N], C, @specialized(Int, Long) N](val ring: PolynomialOverField[R, C, N]) extends scas.structure.Residue[Element[R, C, N], R] {
+trait Residue[R <: PolynomialOverUFD.Element[R, C, N], C, @specialized(Int, Long) N] extends scas.structure.Residue[Element[R, C, N], R] {
+  val ring: PolynomialOverField[R, C, N]
   var list = List[R]()
   def generators = ring.generators.map(apply)
   def apply(value: C): Element[R, C, N] = apply(ring(value))
   def apply(value: R) = new Element[R, C, N](value)(this)
-  def reduce(value: R) = apply(value)
   def lift(x: Element[R, C, N]) = x.value
   def characteristic = ring.characteristic
   override def toString = ring.ring.toString + "(" + list.mkString(", ") + ")"
@@ -15,7 +17,8 @@ class Residue[R <: PolynomialOverUFD.Element[R, C, N], C, @specialized(Int, Long
 }
 
 object Residue {
-  def apply[R <: PolynomialOverUFD.Element[R, C, N], C, @specialized(Int, Long) N](ring: PolynomialOverField[R, C, N]) = new Residue(ring)
+  def apply[C](ring: Field[C], s: Variable): AlgebraicNumber[tree.UnivariatePolynomial.Element[C, Int], C, Int] = apply(tree.UnivariatePolynomial(ring, s))
+  def apply[R <: PolynomialOverUFD.Element[R, C, N], C, @specialized(Int, Long) N](ring: UnivariatePolynomial[R, C, N]) = new AlgebraicNumberImpl(ring)
 
   class Element[R <: PolynomialOverUFD.Element[R, C, N], C, @specialized(Int, Long) N](val value: R)(val factory: Residue[R, C, N]) extends scas.structure.Residue.Element[Element[R, C, N], R]
   object Element extends ExtraImplicits

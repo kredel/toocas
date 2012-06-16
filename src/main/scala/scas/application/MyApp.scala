@@ -154,7 +154,7 @@ object MyApp extends App {
 
   def an = {
     import Implicits.{QQ, coef2residue}
-    implicit val r = AlgebraicNumber(QQ, "x")
+    implicit val r = Residue(QQ, "x")
     val Array(x) = r.generators
     r.update(2 - pow(x, 2))
     assert (2 >< pow(x, 2))
