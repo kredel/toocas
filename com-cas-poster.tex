@@ -40,9 +40,6 @@
 %\email{raphael.jolly@free.fr}
 }
 
-%\date{Jun. 7th, 2012}
-
-
 \begin{document}
 
   %hk: makes new page% \maketitle
@@ -100,7 +97,6 @@ structure algorithms and `external' library algorithms.
   \end{block}
   \hfill
   \begin{block}{\large Example}
-%\footnotesize \scriptsize %
 \tiny 
 %code example in ScAS syntax - maybe we need to translate
 %the uml diagram as well ?
@@ -108,9 +104,10 @@ structure algorithms and `external' library algorithms.
  import scas._
  import Implicits.QQ
  implicit val r = Polynomial.factory(QQ, "w")
+ // r: Polynomial[(BigInteger, BigInteger)]
  val Array(w) = r.generators
- w: Polynomial.Element[Pair[BigInteger, BigInteger]]
  val a = pow(w, 2) - 2 
+ // a: Polynomial.Element[(BigInteger, BigInteger)]
 \end{lstlisting} 
 %
 % val a = w**2 - 2 is this possible ?
@@ -159,8 +156,8 @@ structure algorithms and `external' library algorithms.
 The algebraic structures and elements together with the algorithm
 libraries provide a way to define precisely suitable combinations
 for given situations. Depending on algorithm variations however,
-the number of such combinations can become quickly huge and make
-some structuring principles be welcome.
+the number of such combinations can become quickly huge and makes
+some structuring principle be welcome.
 %It is, however, elaborate and one would like to combine or
 %package together certain configurations to be able to
 %deploy and use them as a single object or thing.
@@ -170,27 +167,38 @@ some structuring principles be welcome.
   \scriptsize
   \begin{enumerate}
   \item Axiom, Aldor: abstract classes in OOP
-        [JenksSutor:1992, Watt:2003]
+        \cite{JenksSutor:1992, Watt:2003}
   \item Magma, Sage: classes with same representation
-        [BosmaCannonPlayoust:1997, Stein:2005], 
+        \cite{BosmaCannonPlayoust:1997, Stein:2005}
   \end{enumerate}
   \end{block}
   \hfill
   \begin{block}{\large Mixins for category-like software organization}
-{\scriptsize %\footnotesize
-Reusable components consist in splitting software in as many pieces
-as needed or possible, and to re-assemble these according to the
-principle of composition. Hierarchical composition and peer composition
-(also called mixin composition) are two variations of this principle.
-We illustrate their respective usage with the example of GCD computation.
-We consider components for each algorithm flavor and combine them together
-using either hierarchical or mixin composition. The code samples are given
-in the computer language Scala using its concept of {\em traits}.
+{\scriptsize
+Reusable components \cite{Odersky:2005} consist in splitting software in
+as many pieces as needed or possible, and to re-assemble these according
+to the principle of composition. Hierarchical composition and peer
+composition (also called mixin composition) are two variations of this
+principle. We illustrate their respective usage with the example of GCD
+computation. We consider components for each algorithm flavor and combine
+them using either hierarchical or mixin composition. The code samples are
+given in the computer language Scala using its concept of
+{\em traits}.
 \par}\par
   \end{block}
 \hfill
+  \begin{block}{\large References}
+\scriptsize
+\bibliographystyle{splncs}
+\bibliography{com-cas}
+  \end{block}
+\end{column}
+
+
+\begin{column}{.3\linewidth}
+
   \begin{block}{\large Preliminary settings}
-\tiny %\scriptsize
+\tiny
 \begin{lstlisting}
  trait Ring[T] {
    def plus(x: T, y: T): T
@@ -204,13 +212,9 @@ in the computer language Scala using its concept of {\em traits}.
  }
 \end{lstlisting}
   \end{block}
-\end{column}
-
-
-\begin{column}{.3\linewidth}
-
+  \hfill
   \begin{block}{\large Peer vs hierarchical composition}
-\tiny %\scriptsize
+\tiny
 {\footnotesize In hierarchical composition, work is delegated to
 a member ring:}\par
 \begin{lstlisting}
@@ -236,7 +240,7 @@ a member ring:}\par
   \end{block}
   \hfill
   \begin{block}{\large Multiple inheritance ; categories}
-\tiny %\scriptsize
+\tiny
 {\footnotesize In the mixin case, we can combine several
 algorithms through multiple inheritance:}\par
 \begin{lstlisting}
@@ -269,23 +273,11 @@ automatically according to the coefficient type:}\par
 \begin{lstlisting}
  val r = Polynomial.factory(ring, pp)
 \end{lstlisting}
-{\footnotesize \code{factory()} might return an object
-(category) of type \code{GCDModular} if ring is \code{BigInteger} and so on.
-}
-  \end{block}
-  \hfill
-  \begin{block}{\large Discussion}
-\scriptsize
-Mixin composition is interesting when there is a bidirectional dependency
-between two components. For instance in our example, the GCD algorithm
-needs a Polynomial ring, and the Polynomial ring needs a GCD algorithm,
-because its signature declares a gcd method. In all other cases,
-hierarchical composition may fulfill the need. There is a question
-whether e.g. factors or squarefreePart methods must be included in the
-signature of a UniqueFactorizationDomain, in which case mixin composition
-would be prefered. This category scheme using mixins ties together
-algebraic structures with some specific algorithm implementations and so
-solves the packaging problem.
+{\footnotesize The \code{factory} method might return an object of type
+\code{GCDModular} if ring is \code{BigInteger} and so on.
+This category scheme using mixins ties together algebraic structures
+with some specific algorithm implementations and so solves the packaging
+problem.}
   \end{block}
 \end{column}
 
@@ -304,10 +296,16 @@ solves the packaging problem.
 %\end{column}
 %
 %\begin{column}{.3\linewidth}
-%  \begin{block}{\large References}
-%\footnotesize
-%\bibliographystyle{splncs}
-%\bibliography{com-cas}
+%  \begin{block}{\large Discussion}
+%\scriptsize
+%Mixin composition is interesting when there is a bidirectional dependency
+%between two components. For instance in our example, the GCD algorithm
+%needs a Polynomial ring, and the Polynomial ring needs a GCD algorithm,
+%because its signature declares a gcd method. In all other cases,
+%hierarchical composition may fulfill the need. There is a question
+%whether e.g. factors or squarefreePart methods must be included in the
+%signature of a UniqueFactorizationDomain, in which case mixin composition
+%would be prefered.
 %  \end{block}
 %\end{column}
 %
