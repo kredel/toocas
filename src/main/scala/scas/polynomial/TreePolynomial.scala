@@ -7,20 +7,20 @@ import TreePolynomial.Element
 trait TreePolynomial[T <: Element[T, C, N], C, @specialized(Int, Long) N] extends Polynomial[T, C, N] {
   override def zero = apply(SortedMap.empty[Array[N], C](pp.ordering.reverse))
   def convert(x: T) = apply((zero.value /: x.value.iterator) { (l, r) =>
-    val (a, b) = r
-    val (m, c) = (pp.converter(x.factory.variables)(a), ring.convert(b))
+    val (s, a) = r
+    val (m, c) = (pp.converter(x.factory.variables)(s), ring.convert(a))
     if (c.isZero) l else l.updated(m, c)
   })
   override def isZero(x: T) = x.value.isEmpty
   def plus(x: T, y: T) = apply((x.value /: y.value.iterator) { (l, r) =>
-    val (a, b) = r
-    val c = l.getOrElse(a, ring.zero) + b
-    if (c.isZero) l - a else l.updated(a, c)
+    val (s, a) = r
+    val c = l.getOrElse(s, ring.zero) + a
+    if (c.isZero) l - s else l.updated(s, c)
   })
   def minus(x: T, y: T) = apply((x.value /: y.value.iterator) { (l, r) =>
-    val (a, b) = r
-    val c = l.getOrElse(a, ring.zero) - b
-    if (c.isZero) l - a else l.updated(a, c)
+    val (s, a) = r
+    val c = l.getOrElse(s, ring.zero) - a
+    if (c.isZero) l - s else l.updated(s, c)
   })
   def apply(value: C) = apply(if(value.isZero) zero.value else zero.value + (pp.one -> value))
   def fromPowerProduct(value: Array[N]) = apply(zero.value + (value -> ring.one))
@@ -36,9 +36,9 @@ trait TreePolynomial[T <: Element[T, C, N], C, @specialized(Int, Long) N] extend
 
   def last(x: T) = x.value.last
 
-  def map(w: T, f: (Array[N], C) => (Array[N], C)) = apply((zero.value /: iterator(w)) { (l, r) =>
-    val (a, b) = r
-    val (m, c) = f(a, b)
+  def map(x: T, f: (Array[N], C) => (Array[N], C)) = apply((zero.value /: iterator(x)) { (l, r) =>
+    val (s, a) = r
+    val (m, c) = f(s, a)
     if (c.isZero) l else l.updated(m, c)
   })
 }

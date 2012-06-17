@@ -17,12 +17,12 @@ trait MultivariatePolynomial[T[C, N] <: Element[T[C, N], C, N], C, @specialized(
   }
   def gcd1(x: T[C, N], y: T[C, N]): T[C, N]
   def convertTo(s: MultivariatePolynomial[T, T[C, N], N], w: T[C, N]): T[T[C, N], N] = (s.zero /: iterator(w)) { (l, r) =>
-    val (a, b) = r
-    val x = pp.projection(a, location)
-    l + s.multiply(s.pow(s.generators(0), pp.degree(x)), s.ring.convert(multiply(one, a / x, b)))
+    val (m, c) = r
+    val x = pp.projection(m, location)
+    l + s.multiply(s.pow(s.generators(0), pp.degree(x)), s.ring.convert(multiply(one, m / x, c)))
   }
   def convertFrom(s: MultivariatePolynomial[T, T[C, N], N], w: T[T[C, N], N]): T[C, N] = (zero /: s.iterator(w)) { (l, r) =>
-    val (a, b) = r
-    l + convert(b) * pow(generators(location), s.pp.degree(a))
+    val (m, c) = r
+    l + convert(c) * pow(generators(location), s.pp.degree(m))
   }
 }

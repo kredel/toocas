@@ -531,46 +531,55 @@ in the more general context of reusable software components
 \cite{Odersky:2005}. Further, the concept exists in the
 Ruby (and JRuby) \cite{Matsumo:1995} scripting language and it will
 eventually be available in Java 8 as interface methods with default
-implementations.
+implementations. In the sequel we give some examples in Scala, with
+these needed preliminary definitions:
 
+\begin{verbatim}
+  import scas.structure.Ring // declares method plus etc.
+  import Polynomial.Element
+  trait Polynomial[C: Ring] extends Ring[Element[C]] {
+    def plus(x: Element[C], y: Element[C]) = ...
+    ...
+  }
+  object Polynomial {
+    trait Element[C] extends Ring.Element[Element[C]]
+  }
+\end{verbatim}
+
+Note that \code{Polynomial} denotes the polynomial ring and
+\code{Element} denotes an element of the polynomial ring, which
+is different to section \ref{sec:ring}.
 
 \subsection{Peer (mixin) vs hierarchical composition} % -------------
 
-We first examine possible ways to use composition for algebraic algorithm
-libraries. Suppose we have a polynomial ring with a GCD operation. As
-we may have several implementations of such operation (different
+We first examine possible ways to use composition for algebraic
+libraries. Suppose we have a polynomial ring and a GCD algorithm. As
+we may have several implementations of such algorithm (different
 polynomial remainder sequences, modular : Chinese remainder or
-Hensel), we have to declare it abstract and to later provide the
-concrete implementation. This can be done in two ways. The first way
-is through hierarchical composition, where a GCD engine is provided as
-an abstract value member of the ring as in the following Scala
-example. Note that \code{Polynomial} denotes the polynomial ring and
-\code{Element} denotes an element of the polynomial ring, which is
-different to section \ref{sec:ring}.
-Here the first use of \code{Poly\-nomial} is as an interface / trait
-and the last use of \code{Poly\-nomial} denotes an anonymous class
-which inherits from said interface.
-%
-%trait GCDEngine[C: Ring] {
-%  def gcd(x: Element[C], y: Element[C]): Element[C]
-%}
+Hensel), we have to declare an abstract method and to provide the
+concrete implementation later. This can be done in two ways.
+The first way is through hierarchical composition, where a ring is
+provided as an abstract value member of the GCD engine as in the
+following example:
+%Here the first use of \code{Poly\-nomial} is as an interface / trait
+%and the last use of \code{Poly\-nomial} denotes an anonymous class
+%which inherits from said interface.
+
 \begin{verbatim}
-  trait Polynomial[C: Ring] {
-    val engine: GCDEngine[C]
-    def gcd(x: Element[C], y: Element[C]) = engine.gcd(x, y)
+  trait GCDEngine[C: Ring] {
+    val ring: Polynomial[C]
+    def gcd(x: Element[C], y: Element[C]): Element[C]
   }
   trait GCDSimple[C: Ring] extends GCDEngine[C] {
-    def gcd(x: Element[C], y: Element[C]) = ...
+    def gcd(x: Element[C], y: Element[C]) = // use ring.plus etc.
   }
-  val r = new Polynomial[BigInteger] {
-    val engine = new GCDSimple[BigInteger]
+  val e = new GCDSimple[BigInteger] {
+    val ring = new Polynomial[BigInteger]
   }
 \end{verbatim}
-%
-The other way is through mixin composition, where the last
-ring class (also called \code{Polynomial}) inherits both from the
-polynomial ring and the GCD engine (which is itself defined as a
-sub-trait of the polynomial ring in the considered model):
+
+The other way is through mixin composition, where the ring is
+incorporated in the GCD engine through inheritance:
 % RJ: not just for the example, as it turns out to be mandatory in
 % the considered model, but the explanation is not yet clear to me.
 % Element is not the reason, as it is a static inner class of the
@@ -585,15 +594,14 @@ sub-trait of the polynomial ring in the considered model):
 % instead. Algorithm libraries are anyway not independant of
 % factories since e.g. for GCD computation one needs a remainder
 % operation, which is defined in the polynomial ring.
+
 \begin{verbatim}
-  trait Polynomial[C: Ring] {
-    def gcd(x: Element[C], y: Element[C]): Element[C]
-  }
   trait GCDSimple[C: Ring] extends Polynomial[C] {
-    def gcd(x: Element[C], y: Element[C]) = ...
+    def gcd(x: Element[C], y: Element[C]) = // use this.plus etc.
   }
-  val r = new Polynomial[BigInteger] with GCDSimple[BigInteger]
+  val r = new GCDSimple[BigInteger]
 \end{verbatim}
+
 % HK: can we say something about pros and cons of the approaches?
 % RJ: peer (mixin) composition is better in our case because
 % there is a reciprocal dependency between the ring and the algorithm
@@ -605,9 +613,9 @@ sub-trait of the polynomial ring in the considered model):
 Mixin composition provides a convenient way to organize different
 algorithm implementations. In addition to GCD algorithms, we can
 imagine algorithms for squarefree decomposition, factorization,
-Gr\"obner basis computation. Then we can select precisely the ones
-suitable for the required polynomial ring implementations:
-%
+Gr\"obner basis computation. Then we can select precisely the
+ones suitable for the required polynomial ring implementations:
+
 \begin{verbatim}
   trait GCDEngineX[C: Ring] extends Polynomial[C] {
     def gcd(x: Element[C], y: Element[C]) = ...
@@ -620,33 +628,33 @@ suitable for the required polynomial ring implementations:
     def factorList(x: Element[C]): List[Element[C]] = ...
     def factors(x: Element[C]): Map[Element[C], Long] = ...
   }
-  val r = new Polynomial[BigRational]
-          with GcdEngineX[BigRational] 
+  val r = new GcdEngineX[BigRational] 
           with SquarefreeEngineY[BigRational]
           with FactorEngineZ[BigRational]
 \end{verbatim}
-%
-Here \code{r} then represents a polynomial category as a single object
-which is instantiated using the denoted algorithm implementations,
-namely gcd algorithm \code{Gcd\-Engine\-X}, squarefree decomposition
-algorithm \code{Square\-free\-Engine\-Y} and factorization algorithm
-\code{Factor\-Engine\-Z}. In this way a category ties together a
-polynomial ring with some specific algorithm implementations and so
-solves the packaging problem from section \ref{sec:algo}.
-The proposed category scheme becomes similar to a mathematical
-category as a concept to tie sets and morphisms together.
 
-In the sample code above, the coefficient ring \code{C} is kept abstract until
-the definition of the final ring \code{r}. But it is not necessarily so. For
-instance, some versions of Euclid's algorithm only work for \code{Big\-Integer}
-%or \code{ModInteger} 
-coefficients, namely \code{GCD\-Modular} or \code{GCD\-Hensel}:
-%
+Here \code{r} then represents a polynomial category as a single
+object which is instantiated using the denoted algorithm
+implementations, namely gcd algorithm \code{Gcd\-Engine\-X},
+squarefree decomposition algorithm \code{Square\-free\-Engine\-Y}
+and factorization algorithm \code{Factor\-Engine\-Z}. In this way
+a category ties together a polynomial ring with some specific
+algorithm implementations and so solves the packaging problem
+from section \ref{sec:algo}. The proposed category scheme becomes
+similar to a mathematical category as a concept to tie sets and
+morphisms together.
+
+In the sample code above, the coefficient ring \code{C} is kept
+abstract until the definition of the final ring \code{r}. But it
+is not necessarily so. For instance, some versions of Euclid's
+algorithm only work for \code{Big\-Integer} coefficients, namely
+\code{GCD\-Modular} or \code{GCD\-Hensel}:
+
 \begin{verbatim}
   trait GCDModular extends Polynomial[BigInteger] {
     def gcd(x: Element[BigInteger], y: Element[BigInteger]) = ...
   }
-  val r = new Polynomial[BigInteger] with GCDModular
+  val r = new GCDModular
 \end{verbatim}
 
 The desired packaging of algebraic structures and algorithms can be
@@ -654,13 +662,12 @@ pre-setup as defaults and deployed by the system configurator for the
 most useful cases. Moreover there can also be factories which choose
 suitable implementations automatically for the user in function of
 the coefficient ring:
-% RJ: in function is what I meant !
-%
+
 \begin{verbatim}
-  val r = Polynomial(ring, pp)
+  val r = Polynomial.factory(ring, pp)
 \end{verbatim}
-%
-The function \code{Poly\-nomial} might return an object (category) of
+
+The \code{factory} method might return an object (category) of
 type \code{GCD\-Modular} if \code{ring} is \code{Big\-Integer} and
 so on.
 

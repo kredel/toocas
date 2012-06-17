@@ -103,11 +103,9 @@ structure algorithms and `external' library algorithms.
 \begin{lstlisting} 
  import scas._
  import Implicits.QQ
- implicit val r = Polynomial.factory(QQ, "w")
- // r: Polynomial[(BigInteger, BigInteger)]
+ implicit val r: Polynomial[Rational] = Polynomial.factory(QQ, "w")
  val Array(w) = r.generators
- val a = pow(w, 2) - 2 
- // a: Polynomial.Element[(BigInteger, BigInteger)]
+ val a: Polynomial.Element[Rational] = pow(w, 2) - 2 
 \end{lstlisting} 
 %
 % val a = w**2 - 2 is this possible ?
@@ -200,15 +198,14 @@ given in the computer language Scala using its concept of
   \begin{block}{\large Preliminary settings}
 \tiny
 \begin{lstlisting}
- trait Ring[T] {
-   def plus(x: T, y: T): T
- }
+ import scas.structure.Ring // declares method plus etc.
  import Polynomial.Element
  trait Polynomial[C: Ring] extends Ring[Element[C]] {
    def plus(x: Element[C], y: Element[C]) = ...
+   ...
  }
  object Polynomial {
-   trait Element[C]
+   trait Element[C] extends Ring.Element[Element[C]]
  }
 \end{lstlisting}
   \end{block}
@@ -223,7 +220,7 @@ a member ring:}\par
    def gcd(x: Element[C], y: Element[C]): Element[C]
  }
  trait GCDSimple[C: Ring] extends GCDEngine[C] {
-   def gcd(x: Element[C], y: Element[C])= // use ring.plus etc.
+   def gcd(x: Element[C], y: Element[C]) = // use ring.plus etc.
  }
  val e = new GCDSimple[BigInteger] {
    val ring = new Polynomial[BigInteger]
@@ -233,13 +230,13 @@ a member ring:}\par
 (peer composition):}\par
 \begin{lstlisting}
  trait GCDSimple[C: Ring] extends Polynomial[C] {
-   def gcd(x: Element[C], y: Element[C])= // use this.plus etc.
+   def gcd(x: Element[C], y: Element[C]) = // use this.plus etc.
  }
  val r = new GCDSimple[BigInteger]
 \end{lstlisting}
   \end{block}
   \hfill
-  \begin{block}{\large Multiple inheritance ; categories}
+  \begin{block}{\large Mixin composition and categories}
 \tiny
 {\footnotesize In the mixin case, we can combine several
 algorithms through multiple inheritance:}\par

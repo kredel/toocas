@@ -120,22 +120,56 @@ trait Polynomial[T <: Element[T, C, N], C, @specialized(Int, Long) N] extends Ri
     scala.math.max(l, pp.degree(a))
   }
 
-  def reduce(x: T, y: T): T = {
-    if (x.isZero) zero
-    else {
-      val (s, a) = head(x)
-      val (t, b) = head(y)
-      if (!(t | s)) x else {
-        reduce(multiply(x, b) - multiply(y, s / t, a), y)
+  def reduce(x: T, y: T): T = reduce(x, List(y))
+
+  def reduce(x: T, list: List[T]): T = {
+    val it = iterator(x)
+    if (it.hasNext) {
+      val (s, a) = it.next
+      list match {
+        case y::tail => {
+          val (t, b) = head(y)
+          if (!(t | s)) reduce(x, tail) else {
+            reduce(subtract(x, s / t, a, y, b), list)
+          }
+        }
+        case _ => x
       }
-    }
+    } else x
   }
 
-  def multiply(w: T, x: Array[N], y: C) = map(w, (a, b) => (a * x, b * y))
+  def reduce(x: T, list: List[T], tail: Boolean): T = {
+    if (tail && !x.isZero) reduce(x, headPowerProduct(x), list) else reduce(x, list)
+  }
 
-  def multiply(w: T, y: C) = map(w, (a, b) => (a, b * y))
+  def reduce(x: T, m: Array[N], list: List[T]): T = {
+    val it = iterator(x, m)
+    if (it.hasNext) {
+      val (s, a) = it.next
+      list match {
+        case y::tail => {
+          val (t, b) = head(y)
+          if (!(t | s)) reduce(x, m, tail) else {
+            reduce(subtract(x, s / t, a, y, b), m, list)
+          }
+        }
+        case _ => {
+          if (it.hasNext) {
+            val (s, a) = it.next
+            reduce(x, s, list)
+          } else x
+        }
+      }
+    } else x
+  }
 
-  def map(w: T, f: (Array[N], C) => (Array[N], C)): T
+  def subtract(x: T, m: Array[N], a: C, y: T, b: C) = multiply(x, b) - multiply(y, m, a)
+
+  def multiply(x: T, m: Array[N], c: C) = map(x, (s, a) => (s * m, a * c))
+
+  def multiply(x: T, c: C) = map(x, (s, a) => (s, a * c))
+
+  def map(x: T, f: (Array[N], C) => (Array[N], C)): T
 }
 
 object Polynomial {

@@ -5,12 +5,13 @@ import scas.structure.Field
 import Residue.Element
 
 trait Residue[R <: PolynomialOverUFD.Element[R, C, N], C, @specialized(Int, Long) N] extends scas.structure.Residue[Element[R, C, N], R] {
-  val ring: PolynomialOverField[R, C, N]
-  var list = List[R]()
+  val ring: PolynomialOverUFD[R, C, N]
+  var list = List.empty[R]
   def generators = ring.generators.map(apply)
   def apply(value: C): Element[R, C, N] = apply(ring(value))
   def apply(value: R) = new Element[R, C, N](value)(this)
-  def lift(x: Element[R, C, N]) = x.value
+  def reduce(value: R) = apply(ring.remainder(value, list))
+  def unapply(x: Element[R, C, N]) = Some(x.value)
   def characteristic = ring.characteristic
   override def toString = ring.ring.toString + "(" + list.mkString(", ") + ")"
   def toMathML = <msub>{ring.ring.toMathML}<mrow>{list.map(_.toMathML)}</mrow></msub>
