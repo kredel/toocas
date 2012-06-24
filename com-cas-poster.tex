@@ -59,19 +59,20 @@
   \item software, algorithm implementations can be packaged and
     re-combined using traits in a category-like fashion
   \end{enumerate}
-{\scriptsize Acknowledgments}\par
-{\tiny Thomas Becker, Wolfgang K. Seiler, Thomas Sturm, Axel Kramer, 
-Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy\par}
+\tiny
+{\scriptsize \textbf{Acknowledgments:}}
+Thomas Becker, Wolfgang K. Seiler, Thomas Sturm, Axel Kramer, 
+Jaime Gutierrez, Sherm Ostrowsky, Markus Aleksy
   \end{block}
   \hfill
   \begin{block}{\large Introduction}
 \scriptsize
 The modeling of algebraic structures in a strongly typed, generic,
 object oriented computer algebra software has been presented with the
-systems JAS [Kredel:2008] and ScAS [Jolly:2010].
+systems JAS \cite{Kredel:2000,Kredel:2008} and ScAS \cite{Jolly:2010}.
 The design and implementation of these strongly typed, generic and
 object oriented polynomial algorithm libraries in Java and Scala is
-presented in [JollyKredel:2010, JollyKredel:2011].
+presented in \cite{JollyKredel:2010}. %,JollyKredel:2011}.
 The libraries are enhanced for interactive usage with the help of the Jython and
 JRuby scripting languages. The libraries now
 provide several algorithm versions for greatest common divisor,
@@ -127,23 +128,23 @@ structure algorithms and `external' library algorithms.
   \scriptsize 
   \begin{itemize}
   \item focus on multivariate polynomials over UFDs
-  \item greatest common divisor: \\
+  \item \textbf{greatest common divisor:} 
         interface \code{Greatest\-Common\-Divisor} with \code{gcd()}, \code{content()}, 
         implementations for various polynomial remainder sequence (PRS) algorithms: 
         simple, monic, primitive and the sub-resultant algorithm 
-        generic for any (UFD) coefficient ring \\
+        generic for any (UFD) coefficient ring,
         other implementations use Chinese remainder algorithms or Hensel lifting
-  \item squarefree decomposition: \\
+  \item \textbf{squarefree decomposition:} 
         interface \code{Square\-free}, 
         generic implementations for finite or infinite coefficient fields 
         or rings of characteristic $0$ or $p$
-  \item factorization: \\
+  \item \textbf{factorization:} 
         interface \code{Factorization}, 
         implementation depends on the explicit coefficient ring 
         but is generic in the sense that it can factor
         over arbitrary stacked coefficient field extensions, like mixed
         transcendental and algebraic extensions
-  \item factories select appropriate algorithms for given coefficients
+  \item \textbf{factories} select appropriate algorithms for given coefficients
         %\code{GCD\-Factory}, \code{Squarefree\-Factory} and two \code{Factor\-Factory} classes. 
         %with methods \code{get\-Implemen\-tation(cofac)}
   \end{itemize}
@@ -171,8 +172,8 @@ some structuring principle be welcome.
   \end{enumerate}
   \end{block}
   \hfill
-  \begin{block}{\large Mixins for category-like software organization}
-{\scriptsize
+  \begin{block}{\large Mixins for category-like code organization}
+\scriptsize
 Reusable components \cite{Odersky:2005} consist in splitting software in
 as many pieces as needed or possible, and to re-assemble these according
 to the principle of composition. Hierarchical composition and peer
@@ -182,13 +183,75 @@ computation. We consider components for each algorithm flavor and combine
 them using either hierarchical or mixin composition. The code samples are
 given in the computer language Scala using its concept of
 {\em traits}.
-\par}\par
   \end{block}
 \hfill
   \begin{block}{\large References}
-\scriptsize
-\bibliographystyle{splncs}
-\bibliography{com-cas}
+  \tiny %\scriptsize
+  \bibliographystyle{abbrv}%{splncs}
+  %\bibliography{com-cas-poster}
+  %\def\newblock{}
+\begin{thebibliography}{1}
+
+\bibitem{BosmaCannonPlayoust:1997}
+\def\newblock{}
+W.~Bosma, J.~J. Cannon, and C.~Playoust.
+\newblock The {Magma} algebra system {I}: The user language.
+\newblock {\em J. Symb. Comput.}, 24(3/4):235--265, 1997.
+
+\bibitem{JenksSutor:1992}
+\def\newblock{}
+R.~Jenks and R.~Sutor, editors.
+\newblock {\em {axiom} The Scientific Computation System}.
+\newblock Springer, 1992.
+
+\bibitem{Jolly:2010}
+\def\newblock{}
+R.~Jolly.
+\newblock {ScAS} - {Scala} algebra system.
+\newblock Technical report, \\ https://github.com/rjolly/scas, accessed Jan
+  2012, since 2010.
+
+\bibitem{JollyKredel:2010}
+\def\newblock{}
+R.~Jolly and H.~Kredel.
+\newblock Generic, type-safe and object oriented computer algebra software.
+\newblock In {\em Proc. CASC 2010}, pages 162--177. Springer, LNCS 6244, 2010.
+
+\bibitem{Kredel:2000}
+\def\newblock{}
+H.~Kredel.
+\newblock The {Java} algebra system ({JAS}).
+\newblock Technical report, http://krum.\-rz.uni-mann\-he\-im.de/jas/, accessed Jan
+  2012, since 2000.
+
+\bibitem{Kredel:2008}
+\def\newblock{}
+H.~Kredel.
+\newblock On a {Java} {Computer} {Algebra} {System}, its performance and
+  applications.
+\newblock {\em Science of Computer Programming}, 70(2-3):185--207, 2008.
+
+\bibitem{Odersky:2005}
+\def\newblock{}
+M.~Odersky and M.~Zenger.
+\newblock Scalable component abstractions.
+\newblock In {\em Proc. OOPSLA '05}, pages 41--57. ACM, 2005.
+
+\bibitem{Stein:2005}
+\def\newblock{}
+W.~Stein.
+\newblock {\em {SAGE} {M}athematics {S}oftware}.
+\newblock The SAGE~Group, since 2005.
+\newblock http://www.sagemath.org, accessed Oct 2011.
+
+\bibitem{Watt:2003}
+\def\newblock{}
+S.~Watt.
+\newblock Aldor.
+\newblock In {\em Computer Algebra Handbook, Springer}, pages 265--270, 2003.
+
+\end{thebibliography}
+
   \end{block}
 \end{column}
 
@@ -213,7 +276,7 @@ given in the computer language Scala using its concept of
   \begin{block}{\large Peer vs hierarchical composition}
 \tiny
 {\footnotesize In hierarchical composition, work is delegated to
-a member ring:}\par
+a member ring:}
 \begin{lstlisting}
  trait GCDEngine[C: Ring] {
    val ring: Polynomial[C]
@@ -227,7 +290,7 @@ a member ring:}\par
  }
 \end{lstlisting}
 {\footnotesize The same effect can be obtained through inheritance
-(peer composition):}\par
+(peer composition):}
 \begin{lstlisting}
  trait GCDSimple[C: Ring] extends Polynomial[C] {
    def gcd(x: Element[C], y: Element[C]) = // use this.plus etc.
@@ -239,7 +302,7 @@ a member ring:}\par
   \begin{block}{\large Mixin composition and categories}
 \tiny
 {\footnotesize In the mixin case, we can combine several
-algorithms through multiple inheritance:}\par
+algorithms through multiple inheritance:}
 \begin{lstlisting}
  trait GCDEngineX[C: Ring] extends Polynomial[C] {
    def gcd(x: Element[C], y: Element[C]) = ...
@@ -258,7 +321,7 @@ algorithms through multiple inheritance:}\par
 \end{lstlisting}
 {\footnotesize Then \code{r} represents a polynomial category.
 Some algorithms may need further specialization of the coefficient
-type:}\par
+type:}
 \begin{lstlisting}
  trait GCDModular extends Polynomial[BigInteger] {
    def gcd(x: Element[BigInteger], y: Element[BigInteger]) = ...
@@ -266,7 +329,7 @@ type:}\par
  val r = new GCDModular
 \end{lstlisting}
 {\footnotesize The desired packaging can be pre-setup or chosen
-automatically according to the coefficient type:}\par
+automatically according to the coefficient type:}
 \begin{lstlisting}
  val r = Polynomial.factory(ring, pp)
 \end{lstlisting}
