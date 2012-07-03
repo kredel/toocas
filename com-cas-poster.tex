@@ -74,9 +74,9 @@ object oriented computer algebra software has been presented with the
 systems JAS \cite{Kredel:2000,Kredel:2008} and ScAS \cite{Jolly:2010}.
 The design and implementation of these strongly typed, generic and
 object oriented polynomial algorithm libraries in Java and Scala is
-presented in \cite{JollyKredel:2010}. %,JollyKredel:2011}.
-The libraries are enhanced for interactive usage with the help of the Jython and
-JRuby scripting languages. The libraries now
+presented in \cite{JollyKredel:2010}.
+The libraries are enhanced for interactive usage with the help of
+the Jython and JRuby scripting languages. The libraries now
 provide several algorithm versions for greatest common divisor,
 squarefree decomposition, factorization and Gr\"obner bases
 computation in separate packages.
@@ -88,10 +88,14 @@ methods implementing the `inner' algorithms of the structure in the
 programming language. The algorithm libraries, for example the
 construction of Gr\"obner bases, are kept in separate source code trees
 and packages. This code organization helps in the separation of the
-various possibilities for algorithm implementation and helps in the
+various possibilities for algorithm implementation and in the
 transparent selection of appropriate algorithms for a given problem.
 However, it is not always clear where to draw the line between `inner'
-structure algorithms and `external' library algorithms.
+structure algorithms and `external' library algorithms, and it is
+sometimes possible to implement calculation engines as part of the
+algebraic structures themselves. This technique is paralleled
+with the concept of categories as found in competing computer
+algebra software.
   \end{block}
   \hfill
   \begin{block}{\large Generic, strongly typed, object oriented computer algebra software}
@@ -156,9 +160,12 @@ structure algorithms and `external' library algorithms.
   \scriptsize
 The algebraic structures and elements together with the algorithm
 libraries provide a way to define precisely suitable combinations
-for given situations. Depending on algorithm variations however,
-the number of such combinations can become quickly huge and makes
-some structuring principle be welcome.
+for given situations. Depending on the considered algortihms however,
+it can be desirable to implement calculation engines as part of the
+algebraic structures themselves.
+%Depending on algorithm variations however,
+%the number of such combinations can become quickly huge and makes
+%some structuring principle be welcome.
 %It is, however, elaborate and one would like to combine or
 %package together certain configurations to be able to
 %deploy and use them as a single object or thing.
